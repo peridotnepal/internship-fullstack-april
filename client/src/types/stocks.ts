@@ -7,9 +7,17 @@ export interface Stock {
     priceChange: number
     percentChange: number
     previousPrice: number
+    fiftyTwoWeekHigh: number
+    fiftyTwoWeekLow: number
+    high: number
+  lowPrice:number
+  highPrice: number
+  percentageChange:number
+  previousClose:number
+
     weekHigh: number
     weekLow: number
-    high: number
+
     low: number
     open: number
     volume: number

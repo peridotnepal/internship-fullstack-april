@@ -82,6 +82,7 @@ export async function fetchSectorData(
     }
 
     const result = await response.json()
+    console.log(result)
     const totalPages= Math.ceil(result?.data?.count / 10) || 1
 
     // Ensure data is properly formatted

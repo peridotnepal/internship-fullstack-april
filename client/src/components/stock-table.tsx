@@ -177,25 +177,25 @@ export default function StockTable({ stocks, isLoading, error, sortConfig, onReq
                     {formatCurrency(Math.abs(stock.priceChange || 0))}
                   </div>
                 </TableCell>
-                <TableCell className={(stock.percentChange || 0) >= 0 ? "text-green-500" : "text-red-500"}>
+                <TableCell className={(stock.percentageChange || 0) >= 0 ? "text-green-500" : "text-red-500"}>
                   <div className="flex items-center">
                     {(stock.percentChange || 0) >= 0 ? (
                       <ArrowUp className="h-3 w-3 mr-1" />
                     ) : (
                       <ArrowDown className="h-3 w-3 mr-1" />
                     )}
-                    {formatPercentage(Math.abs(stock.percentChange || 0))}
+                    {formatPercentage(Math.abs(stock.percentageChange || 0))}
                   </div>
                 </TableCell>
                 <TableCell>{formatCurrency(stock.previousPrice || 0)}</TableCell>
-                <TableCell>{formatCurrency(stock.weekHigh || 0)}</TableCell>
-                <TableCell>{formatCurrency(stock.weekLow || 0)}</TableCell>
+                <TableCell>{formatCurrency(stock.fiftyTwoWeekHigh || 0)}</TableCell>
+                <TableCell>{formatCurrency(stock.fiftyTwoWeekLow || 0)}</TableCell>
                 <TableCell>{formatNumber(stock.volume || 0)}</TableCell>
                 <TableCell>{formatNumber(stock.turnover || 0)}</TableCell>
                 <TableCell>
                   <MiniChart
                     data={stock.chartData?.length ? stock.chartData : [0, 0, 0, 0, 0]}
-                    isPositive={(stock.percentChange || 0) >= 0}
+                    isPositive={(stock.percentageChange || 0) >= 0}
                   />
                 </TableCell>
               </TableRow>
