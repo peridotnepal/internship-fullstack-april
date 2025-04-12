@@ -95,12 +95,12 @@ export const RefreshSpin = ({ children }: { children: ReactNode }) => (
 
 // Page transition for pagination
 export const PageTransition = ({ children, direction = 0 }: { children: ReactNode; direction?: number }) => (
-  <motion.tr
+  <motion.div
     initial={{ opacity: 0, x: direction * 20 }}
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: direction * -20 }}
     transition={{ duration: 0.3 }}
   >
     {children}
-  </motion.tr>
+  </motion.div>
 )

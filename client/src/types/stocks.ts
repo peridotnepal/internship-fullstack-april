@@ -1,33 +1,35 @@
 export interface Stock {
-    id: string
-    symbol: string
-    companyName: string
-    sector: string
-    ltp: number
-    priceChange: number
-    percentChange: number
-    previousPrice: number
-    fiftyTwoWeekHigh: number
-    fiftyTwoWeekLow: number
-    high: number
-  lowPrice:number
+  id: string
+  symbol: string
+  companyName: string
+  sector: string
+  ltp: number
+  priceChange: number
+  percentageChange: number
+  previousClose: number
+  fiftyTwoWeekHigh: number
+  fiftyTwoWeekLow: number
   highPrice: number
-  percentageChange:number
-  previousClose:number
+  lowPrice: number
+  open: number
+  totalTradeQuantity: number
+  totalTradeValue: number
+  chartData: number[]
+}
 
-    weekHigh: number
-    weekLow: number
+export interface Sector {
+  id: string
+  name: string
+  stockCount: number
+}
 
-    low: number
-    open: number
-    volume: number
-    turnover: number
-    chartData: number[]
-  }
-  
-  export interface Sector {
-    id: string
-    name: string
-    stockCount: number
-  }
-  
+export interface MarketOverview {
+  marketIndex: number
+  marketChange: number
+  marketPercentChange: number
+  totalVolume: number
+  totalTurnover: number
+  advancers: number
+  decliners: number
+  unchanged: number
+}
