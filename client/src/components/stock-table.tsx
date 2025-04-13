@@ -189,11 +189,11 @@ export default function StockTable({ stocks, isLoading, error, sortConfig, onReq
               <TableHead className="text-gray-400">{renderColumnHeader("ltp", "LTP", "Last Traded Price")}</TableHead>
               <TableHead className="text-gray-400">{renderColumnHeader("priceChange", "Price Change")}</TableHead>
               <TableHead className="text-gray-400">{renderColumnHeader("percentageChange", "% Change")}</TableHead>
-              <TableHead className="text-gray-400">{renderColumnHeader("previousPrice", "Previous Price")}</TableHead>
-              <TableHead className="text-gray-400">{renderColumnHeader("weekHigh", "52W High")}</TableHead>
-              <TableHead className="text-gray-400">{renderColumnHeader("weekLow", "52W Low")}</TableHead>
-              <TableHead className="text-gray-400">{renderColumnHeader("volume", "Volume")}</TableHead>
-              <TableHead className="text-gray-400">{renderColumnHeader("turnover", "Turnover")}</TableHead>
+              <TableHead className="text-gray-400">{renderColumnHeader("previousClose", "Previous Close")}</TableHead>
+              <TableHead className="text-gray-400">{renderColumnHeader("fiftyTwoWeekHigh", "52W High")}</TableHead>
+              <TableHead className="text-gray-400">{renderColumnHeader("fiftyTwoWeekLow", "52W Low")}</TableHead>
+              <TableHead className="text-gray-400">{renderColumnHeader("totalTradeQuantity", "Volume")}</TableHead>
+              <TableHead className="text-gray-400">{renderColumnHeader("totalTradeValue", "Turnover")}</TableHead>
               <TableHead className="text-gray-400">7D Chart</TableHead>
             </TableRow>
           </TableHeader>

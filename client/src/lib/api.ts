@@ -1,4 +1,4 @@
-import type { Stock, Sector } from "@/types/stock"
+import type { Stock, Sector } from "@/types/stocks"
 import api from "@/lib/axios"
 
 /**
@@ -12,7 +12,7 @@ export async function fetchStocks(page:number, sort = ""): Promise<{ data: Stock
     const response = await api.get(`/live_data/pagination`, {
       params: { page, sort },
     })
-    console.log("Response:", response?.data?.data?.count)
+    console.log("Response:", response?.data?.data?.liveData)
     // Ensure data is properly formatted
     const formattedData = (response?.data?.data?.liveData || []).map((stock: any) => ({
       symbol: stock.symbol || "", 
@@ -108,13 +108,17 @@ interface PostData {
   // ... other properties
 }
 interface ApiResponse {
-  data: Stock[];
+  data: {
+    liveData: Stock[];
+    // ... other properties
+  };
+  // liveData: Stock[];
   totalPages: number;
   // ... other properties
 }
 export async function fetchStocksBySectorPost(postData: PostData,page: number,sort: string): Promise<ApiResponse> {
   try {
-    const response = await api.post<ApiResponse>(`/api/live_data/sector/pagination/${page}/${sort}`, postData);
+    const response = await api.post<ApiResponse>(`/live_data/sector/pagination?page=${page}&sort=${sort}`, postData);
     if (!response || !response.data) {
       throw new Error('Failed to fetch stocks by sector');
     }
