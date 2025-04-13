@@ -1,4 +1,5 @@
 export interface SubIndex {
+  id: number;
   sindex: string;
   currentValue: number;
   perChange: number;
@@ -6,16 +7,17 @@ export interface SubIndex {
 }
 
 export interface MarketData {
-  symbol: string;
+  fiftyTwoWeekHigh: number;
+  fiftyTwoWeekLow: number;
+  highPrice: number;
   lastTradedPrice: number;
-  perChange: number;
+  lowPrice: number;
+  openPrice: number;
   percentageChange: number;
-  previousPrice: number;
-  weekHigh: number;
-  weekLow: number;
-  high: number;
-  low: number;
-  open: number;
-  volume: number;
-  turnover: number;
+  previousClose: number;
+  priceChange: number;
+  sectorName: string;
+  symbol: string;
+  totalTradeQuantity: number; // Volume
+  totalTradeValue: number;    // Turnover
 }
