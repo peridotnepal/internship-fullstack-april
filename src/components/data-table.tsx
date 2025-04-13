@@ -10,19 +10,21 @@ import {
 } from "@/components/ui/table";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "./ui/skeleton";
 
 interface DataTableProps {
   data: any[];
   tab: string;
+  isLoading: boolean;
 }
 
-export function DataTable({ data, tab }: DataTableProps) {
+export function DataTable({ data, tab, isLoading }: DataTableProps) {
   // Define columns based on the active tab
   const getColumns = () => {
     const baseColumns = [
       { key: "symbol", header: "Symbol" },
       { key: "lastTradedPrice", header: "LTP" },
-      { key: "percentageChange", header: "% Change" },
+      { key: "perChange", header: "% Change" },
       { key: "schange", header: "Change" },
     ];
 
@@ -30,19 +32,19 @@ export function DataTable({ data, tab }: DataTableProps) {
       return [
         ...baseColumns.slice(0, 2),
         { key: "totalTradeQuantity", header: "Volume" },
-        { key: "percentageChange", header: "% Change" },
+        { key: "perChange", header: "% Change" },
       ];
     } else if (tab === "transaction") {
       return [
         ...baseColumns.slice(0, 2),
         { key: "totalTrades", header: "Trades" },
-        { key: "percentageChange", header: "% Change" },
+        { key: "perChange", header: "% Change" },
       ];
     } else if (tab === "turnover") {
       return [
         ...baseColumns.slice(0, 2),
         { key: "totalTradeValue", header: "Turnover" },
-        { key: "percentageChange", header: "% Change" },
+        { key: "perChange", header: "% Change" },
       ];
     }
 
@@ -63,17 +65,17 @@ export function DataTable({ data, tab }: DataTableProps) {
         <span
           className={cn(
             "font-medium",
-            item.percentageChange > 0
+            item.perChange > 0
               ? "text-green-500"
-              : item.percentageChange < 0
+              : item.perChange < 0
               ? "text-red-500"
-              : ""
+              : "text-sky-500"
           )}
         >
           {typeof value === "number" ? value.toFixed(2) : value}
         </span>
       );
-    } else if (column.key === "percentageChange") {
+    } else if (column.key === "perChange") {
       const isPositive = value > 0;
       return (
         <div className="flex items-center">
@@ -84,7 +86,11 @@ export function DataTable({ data, tab }: DataTableProps) {
           ) : null}
           <span
             className={cn(
-              isPositive ? "text-green-500" : value < 0 ? "text-red-500" : ""
+              isPositive
+                ? "text-green-500"
+                : value < 0
+                ? "text-red-500"
+                : "text-sky-500"
             )}
           >
             {typeof value === "number"
@@ -121,43 +127,60 @@ export function DataTable({ data, tab }: DataTableProps) {
     return value;
   };
 
+  const skeletonRows = Array.from({ length: 6 }).map((_, index) => (
+    <TableRow key={`skeleton-${index}`}>
+      {columns.map((column) => (
+        <TableCell key={`skeleton-cell-${column.key}`}>
+          <Skeleton className="h-6 w-full bg-gray-500" />
+        </TableCell>
+      ))}
+    </TableRow>
+  ));
+
   return (
     <div>
       <Table>
+  
         <TableHeader>
-          <TableRow className="bg-gray-900">
-            {columns.map((column) => (
-              <TableHead key={column.key} className="font-medium text-gray-400">
-                {column.header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
+  <TableRow className="bg-gray-950 hover:bg-gray-950 border-b border-gray-800">
+    {columns.map((column) => (
+      <TableHead key={column.key} className="font-medium text-gray-400">
+        {column.header}
+      </TableHead>
+    ))}
+  </TableRow>
+</TableHeader>
+
         <TableBody>
-          {data.map((item, index) => (
-            <TableRow
-              key={item.id || index}
-              className={cn(
-                "hover:bg-gray-800 transition-colors",
-                index % 2 === 0 ? "bg-gray-900" : "bg-gray-800"
-              )}
-            >
-              {columns.map((column) => (
-                <TableCell
-                  key={`${item.id}-${column.key}`}
-                  className="text-gray-300"
+          {isLoading
+            ? skeletonRows
+            : data.map((item, index) => (
+                <TableRow
+                  key={item.id || index}
+                  className={cn(
+                    "hover:bg-gray-800 transition-colors",
+                    index % 2 === 0 ? "bg-gray-900" : "bg-gray-800"
+                  )}
                 >
-                  {formatCellValue(item, column)}
-                </TableCell>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={`${item.id}-${column.key}`}
+                      className="text-gray-300"
+                    >
+                      {formatCellValue(item, column)}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
         </TableBody>
       </Table>
 
-      {data.length === 0 && (
+      {/* Show only after loading is done and no data exists */}
+      {!isLoading && data.length === 0 && (
         <div className="py-8 text-center text-gray-400">No data available</div>
       )}
     </div>
+
+  
   );
 }
