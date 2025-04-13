@@ -21,7 +21,7 @@ export default function Home() {
     return <div>...loading</div>;
   }
 
-  console.log("data", subIndicesData);
+  // console.log("data", subIndicesData);
 
   return (
     <main className="min-h-screen bg-black bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black">
