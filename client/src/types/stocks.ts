@@ -11,10 +11,12 @@ export interface Stock {
   fiftyTwoWeekLow: number
   highPrice: number
   lowPrice: number
-  open: number
+  // open: number
   totalTradeQuantity: number
   totalTradeValue: number
-  chartData: number[]
+  // chartData: number[]
+  averageTradedPrice: number
+  // averageTradedPrice:number
 }
 
 export interface Sector {

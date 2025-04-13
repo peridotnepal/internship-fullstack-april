@@ -102,10 +102,13 @@ export default function StockMarketDashboard() {
     staleTime: STALE_TIME,
   })
 
-  // Consolidated data and state
-  const stocksData = isAllSectors 
-    ? (stocksResponse?.data ?? []) 
-    : (sectorsResponse?.data?.liveData ?? [])
+const stocksData = useMemo(() => {
+  if (isAllSectors) {
+    return stocksResponse?.data ?? [];
+  } else {
+    return sectorsResponse?.data ?? [];
+  }
+}, [isAllSectors, stocksResponse, sectorsResponse]);
     
   const totalPages = isAllSectors
     ? (stocksResponse?.totalPages ?? 1)
@@ -137,7 +140,7 @@ export default function StockMarketDashboard() {
       case "losers":
         return filteredStocks.filter(stock => stock?.percentageChange < 0)
       case "volume":
-        return [...filteredStocks].sort((a, b) => b.volume - a.volume)
+        return [...filteredStocks].sort((a, b) => b.totalTradeQuantity - a.totalTradeQuantity)
       default:
         return filteredStocks
     }
