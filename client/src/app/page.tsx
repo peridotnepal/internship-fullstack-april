@@ -18,9 +18,6 @@ export default function BrokerDashboard() {
 
   // Simulate API fetch
   const {data: brokerData, isLoading} = allBrokers()
-  console.log("brokerData",brokerData)
-
-  console.log("selectedBrokerId",selectedBrokerId)
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
