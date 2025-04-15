@@ -84,77 +84,75 @@ export default function CompanyMetricsChart() {
   };
 
   return (
-    <div className=" flex items-center justify-center p-5">
-      <Card className="max-w-2xl w-full shadow-lg bg-white dark:bg-gray-800 ">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Company Performance Comparison</CardTitle>
-              <CardDescription>
-                Comparing {selectedMetric} across companies by quarter
-              </CardDescription>
-            </div>
-            <Select
-              value={selectedMetric}
-              onValueChange={(value) => setSelectedMetric(value)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select metric" />
-              </SelectTrigger>
-              <SelectContent>
-                {metrics.map((metric) => (
-                  <SelectItem key={metric} value={metric}>
-                    {metric}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+    <Card className=" md:w-[600px] md:h-[500px] w-full h-full bg-white dark:bg-gray-800 ">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Company Performance Comparison</CardTitle>
+            <CardDescription>
+              Comparing {selectedMetric} across companies by quarter
+            </CardDescription>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="">
-            <ChartContainer config={chartConfig}>
-              <ResponsiveContainer>
-                <BarChart data={data}>
-                  <CartesianGrid />
-                  <XAxis
-                    dataKey="period"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    domain={getYAxisDomain()}
-                    tickFormatter={(value) => `${value}${unit}`}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend verticalAlign="bottom" height={36} />
-                  <Bar
-                    dataKey="Company A"
-                    fill="#fb3f76"
-                    radius={[4, 4, 0, 0]}
-                    name="Company A"
-                  />
-                  <Bar
-                    dataKey="Company B"
-                    fill="#593ffb"
-                    radius={[4, 4, 0, 0]}
-                    name="Company B"
-                  />
-                  <Bar
-                    dataKey="Sector Average"
-                    fill="#3ffb70"
-                    radius={[4, 4, 0, 0]}
-                    name="Sector Average"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          <Select
+            value={selectedMetric}
+            onValueChange={(value) => setSelectedMetric(value)}
+          >
+            <SelectTrigger className="w-auto">
+              <SelectValue placeholder="Select metric" />
+            </SelectTrigger>
+            <SelectContent>
+              {metrics.map((metric) => (
+                <SelectItem key={metric} value={metric}>
+                  {metric}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="">
+          <ChartContainer config={chartConfig}>
+            <ResponsiveContainer>
+              <BarChart data={data}>
+                <CartesianGrid />
+                <XAxis
+                  dataKey="period"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  domain={getYAxisDomain()}
+                  tickFormatter={(value) => `${value}${unit}`}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Legend verticalAlign="bottom" height={36} />
+                <Bar
+                  dataKey="Company A"
+                  fill="#fb3f76"
+                  radius={[4, 4, 0, 0]}
+                  name="Company A"
+                />
+                <Bar
+                  dataKey="Company B"
+                  fill="#593ffb"
+                  radius={[4, 4, 0, 0]}
+                  name="Company B"
+                />
+                <Bar
+                  dataKey="Sector Average"
+                  fill="#3ffb70"
+                  radius={[4, 4, 0, 0]}
+                  name="Sector Average"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
