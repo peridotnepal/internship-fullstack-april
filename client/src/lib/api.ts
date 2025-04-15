@@ -1,155 +1,97 @@
-import type { Stock } from "@/types/stocks"
-import api from "@/lib/axios"
+import axiosInstance from "./axios"
 
-// Type definitions for better type safety
-export interface ApiResponse<T> {
-  data: T;
-  totalPages: number;
-}
-
-export interface StockData {
-  liveData: RawStock[];
-  count: number;
-}
-
-// Define the raw stock type from the API
-export interface RawStock {
-  symbol?: string;
-  securityName?: string;
-  sector?: string;
-  lastTradedPrice?: number;
-  priceChange?: number;
-  percentageChange?: number;
-  previousClose?: number;
-  fiftyTwoWeekHigh?: number;
-  fiftyTwoWeekLow?: number;
-  totalTradeQuantity?: number;
-  totalTradeValue?: number;
-  averageTradedPrice?: number;
-}
-
-// Define the request payload for sector filtering
-export interface SectorPostData {
-  sectors: string[];
-}
-
-// Configuration
-const DEFAULT_PAGE_SIZE = 10;
-
-/**
- * Converts raw stock data from API to our Stock type
- * 
- * @param rawStock - Raw stock data from API
- * @returns Formatted Stock object
- */
-const formatStock = (rawStock: RawStock): Stock => ({
-  id: rawStock.symbol || "",
-  symbol: rawStock.symbol || "",
-  companyName: rawStock.securityName || "",
-  sector: rawStock.sector || "",
-  ltp: typeof rawStock.lastTradedPrice === "number" ? rawStock.lastTradedPrice : 0,
-  priceChange: typeof rawStock.priceChange === "number" ? rawStock.priceChange : 0,
-  highPrice: typeof rawStock.lastTradedPrice === "number" ? rawStock.lastTradedPrice : 0,
-  lowPrice: typeof rawStock.lastTradedPrice === "number" ? rawStock.lastTradedPrice : 0,
-  percentageChange: typeof rawStock.percentageChange === "number" ? rawStock.percentageChange : 0,
-  previousClose: typeof rawStock.previousClose === "number" ? rawStock.previousClose : 0,
-  fiftyTwoWeekHigh: typeof rawStock.fiftyTwoWeekHigh === "number" ? rawStock.fiftyTwoWeekHigh : 0,
-  fiftyTwoWeekLow: typeof rawStock.fiftyTwoWeekLow === "number" ? rawStock.fiftyTwoWeekLow : 0,
-  totalTradeQuantity: typeof rawStock.totalTradeQuantity === "number" ? rawStock.totalTradeQuantity : 0,
-  totalTradeValue: typeof rawStock.totalTradeValue === "number" ? rawStock.totalTradeValue : 0,
-  averageTradedPrice: typeof rawStock.averageTradedPrice === "number" ? rawStock.averageTradedPrice : 0,
-});
-
-/**
- * Calculate total pages based on count and page size
- * 
- * @param count - Total item count 
- * @param pageSize - Items per page
- * @returns Total number of pages
- */
-const calculateTotalPages = (count: number, pageSize = DEFAULT_PAGE_SIZE): number => {
-  return Math.max(1, Math.ceil(count / pageSize));
-};
-
-/**
- * Fetch stocks data from the API with pagination and sorting
- *
- * @param page - Page number for pagination
- * @param sort - Sort parameter (can be empty)
- * @returns Promise with formatted stock data and pagination info
- */
-export async function fetchStocks(
-  page: number, 
-  sort = ""
-): Promise<ApiResponse<Stock[]>> {
-  try {
-    const response = await api.get<{ data: StockData }>("/live_data/pagination", {
-      params: { page, sort },
-    });
-
-    const rawData = response?.data?.data?.liveData || [];
-    console.log(rawData)
-    const count = response?.data?.data?.count || 0;
-    
-    return {
-      data: rawData.map(formatStock),
-      totalPages: calculateTotalPages(count)
-    };
-  } catch (error) {
-    console.error("Error fetching stocks:", error);
-    return { data: [], totalPages: 0 };
-  }
-}
-
-/**
- * Fetch stocks filtered by sector
- *
- * @param postData - Sector filter data
- * @param page - Page number for pagination
- * @param sort - Sort parameter
- * @returns Promise with stocks filtered by sector
- */
-export async function fetchStocksBySectorPost(
-  postData: SectorPostData,
-  page: number,
-  sort: string
-): Promise<ApiResponse<Stock[]>> {
-  try {
-    const url = `/live_data/sector/pagination?page=${page}&sort=${sort}`;
-    const response = await api.post(url, postData);
-    
-    if (!response?.data?.data) {
-      throw new Error('Invalid response format from sector API');
+export interface NewsItem {
+  id: number
+  attributes: {
+    title: string
+    short_description: string
+    description: string
+    date: string
+    source: string | null
+    isOnCarousel: boolean
+    keyword1: string | null
+    keyword2: string | null
+    createdAt: string
+    updatedAt: string
+    publishedAt: string
+    thumbnail: {
+      data: Array<{
+        id: number
+        attributes: {
+          name: string
+          alternativeText: string | null
+          caption: string | null
+          width: number
+          height: number
+          formats: {
+            small?: {
+              url: string
+              width: number
+              height: number
+            }
+            medium?: {
+              url: string
+              width: number
+              height: number
+            }
+            thumbnail?: {
+              url: string
+              width: number
+              height: number
+            }
+          }
+          url: string
+        }
+      }>
     }
-    
-    const rawData = response?.data?.data?.liveData || [];
-    console.log(rawData)
-    const count = response?.data?.data?.count || 0;
-    
-    return {
-      data: rawData.map(formatStock),
-      totalPages: calculateTotalPages(count)
-    };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`Error fetching stocks by sector: ${errorMessage}`);
-    
-    // Re-throw for proper error handling in components
-    throw new Error(`Failed to fetch stocks by sector: ${errorMessage}`);
   }
 }
 
-/**
- * Fetch market overview data
- *
- * @returns Market overview data or null on error
- */
-export async function fetchMarketOverview() {
+export interface NewsResponse {
+  data: NewsItem[]
+  meta: {
+    pagination: {
+      page: number
+      pageSize: number
+      pageCount: number
+      total: number
+    }
+  }
+}
+
+export interface NewsDetailResponse {
+  data: NewsItem
+  meta: {}
+}
+
+export async function fetchNews(page = 1, pageSize = 7, category?: string): Promise<NewsResponse> {
   try {
-    const response = await api.get("/market/overview");
+    let url = `/newsses?pagination[page]=${page}&pagination[pageSize]=${pageSize}&populate=thumbnail&sort[0][publishedAt]=desc`;
+
+    // Add category filter if provided
+    if (category && category !== "all") {
+      url += `&filters[keyword1][$containsi]=${category}`;
+    }
+
+    console.log("Fetching news with URL:", url);
+    const response = await axiosInstance.get(url);
+    console.log("Response data:", response.data);
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    throw error;
+  }
+}
+
+export async function fetchNewsById(newsId: string): Promise<NewsDetailResponse> {
+  try {
+    const url = `/newsses/${newsId}?populate=thumbnail&sort[0][createdAt]=desc`;
+    console.log("Fetching news detail with URL:", url);
+    
+    const response = await axiosInstance.get(url);
     return response.data;
   } catch (error) {
-    console.error("Error fetching market overview:", error);
-    return null;
+    console.error("Error fetching news by ID:", error);
+    throw error;
   }
 }
