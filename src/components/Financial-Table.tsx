@@ -104,7 +104,7 @@ export default function FinancialTable() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-gray-900 text-left">
+                  <tr className="bg-zinc-800 text-left">
                     {headers.map((h) => (
                       <th key={h} className="p-3 border-b border-gray-800 text-gray-400 font-medium">
                         {h}
@@ -114,7 +114,7 @@ export default function FinancialTable() {
                 </thead>
                 <tbody>
                   {filteredData.map((stock, id) => (
-                    <tr key={stock.Symbol + id} className="hover:bg-gray-900 transition-colors">
+                    <tr key={stock.Symbol + id} className="hover:bg-zinc-900 transition-colors">
                       <td className="p-3 border-b border-gray-800">{id + 1}</td>
                       <td className="p-3 border-b border-gray-800 font-medium">{stock.Symbol}</td>
                       <td className="p-3 border-b border-gray-800">{stock.Company}</td>
