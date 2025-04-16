@@ -11,9 +11,6 @@ import { useState, useEffect } from "react"
 
 export default function BrokerDashboard() {
   const [activeTab, setActiveTab] = useState("Information")
-  // const [brokerData, setBrokerData] = useState(null)
-  const [buyData, setBuyData] = useState([])
-  const [sellData, setSellData] = useState([])
   const [selectedBrokerId, setSelectedBrokerId] = useState(1)
 
   // Simulate API fetch
@@ -39,8 +36,6 @@ export default function BrokerDashboard() {
         {activeTab === "Information" && brokerData && (
           <InformationTab
             brokerData={brokerData}
-            buyData={buyData}
-            sellData={sellData}
             selectedBrokerId={selectedBrokerId}
             onBrokerChange={handleBrokerChange}
           />
