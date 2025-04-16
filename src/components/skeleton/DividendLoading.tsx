@@ -10,9 +10,9 @@ const DividendLoading = ({headers}:DividendLoadingProps) => {
     <div className="overflow-x-auto">
     <table className="w-full border-collapse">
       <thead>
-        <tr className="bg-gray-900 text-left">
+        <tr className="bg-zinc-950 text-left">
           {headers.map((h: string) => (
-            <th key={h} className="p-3 border-b border-gray-800 text-gray-400 font-medium">
+            <th key={h} className="p-3 border-b border-zinc-700  text-gray-300 font-medium">
               {h}
             </th>
           ))}
@@ -20,10 +20,10 @@ const DividendLoading = ({headers}:DividendLoadingProps) => {
       </thead>
       <tbody>
         {[...Array(6)].map((_, rowIndex) => (
-          <tr key={rowIndex} className="hover:bg-gray-900 transition-colors">
+          <tr key={rowIndex} className="hover:bg-zinc-800 transition-colors">
             {Array(9).fill(0).map((_, cellIndex) => (
               <td key={cellIndex} className="p-3 border-b border-gray-800">
-                <Skeleton className="h-4 w-full rounded bg-gray-800" />
+                <Skeleton className="h-4 w-full rounded bg-zinc-800" />
               </td>
             ))}
           </tr>
