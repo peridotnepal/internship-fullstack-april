@@ -89,9 +89,39 @@ export async function fetchNewsById(newsId: string): Promise<NewsDetailResponse>
     console.log("Fetching news detail with URL:", url);
     
     const response = await axiosInstance.get(url);
+    console.log("Response data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching news by ID:", error);
+    throw error;
+  }
+}
+export async function fetchRelatedNews(category: string | null | undefined, currentNewsId: string | null): Promise<NewsResponse> {
+  try {
+    if (!category) {
+      throw new Error("Category is required to fetch related news");
+    }
+
+    // Build URL with keyword1 filter (using it as category), exclude current news ID, and limit to 4 items
+    let url = `/newsses?populate=thumbnail&pagination[pageSize]=4&sort[0][publishedAt]=desc`;
+    
+    // Use keyword1 as the category filter
+    url += `&filters[keyword1][$eq]=${encodeURIComponent(category)}`;
+    
+    // If keyword1 doesn't match, try keyword2 as fallback
+    url += `&filters[$or][1][keyword2][$eq]=${encodeURIComponent(category)}`;
+    
+    // Exclude current news item
+    if (currentNewsId) {
+      url += `&filters[id][$ne]=${currentNewsId}`;
+    }
+    
+    console.log("Fetching related news with URL:", url);
+    const response = await axiosInstance.get(url);
+    console.log("Related news response:", response?.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching related news:", error);
     throw error;
   }
 }

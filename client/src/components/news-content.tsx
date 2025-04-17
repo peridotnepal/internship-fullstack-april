@@ -1,27 +1,28 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { NewsCard } from "@/components/news-card"
 import { NewsFilters } from "@/components/news-filter"
 import { fetchNews } from "@/lib/api"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { gsap } from "gsap"
+import { useNewsTransition } from "./news-transition-provider"
 
 export function NewsContent() {
   const [currentPage, setCurrentPage] = useState(1)
   const [activeFilter, setActiveFilter] = useState("all")
   const contentRef = useRef<HTMLDivElement>(null)
+  
+  const { startTransition } = useNewsTransition()
 
-  // Add this function at the top of your component, after the state declarations
   const animateContentChange = () => {
     if (!contentRef.current) return
 
-    // Create a timeline for more control
     const tl = gsap.timeline()
 
-    // First fade out
     tl.to(contentRef.current, {
       opacity: 0,
       y: 20,
@@ -29,13 +30,12 @@ export function NewsContent() {
       ease: "power2.inOut",
     })
 
-    // Then fade back in after a delay
     tl.to(contentRef.current, {
       opacity: 1,
       y: 0,
       duration: 0.4,
       ease: "power2.out",
-      delay: 0.1, // Small delay to ensure content has updated
+      delay: 0.1,
     })
   }
 
@@ -48,7 +48,6 @@ export function NewsContent() {
     if (filter === activeFilter) return
 
     if (contentRef.current) {
-      // More pronounced fade out animation before changing filter
       gsap.to(contentRef.current, {
         opacity: 0,
         y: 30,
@@ -56,9 +55,8 @@ export function NewsContent() {
         ease: "power2.inOut",
         onComplete: () => {
           setActiveFilter(filter)
-          setCurrentPage(1) // Reset to first page when changing filters
+          setCurrentPage(1)
 
-          // Small delay before fading back in to ensure state has updated
           setTimeout(() => {
             gsap.fromTo(
               contentRef.current,
@@ -74,13 +72,20 @@ export function NewsContent() {
     }
   }
 
-  // Remove the existing useEffect for data changes and replace with this:
+  const handleCardClick = (id: number, event: React.MouseEvent<HTMLElement>, imageUrl: string) => {
+    const element = event.currentTarget.closest('.news-card') || event.currentTarget;
+    const rect = element.getBoundingClientRect();
+    const newsItem = news.find(item => item.id === id);
+    
+    if (newsItem) {
+      startTransition(id, rect, imageUrl, newsItem);
+    }
+  }
+
   useEffect(() => {
     if (!isLoading && !isFetching && contentRef.current && data) {
-      // Make sure the element is initially invisible
       gsap.set(contentRef.current, { opacity: 0, y: 30 })
 
-      // Animate in with a slight delay to ensure rendering is complete
       gsap.to(contentRef.current, {
         opacity: 1,
         y: 0,
@@ -91,32 +96,36 @@ export function NewsContent() {
     }
   }, [data, isLoading, isFetching])
 
-  // Add this effect to handle pagination changes
   useEffect(() => {
-    // Only animate if we're not on initial load
     if (data && !isLoading && !isFetching) {
       animateContentChange()
     }
-  }, [currentPage]) // Only trigger on page changes
+  }, [currentPage])
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <div className="relative">
-          <Loader2 className="h-12 w-12 animate-spin text-emerald-500 mb-4" />
-          <div className="absolute inset-0 h-12 w-12 rounded-full border-t-2 border-emerald-500 animate-ping opacity-20"></div>
+          <div className="h-16 w-16 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-blue-500 animate-spin"></div>
+          <div className="absolute inset-0 h-16 w-16 rounded-full border-t-4 border-blue-500 animate-ping opacity-20"></div>
         </div>
-        <p className="text-slate-500 dark:text-slate-400 mt-4 font-medium">Loading news...</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-6 font-medium">Loading latest news...</p>
       </div>
     )
   }
 
   if (isError) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-8 text-center">
-        <h3 className="text-lg font-medium text-red-800 dark:text-red-300 mb-2">Error loading news</h3>
-        <p className="text-red-600 dark:text-red-400">{(error as Error).message || "Please try again later."}</p>
-        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+      <div className="glass-card p-8 text-center">
+        <h3 className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Error loading news</h3>
+        <p className="text-slate-600 dark:text-slate-300 mb-6">
+          {(error as Error).message || "Please try again later."}
+        </p>
+        <Button
+          variant="outline"
+          className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+          onClick={() => window.location.reload()}
+        >
           Retry
         </Button>
       </div>
@@ -126,6 +135,9 @@ export function NewsContent() {
   const { data: news, meta } = data || { data: [], meta: { pagination: { pageCount: 0 } } }
   const hasMorePages = meta?.pagination?.page < meta?.pagination?.pageCount
 
+  const featuredNews = news.length > 0 ? news[0] : null
+  const regularNews = news.length > 0 ? news.slice(1) : []
+
   return (
     <>
       <div className="mb-8">
@@ -134,26 +146,90 @@ export function NewsContent() {
 
       <div ref={contentRef}>
         {news.length === 0 ? (
-          <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-8 text-center">
+          <div className="glass-card p-8 text-center">
             <p className="text-slate-600 dark:text-slate-300">No news found for this category.</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {news.map((item, index) => (
-                <NewsCard key={item.id} news={item} index={index} />
+            {/* Featured News */}
+            {featuredNews && (
+              <div className="mb-8">
+                <NewsCard 
+                  news={featuredNews} 
+                  index={0} 
+                  featured={true} 
+                  onCardClick={(id, rect) => {
+                    const element = document.querySelector('.news-card');
+                    if (element && featuredNews.attributes.thumbnail?.data?.[0]?.attributes?.url) {
+                      const rect = element.getBoundingClientRect();
+                      startTransition(
+                        id,
+                        rect,
+                        `https://news.peridot.com.np${featuredNews.attributes.thumbnail.data[0].attributes.url}`,
+                        featuredNews
+                      );
+                    }
+                  }} 
+                />
+              </div>
+            )}
+
+            {/* Regular News Grid - Using simple grid layout instead of BentoGrid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {regularNews.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="news-card cursor-pointer bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                  onClick={(e) => {
+                    if (item.attributes.thumbnail?.data?.[0]?.attributes?.url) {
+                      handleCardClick(
+                        item.id,
+                        e,
+                        `https://news.peridot.com.np${item.attributes.thumbnail.data[0].attributes.url}`
+                      );
+                    }
+                  }}
+                >
+                  {item.attributes.thumbnail?.data?.[0]?.attributes?.url && (
+                    <div className="relative w-full pt-[56.25%]">
+                      <Image
+                        src={`https://news.peridot.com.np${item.attributes.thumbnail.data[0].attributes.url}`}
+                        alt={item.attributes.title}
+                        fill
+                        className="object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        style={{ objectFit: 'cover' }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="text-lg font-playfair font-bold text-white line-clamp-2">
+                          {item.attributes.title}
+                        </h3>
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-4">
+                    {!item.attributes.thumbnail?.data?.[0]?.attributes?.url && (
+                      <h3 className="font-playfair font-bold text-xl mb-3">{item.attributes.title}</h3>
+                    )}
+                    <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3 mb-4">
+                      {item.attributes.short_description}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
 
             {meta?.pagination && (
-              <div className="mt-10 flex justify-center">
+              <div className="mt-12 flex justify-center">
                 <div className="flex gap-3">
                   <Button
                     variant="outline"
                     size="lg"
                     disabled={currentPage === 1 || isFetching}
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    className="px-6"
+                    className="px-6 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     {isFetching ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -175,7 +251,7 @@ export function NewsContent() {
                     size="lg"
                     disabled={!hasMorePages || isFetching}
                     onClick={() => setCurrentPage((prev) => prev + 1)}
-                    className="px-6"
+                    className="px-6 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     Next
                     {isFetching ? (

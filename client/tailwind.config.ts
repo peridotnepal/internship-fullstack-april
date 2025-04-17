@@ -1,3 +1,4 @@
+import { color } from "framer-motion"
 import type { Config } from "tailwindcss"
 
 const config = {
@@ -16,7 +17,16 @@ const config = {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
-      },
+      },extends:{
+        color:{
+          slate:{
+            800: "#292E36",
+            900: "#181B20",
+              950: "#121417",
+              1000: "#0C0D0F",
+          }
+        }
+      }
     },
     extend: {
       colors: {
