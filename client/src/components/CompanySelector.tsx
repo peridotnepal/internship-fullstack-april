@@ -1,29 +1,51 @@
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React from 'react';
+import { Company } from '../types';
+import { Building } from 'lucide-react';
 
 interface CompanySelectorProps {
-  companies: string[];
-  selectedCompany: string;
-  onSelectCompany: (company: string) => void;
+  companies: Company[];
+  selectedCompany: Company;
+  onSelectCompany: (company: Company) => void;
 }
 
-export const CompanySelector = ({
+const CompanySelector: React.FC<CompanySelectorProps> = ({
   companies,
   selectedCompany,
   onSelectCompany,
-}: CompanySelectorProps) => {
+}) => {
   return (
-    <Select value={selectedCompany} onValueChange={onSelectCompany}>
-      <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Select a company" />
-      </SelectTrigger>
-      <SelectContent>
+    <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="flex items-center mb-3">
+        <Building className="h-5 w-5 text-blue-500 mr-2" />
+        <h2 className="text-lg font-semibold text-gray-800">Select Company</h2>
+      </div>
+      <div className="flex flex-wrap gap-2">
         {companies.map((company) => (
-          <SelectItem key={company} value={company}>
-            {company}
-          </SelectItem>
+          <button
+            key={company.name}
+            onClick={() => onSelectCompany(company)}
+            className={`px-4 py-2 rounded-md transition-all duration-200 ${
+              selectedCompany.name === company.name
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {company.name}
+          </button>
         ))}
-      </SelectContent>
-    </Select>
+        <button
+          onClick={() => onSelectCompany({ name: 'Sector Average', metrics: [] })}
+          className={`px-4 py-2 rounded-md transition-all duration-200 ${
+            selectedCompany.name === 'Sector Average'
+              ? 'bg-blue-500 text-white shadow-md'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Sector Average
+        </button>
+      </div>
+    </div>
   );
 };
+
+export default CompanySelector;

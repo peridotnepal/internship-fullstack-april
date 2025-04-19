@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Company Performance Metrics Dashboard
 
-## Getting Started
+## Overview
 
-First, run the development server:
+This project is a web-based dashboard designed to visualize and compare company performance metrics such as **Energy Sales**, **Net Profit**, and **Return on Equity**. Users can view the performance of selected companies compared to the sector average, enabling better portfolio analysis and informed decision-making.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The dashboard is built using the [Lightweight Charts](https://tradingview.github.io/lightweight-charts/) library for interactive, high-performance visualizations.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Interactive Company Selection
+- Toggle between different companies (e.g., Company A, Company B) or the sector average.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Metrics Display
+- Visualize key performance metrics:
+  - **Energy Sales**
+  - **Net Profit**
+  - **Return on Equity**
 
-## Learn More
+### Sector Comparison
+- Enable or disable a sector average comparison using a toggle switch.
 
-To learn more about Next.js, take a look at the following resources:
+### Tooltips
+- Hover over the chart for detailed data points.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Technology Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Frontend
+- [Lightweight Charts](https://tradingview.github.io/lightweight-charts/) (JavaScript/TypeScript)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Framework
+- [React](https://reactjs.org/) / [Next.js](https://nextjs.org/)
+
+## Usage
+
+1. Select a company from the dropdown menu to view its performance metrics.
+2. Use the toggle switch to enable or disable the sector average comparison.
+3. Hover over the charts to see detailed data points.

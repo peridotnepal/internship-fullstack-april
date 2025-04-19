@@ -1,5 +1,4 @@
-
-export interface MetricData {
+export interface DataPoint {
   quarter: string;
   year: number;
   value: number;
@@ -8,7 +7,7 @@ export interface MetricData {
 export interface Metric {
   name: string;
   unit: string;
-  data: MetricData[];
+  data: DataPoint[];
 }
 
 export interface Company {
@@ -16,7 +15,7 @@ export interface Company {
   metrics: Metric[];
 }
 
-export interface PortfolioData {
+export interface FinancialData {
   companies: Company[];
   sectorAverage: Metric[];
 }
