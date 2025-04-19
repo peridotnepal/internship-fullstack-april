@@ -6,6 +6,8 @@ This project is a web-based dashboard designed to visualize and compare company 
 
 The dashboard is built using the [Lightweight Charts](https://tradingview.github.io/lightweight-charts/) library for interactive, high-performance visualizations.
 
+<img src="/client/public/preview.png" alt="demo image">
+
 ## Features
 
 ### Interactive Company Selection
