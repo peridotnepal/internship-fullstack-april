@@ -63,7 +63,7 @@ const ImagePrev = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen w-full">
+    <div className="flex flex-col items-center justify-center h-screen w-full">
       <div ref={chartRef} className="w-[80%] p-4">
         <BarChart
           topGainers={topGainers}
