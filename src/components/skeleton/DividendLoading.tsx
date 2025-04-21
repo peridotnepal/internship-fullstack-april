@@ -21,7 +21,7 @@ const DividendLoading = ({headers}:DividendLoadingProps) => {
       <tbody>
         {[...Array(6)].map((_, rowIndex) => (
           <tr key={rowIndex} className="hover:bg-zinc-800 transition-colors">
-            {Array(9).fill(0).map((_, cellIndex) => (
+            {Array(10).fill(0).map((_, cellIndex) => (
               <td key={cellIndex} className="p-3 border-b border-gray-800">
                 <Skeleton className="h-4 w-full rounded bg-zinc-800" />
               </td>

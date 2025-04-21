@@ -113,6 +113,119 @@
 }
 
 @layer base {
+  :root {
+    --p1: 40, 20%, 97%;
+    --p2: 0, 0%, 100%;
+    --s1: 0, 0%, 100%;
+    --s2: 240 6% 90%;
+    --a1: 240 6% 90%;
+    --a2: 0, 100%, 69%;
+    --a3: 139, 58%, 78%;
+    --tag1: #40404F;
+    --tag2: #555365;
+    --tag3:hsl(247,10%,26%);
+    --table-border-color:40, 20%, 97%;
+  	--table-head-color:40, 20%, 97%;
+  	--table-r1-color: transparent;
+  	--table-r2-color:40, 33%, 98%;
+  	--table-sticky-color:0, 0%, 100%;
+  	--table-input-bg-color:36, 10%, 90%;
+    --btn: 133, 63%, 41%;
+    --btn-hover: 140, 63%, 36%;
+    --btn-text: 0, 0%, 100%;
+    --line:36, 10%, 90%;
+    --text:0, 0%, 0%;
+    --txet:0, 0%, 100%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --logo: 0 0% 0%;
+    --home-bg:0,0,100%;
+    --home-text:222, 47%, 11%;
+    --home-subtext:220, 9%, 46%;
+    --c1: #FFFFFF;
+  }
+
+  .dark {
+    --c1: #2C2C35;
+    --home-bg:220.91, 39.29%, 10.98%;
+    --home-text:220, 14.29%, 95.88%;
+    --home-subtext:216, 12.2%, 83.92%;
+    --text:0, 0%, 100%;
+    --txet:0, 0%, 0%;
+    --logo: 0 0% 100%;
+    --p1: 240, 8%, 12%;
+    --p2: 240, 9%, 19%;
+    --s1: 240, 9%, 19%;
+    --s2: 240, 10%, 28%;
+    --a1: 240 10% 28%;
+    --a2: 0, 100%, 69%;
+    --a3: 157, 59%, 27%;
+    --tag1: #40404F;
+    --t1:240, 10%, 28%;
+    --tag2: #555365;
+    --t2:247, 10%, 36%;
+    --tag3:hsl(247,10%,16%);
+    --table-border-color:240, 10%, 28%;
+  	--table-head-color:240, 8%, 12%;
+   	--table-r1-color:transparent;
+  	--table-r2-color:240, 10%, 28%;
+  	--table-sticky-color:240, 9%, 19%;
+  	--table-input-bg-color:240, 8%, 12%;
+    --btn: 133, 63%, 41%;
+    --btn: 133, 63%, 41%;
+    --btn-hover: 140, 63%, 36%;
+    --btn-text: 0, 0%, 100%;
+    --line:240, 10%, 28%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%
+  }
+
+  
   * {
     @apply border-border outline-ring/50;
   }
@@ -120,3 +233,5 @@
     @apply bg-background text-foreground;
   }
 }
+
+

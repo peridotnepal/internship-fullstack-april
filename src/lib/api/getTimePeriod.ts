@@ -7,7 +7,7 @@ export const getTimePeriod = async () => {
                 Permission: process.env.NEXT_PUBLIC_PERMISSION
             }
         })
-        console.log(data?.data)
+        // console.log(data?.data)
         return (data?.data) ? data?.data : []
     } catch (error) {
         if (axios.isAxiosError(error)) {
