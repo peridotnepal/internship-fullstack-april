@@ -1,7 +1,7 @@
 import { FunctionCall, FunctionCallingConfigMode, FunctionDeclaration, FunctionResponse, GoogleGenAI, Type } from "@google/genai";
 import request from "./axios";
 
-const GEMINI_API_KEY=process.env.API_KEY||"AIzaSyC7bs1xhN_da7XkwqmCkyaI-b3iNMh3ur0"
+const GEMINI_API_KEY=process.env.API_KEY
 /**
  * Fetches a list of all brokers.
  * 
