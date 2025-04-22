@@ -30,6 +30,7 @@ const TimePeriodLoading = () => {
                     "Cash",
                     "Total",
                     "Book Close",
+                    "Download"
                   ].map((header) => (
                     <th
                       key={header}
@@ -46,7 +47,7 @@ const TimePeriodLoading = () => {
                     key={rowIndex}
                     className="hover:bg-zinc-800/40 transition-colors"
                   >
-                    {Array(9)
+                    {Array(10)
                       .fill(0)
                       .map((_, cellIndex) => (
                         <td

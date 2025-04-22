@@ -20,6 +20,8 @@ import { useTimePeriod } from "@/lib/query/useTimePeriod";
 import { useDividend } from "@/lib/query/useDividend";
 import TimePeriodLoading from "./skeleton/TimePeriodLoading";
 import DividendLoading from "./skeleton/DividendLoading";
+import PremiumDividendAnnouncement from "./Image-Generator";
+import { toPng } from "html-to-image";
 
 type Period = {
   year: string;
@@ -93,8 +95,53 @@ export default function FinancialTable() {
     { id: "cash", label: "Cash" },
     { id: "total", label: "Total" },
     { id: "bookClose", label: "Book Close" },
+    { id: "download", label: "Download" },
   ];
 
+  const downloadCompanyInfo = async (stock: Dividend) => {
+    setPreviewData(stock);
+
+    // Wait for state update and rendering
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const node = previewImageRef.current as HTMLElement;
+    if (!node || !previewData) return;
+
+    try {
+      // Temporarily make visible for capture
+      node.style.visibility = "visible";
+      node.style.position = "fixed";
+      node.style.top = "0";
+      node.style.left = "0";
+      node.style.zIndex = "9999";
+
+      const dataUrl = await toPng(node, {
+        backgroundColor: "white",
+        width: 550,
+        height: 680,
+        pixelRatio: 2, // Higher quality
+        style: {
+          transform: "none",
+          margin: "0",
+          padding: "0",
+        },
+      });
+
+      const link = document.createElement("a");
+      link.download = `${previewData.Company}-dividend-announcement.png`;
+      link.href = dataUrl;
+      link.click();
+
+      // Clean up
+      URL.revokeObjectURL(dataUrl);
+    } catch (error) {
+      console.error("Error generating image:", error);
+    } finally {
+      if (node) {
+        node.style.visibility = "hidden";
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-b from-zinc-950 to-zinc-950 text-gray-200  ">
@@ -240,10 +287,44 @@ export default function FinancialTable() {
                         <td className="p-3 border-b border-zinc-800 whitespace-nowrap">
                           {formatDate(stock.BookClose)}
                         </td>
+                        <td className="p-3 border-b border-zinc-800 text-center align-middle">
+                          <div
+                            onClick={() => downloadCompanyInfo(stock)}
+                            className="flex justify-center items-center hover:scale-110 transition-all duration-200 "
+                          >
+                            <Download size={18} />
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+
+                <div
+                  ref={previewImageRef}
+                  style={{
+                    position: "fixed",
+                    top: "-1000px",
+                    left: 0,
+                    width: "550px",
+                    height: "680px",
+                    visibility: "hidden",
+                    overflow: "hidden",
+                    backgroundColor: "white",
+                  }}
+                >
+                  {previewData && (
+                    <PremiumDividendAnnouncement
+                      company={previewData.Company}
+                      lastTradingPrice={previewData.LastTradedPrice}
+                      cashDividend={previewData.CashDividend}
+                      bonusDividend={previewData.BonusDividend}
+                      fiscalYear={previewData.year}
+                      bookClose={previewData.BookClose}
+                      sector={previewData.Sector}
+                    />
+                  )}
+                </div>
               </div>
 
               {filteredData.length === 0 && (
