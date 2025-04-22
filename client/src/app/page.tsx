@@ -11,6 +11,7 @@ import { LayoutGrid, LineChart, BarChart } from "lucide-react";
 import getFinancialData from "@/lib/api";
 import { Company, SectorAverage } from "@/types/financial";
 import Container from "@/components/shared/container";
+import { notFound } from "next/navigation";
 
 
 interface FinancialData {
@@ -38,7 +39,9 @@ export default function Home() {
         }
         setLoading(false);
       } catch (error) {
+        notFound();
         console.error("Error fetching financial data:", error);
+        setLoading(false);
       }
     };
 

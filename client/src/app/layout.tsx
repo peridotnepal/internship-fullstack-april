@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/shared/header";
+import { ReactQueryProvider } from "@/components/shared/ReactQueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NepalSense | Welcome to NepalSense",
-  description: "NepalSense is a platform that provides information about Nepal Stock Market.",
+  title: "NepalPorfolio | Welcome to NepalPorfolio",
+  description:
+    "NepalPorfolio is a platform that provides information about Nepal Stock Market.",
 };
 
 export default function RootLayout({
@@ -28,10 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header/>
-        <main className="flex flex-col min-h-screen w-full">
-          {children}
-        </main>
+        <ReactQueryProvider>
+          <Header />
+          <main className="flex flex-col min-h-screen w-full">{children}</main>
+        </ReactQueryProvider>
       </body>
     </html>
   );
