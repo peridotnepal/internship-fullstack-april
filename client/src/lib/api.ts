@@ -189,7 +189,8 @@ export const getAllBrokersTopFiveDataDeclaration: FunctionDeclaration = {
 
 /**
  * Declaration for the getCompanySynopsis function.
- */export const getCompanySynopsisDeclaration: FunctionDeclaration = {
+ */
+export const getCompanySynopsisDeclaration: FunctionDeclaration = {
   name: "getCompanySynopsis",
   description: "Fetches a company synopsis based on the provided symbol, name, company name or broker number.",
   parameters: {

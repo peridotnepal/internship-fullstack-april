@@ -149,12 +149,13 @@ export default function Home() {
           },
         }
       }
-    } else if (input.toLowerCase().includes("company synopsis")) {
+    }else if (input.toLowerCase().includes("company synopsis")) {
+      const sym = input.match(/"([^"]*)"/)?.[1] || input.match(/'([^']*)'/)?.[1];
       return {
-        content: "I'll fetch the company synopsis information.",
+        content: `I'll fetch the company synopsis information for "${sym}".`,
         functionCall: {
           name: "getCompanySynopsis",
-          args: {},
+          args: { sym },
         },
       }
     } else {
