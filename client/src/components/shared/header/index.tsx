@@ -12,7 +12,7 @@ const Header = () => {
               <Activity className="h-4 w-4 text-emerald-500" />
             </div>
           </div>
-          <h1 className="text-xl font-bold tracking-tight">NepalSense</h1>
+          <h1 className="text-xl font-bold tracking-tight">NepalPortfolio</h1>
         </div>
       </Container>
     </header>
