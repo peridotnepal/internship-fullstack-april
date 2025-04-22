@@ -8,8 +8,6 @@ import {
 } from "@google/genai";
 import request from "./axios";
 
-const GEMINI_API_KEY =
-  process.env.API_KEY || "AIzaSyC7bs1xhN_da7XkwqmCkyaI-b3iNMh3ur0";
 /**
  * Fetches a list of all brokers.
  *
@@ -49,7 +47,6 @@ export async function getBrokerDetails(
       token,
       url: `/broker/get_detail/${brokerId}`,
       method: "GET",
-      params: { brokerId },
     });
 
     if (data.status === 200) {
@@ -63,6 +60,13 @@ export async function getBrokerDetails(
   }
 }
 
+/**
+ * Fetches top five brokers buying and selling data for a list of broker IDs.
+ * 
+ * @param {string[]} brokerIds Array of broker IDs as strings
+ * @param {string} token Authentication token
+ * @returns {Promise<Array>} Promise resolving to an array of broker data
+ */
 export async function getTopFiveBrokersBuyingAndSellingForAll(
   brokerIds: string[],
   token: string
@@ -94,6 +98,37 @@ export async function getTopFiveBrokersBuyingAndSellingForAll(
       "Error fetching top five brokers buying and selling for all brokerIds:",
       error
     );
+    throw error;
+  }
+}
+
+/**
+ * Fetches all brokers and then gets top five buying and selling for selected broker IDs.
+ * This function first fetches all brokers and then fetches top five data for the first few brokers.
+ * 
+ * @param {Object} params Contains token and optional limit
+ * @returns {Promise<Object>} Promise resolving to object containing brokers list and top five data
+ */
+export async function getAllBrokersTopFiveData({ token}: { token: string;}) {
+  try {
+
+    const allBrokers = await getAllBrokers({ token });
+    
+    if (!Array.isArray(allBrokers) || allBrokers.length === 0) {
+      throw new Error("No brokers found");
+    }
+    
+    const allBrokerIds = allBrokers.map(broker => String(broker.id));
+    
+    console.log(`Fetching data for all ${allBrokerIds.length} brokers`);
+    
+    const topFiveData = await getTopFiveBrokersBuyingAndSellingForAll(allBrokerIds, token);
+    return {
+      allBrokers,
+      topFiveData
+    };
+  } catch (error) {
+    console.error("Error fetching top five data for all brokers:", error);
     throw error;
   }
 }
@@ -151,7 +186,18 @@ export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration =
     },
   };
 
-
+/**
+ * Declaration for the new auto-fetch function that gets top brokers in one step.
+ */
+export const getAllBrokersTopFiveDataDeclaration: FunctionDeclaration = {
+  name: "getAllBrokersTopFiveData",
+  description: 'Fetches top five buying and selling data for ALL brokers in the system automatically. Warning: May be resource-intensive if there are many brokers.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+    required: [],
+  },
+};
 
 /**
  * Handles asynchronous tool calls.
@@ -188,6 +234,9 @@ export const async_tool_call = async ({ token, functionCall }: { token: string; 
         }
         result = await getTopFiveBrokersBuyingAndSellingForAll(functionCall.args.brokerIds, token);
         break;
+        case getAllBrokersTopFiveDataDeclaration.name:
+          result = await getAllBrokersTopFiveData({ token });
+          break;
       default:
         throw new Error(`Unsupported function: ${functionCall.name}`);
     }
@@ -211,7 +260,6 @@ export const async_tool_call = async ({ token, functionCall }: { token: string; 
 export const availableDeclarations: FunctionDeclaration[] = [
   getAllBrokersDeclaration,
   getBrokerDetailsDeclaration,
-  getTopFiveBrokersBuyingAndSellingDeclaration
+  getTopFiveBrokersBuyingAndSellingDeclaration,
+  getAllBrokersTopFiveDataDeclaration,
 ];
-console.log(async_tool_call);
-

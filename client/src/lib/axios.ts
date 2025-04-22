@@ -10,6 +10,7 @@ const api: AxiosInstance = axios.create({
     Permission: "2021D@T@f@RSt6&%2-D@T@",
   },
 });
+console.log(process.env.NEXT_PUBLIC_BASE_URL);
 
 // Set up the response interceptor with full type annotations
 api.interceptors.response.use(
