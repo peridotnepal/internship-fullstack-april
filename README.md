@@ -71,12 +71,11 @@ These declarations are used for Gemini AI function calling:
 
 ## Main Component
 
-`AutoFetchTopBrokersComponent` is a React component that:
+`src/app/test/page.tsx` is a React component that:
 
 1. Fetches data using Gemini AI and the API functions
-2. Displays broker information in a responsive layout
-3. Shows top 5 buying and selling transactions for each broker
-4. Handles loading states and errors
+2. Shows top 5 buying and selling transactions for each broker
+3. Handles loading states and errors
 
 ## Setup
 
