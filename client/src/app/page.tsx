@@ -123,7 +123,7 @@ export default function Home() {
     } else if (input.toLowerCase().includes("broker details") && input.match(/\d+/)) {
       const brokerId = input.match(/\d+/)?.[0] || "1"
       return {
-        content: `I'll get the details for broker ID ${brokerId}.`,
+        content: `I'll get the details for brokerID ${brokerId}.`,
         functionCall: {
           name: "getBrokerDetails",
           args: { brokerId },
@@ -150,14 +150,21 @@ export default function Home() {
         }
       }
     }else if (input.toLowerCase().includes("company synopsis")) {
-      const sym = input.match(/"([^"]*)"/)?.[1] || input.match(/'([^']*)'/)?.[1];
+      let sym = input.match(/"([^"]*)"/)?.[1] || input.match(/'([^']*)'/)?.[1];
+    
+      // Fallback: Try to extract the last word as symbol
+      if (!sym) {
+        const words = input.split(" ");
+        sym = words[words.length - 1]; // crude fallback, improve as needed
+      }
+    
       return {
         content: `I'll fetch the company synopsis information for "${sym}".`,
         functionCall: {
           name: "getCompanySynopsis",
           args: { sym },
         },
-      }
+      };
     } else {
       return {
         content:

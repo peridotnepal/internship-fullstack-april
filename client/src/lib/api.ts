@@ -192,18 +192,19 @@ export const getAllBrokersTopFiveDataDeclaration: FunctionDeclaration = {
  */
 export const getCompanySynopsisDeclaration: FunctionDeclaration = {
   name: "getCompanySynopsis",
-  description: "Fetches a company synopsis based on the provided symbol, name, company name or broker number.",
+  description: "Retrieves a brief synopsis of a company based on its symbol, name, company name, or broker number.",
   parameters: {
     type: Type.OBJECT,
     properties: {
       sym: {
         type: Type.STRING,
-        description: "The symbol, name, company name or broker number of the company.",
+        description: "The company's symbol, name, full company name, or broker number provided by the user.",
       },
     },
-    required: ["token", "sym"],
+    required: ["sym"],
   },
-}
+};
+
 
 /**
  * Handles asynchronous tool calls.
