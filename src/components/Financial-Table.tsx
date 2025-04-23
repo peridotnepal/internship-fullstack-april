@@ -22,6 +22,9 @@ import TimePeriodLoading from "./skeleton/TimePeriodLoading";
 import DividendLoading from "./skeleton/DividendLoading";
 import PremiumDividendAnnouncement from "./Image-Generator";
 import { toPng } from "html-to-image";
+import { createRoot } from 'react-dom/client';
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+
 
 type Period = {
   year: string;
@@ -98,51 +101,82 @@ export default function FinancialTable() {
     { id: "download", label: "Download" },
   ];
 
-  const downloadCompanyInfo = async (stock: Dividend) => {
-    setPreviewData(stock);
 
-    // Wait for state update and rendering
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    const node = previewImageRef.current as HTMLElement;
-    if (!node || !previewData) return;
-
+  const downloadCompanyInfo = async (stock: Dividend, product: string) => {
+    // Create a completely new container for each download
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.top = '-10000px';
+    tempContainer.style.left = '-10000px';
+    tempContainer.style.zIndex = '99999';
+    document.body.appendChild(tempContainer);
+  
+    // Render a fresh instance of the component
+    const root = createRoot(tempContainer);
+    root.render(
+      <PremiumDividendAnnouncement
+        key={Date.now()} // Force re-render with new key
+        company={stock.Company}
+        symbol={stock.Symbol}
+        fiscalYear={stock.year}
+        lastTradingPrice={stock.LastTradedPrice}
+        cashDividend={stock.CashDividend}
+        bonusDividend={stock.BonusDividend}
+        bookClose={stock.BookClose}
+        sector={stock.Sector}
+        product={product}
+      />
+    );
+  
     try {
-      // Temporarily make visible for capture
-      node.style.visibility = "visible";
-      node.style.position = "fixed";
-      node.style.top = "0";
-      node.style.left = "0";
-      node.style.zIndex = "9999";
-
-      const dataUrl = await toPng(node, {
+      // Extended wait for Next.js image optimization
+      await new Promise(resolve => setTimeout(resolve, 500));
+  
+      // Wait for images specifically
+      await waitForNextJSImages(tempContainer);
+  
+      const dataUrl = await toPng(tempContainer.firstChild as HTMLElement, {
         backgroundColor: "white",
-        width: 550,
-        height: 680,
-        pixelRatio: 2, // Higher quality
-        style: {
-          transform: "none",
-          margin: "0",
-          padding: "0",
-        },
+        pixelRatio: 3, // Higher quality
+        cacheBust: true,
+        skipFonts: false, // Ensure fonts load
       });
-
-      const link = document.createElement("a");
-      link.download = `${previewData.Company}-dividend-announcement.png`;
+  
+      const link = document.createElement('a');
+      link.download = `${stock.Company}-dividend-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
-
-      // Clean up
-      URL.revokeObjectURL(dataUrl);
+  
     } catch (error) {
-      console.error("Error generating image:", error);
+      console.error('Download failed:', error);
     } finally {
-      if (node) {
-        node.style.visibility = "hidden";
-      }
+      // Clean up
+      root.unmount();
+      document.body.removeChild(tempContainer);
     }
   };
 
+  const waitForNextJSImages = async (container: HTMLElement) => {
+    const nextImageWrappers = container.querySelectorAll('[data-next-img]');
+    
+    await Promise.all(
+      Array.from(nextImageWrappers).map(wrapper => {
+        const img = wrapper.querySelector('img');
+        if (!img || img.complete) return Promise.resolve();
+        
+        return new Promise<void>((resolve) => {
+          const onLoad = () => {
+            img.removeEventListener('load', onLoad);
+            resolve();
+          };
+          img.addEventListener('load', onLoad);
+        });
+      })
+    );
+    
+    // Additional safety delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+  };
   return (
     <div className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-b from-zinc-950 to-zinc-950 text-gray-200  ">
       <div className="max-w-7xl mx-auto">
@@ -249,7 +283,7 @@ export default function FinancialTable() {
                         <td className="p-3 border-b border-zinc-800">
                           {stock.Company}
                         </td>
-                        <td className="p-3 border-b border-zinc-800 text-gray-300">
+                        <td className="p-3 border-b border-zinc-800 text-gray-300 whitespace-nowrap">
                           <span className="px-2 py-1 rounded-full text-xs bg-zinc-800">
                             {stock.Sector}
                           </span>
@@ -289,10 +323,26 @@ export default function FinancialTable() {
                         </td>
                         <td className="p-3 border-b border-zinc-800 text-center align-middle">
                           <div
-                            onClick={() => downloadCompanyInfo(stock)}
+                            // onClick={() => downloadCompanyInfo(stock)}
                             className="flex justify-center items-center hover:scale-110 transition-all duration-200 "
                           >
-                            <Download size={18} />
+                            <Popover>
+                              <PopoverTrigger>
+                                <Download size={18} />
+                              </PopoverTrigger>
+                              <PopoverContent className="bg-zinc-900 text-slate-50 w-fit p-2 border-none">
+                              <div className="flex flex-col gap-2">
+                              <button onClick={() => downloadCompanyInfo(stock, "PortfolioNepal")} 
+                                className="px-2 py-1 text-sm font-medium text-amber-300  bg-black hover:text-amber-400 rounded-md transition-colors flex items-center justify-center">
+                                PortfolioNepal
+                              </button>
+                              <button onClick={() => downloadCompanyInfo(stock, "Saral Lagani")}
+                               className="px-2 py-1 text-sm font-medium text-white bg-black hover:text-slate-50 rounded-md transition-colors flex items-center justify-center">
+                                Saral Lagani
+                              </button>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </div>
                         </td>
                       </tr>
@@ -300,14 +350,14 @@ export default function FinancialTable() {
                   </tbody>
                 </table>
 
-                <div
+                {/* <div
                   ref={previewImageRef}
                   style={{
                     position: "fixed",
                     top: "-1000px",
                     left: 0,
-                    width: "550px",
-                    height: "680px",
+                    width: "448px",
+                    height: "auto",
                     visibility: "hidden",
                     overflow: "hidden",
                     backgroundColor: "white",
@@ -322,9 +372,10 @@ export default function FinancialTable() {
                       fiscalYear={previewData.year}
                       bookClose={previewData.BookClose}
                       sector={previewData.Sector}
+                      symbol={previewData.Symbol}
                     />
                   )}
-                </div>
+                </div> */}
               </div>
 
               {filteredData.length === 0 && (
