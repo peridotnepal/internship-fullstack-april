@@ -107,7 +107,7 @@ export async function getCompanySynopsis({ token, sym }: { token: string; sym: s
   try {
     const { data }: { data: { status: number; data: any } } = await request({
       token,
-      url: `short_synopsis/${sym}`,
+      url: `financial_breakdown/short_synopsis/${sym}`,
       method: "GET",
     })
     if (data.status === 200) {

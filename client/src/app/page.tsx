@@ -150,8 +150,9 @@ export default function Home() {
         }
       }
     }else if (input.toLowerCase().includes("company synopsis")) {
-      let sym = input.match(/"([^"]*)"/)?.[1] || input.match(/'([^']*)'/)?.[1];
-    
+      const rawSym = input.match(/"([^"]*)"/)?.[1] || input.match(/'([^']*)'/)?.[1] || "";
+      let sym = rawSym.trim().toUpperCase();
+
       // Fallback: Try to extract the last word as symbol
       if (!sym) {
         const words = input.split(" ");
