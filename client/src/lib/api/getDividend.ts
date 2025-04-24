@@ -10,8 +10,6 @@ export const getDividend = async (payload: string) => {
             }
         })
 
-        // console.log(data?.data)
-
         return (data?.data) ? data?.data : []
     } catch (error) {
         if (axios.isAxiosError(error)) {

@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Search, ChevronDown, Info, Download } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  Search,
+  ChevronDown,
+  Info,
+  Download,
+  DownloadCloud,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,9 +28,10 @@ import TimePeriodLoading from "./skeleton/TimePeriodLoading";
 import DividendLoading from "./skeleton/DividendLoading";
 import PremiumDividendAnnouncement from "./Image-Generator";
 import { toPng } from "html-to-image";
-import { createRoot } from 'react-dom/client';
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-
+import { createRoot } from "react-dom/client";
+import GoldWhiteImage from "./Gold-White-Image";
+import Image from "next/image";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 type Period = {
   year: string;
@@ -47,9 +54,7 @@ export default function FinancialTable() {
   const [selectedPeriod, setSelectedPeriod] = useState(
     "Please Select The Period"
   );
-  const previewImageRef = useRef<HTMLDivElement | null>(null);
-  const [previewData, setPreviewData] = useState<Dividend | null>(null);
-
+  const [toggle, setToggle] = useState(true);
   const {
     data: timePeriod,
     isLoading: isTimePeriodLoading,
@@ -101,54 +106,68 @@ export default function FinancialTable() {
     { id: "download", label: "Download" },
   ];
 
-
-  const downloadCompanyInfo = async (stock: Dividend, product: string) => {
+  const downloadCompanyInfo = async (stock: Dividend, color: string) => {
     // Create a completely new container for each download
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'fixed';
-    tempContainer.style.top = '-10000px';
-    tempContainer.style.left = '-10000px';
-    tempContainer.style.zIndex = '99999';
+    const tempContainer = document.createElement("div");
+    tempContainer.style.position = "fixed";
+    tempContainer.style.top = "-10000px";
+    tempContainer.style.left = "-10000px";
+    tempContainer.style.zIndex = "99999";
     document.body.appendChild(tempContainer);
-  
+
     // Render a fresh instance of the component
-    const root = createRoot(tempContainer);
-    root.render(
-      <PremiumDividendAnnouncement
-        key={Date.now()} // Force re-render with new key
-        company={stock.Company}
-        symbol={stock.Symbol}
-        fiscalYear={stock.year}
-        lastTradingPrice={stock.LastTradedPrice}
-        cashDividend={stock.CashDividend}
-        bonusDividend={stock.BonusDividend}
-        bookClose={stock.BookClose}
-        sector={stock.Sector}
-        product={product}
-      />
-    );
-  
+    let root = createRoot(tempContainer);
+
+    if (color === "black") {
+      root.render(
+        <PremiumDividendAnnouncement
+          key={Date.now()} // Force re-render with new key
+          company={stock.Company}
+          symbol={stock.Symbol}
+          fiscalYear={stock.year}
+          lastTradingPrice={stock.LastTradedPrice}
+          cashDividend={stock.CashDividend}
+          bonusDividend={stock.BonusDividend}
+          bookClose={stock.BookClose}
+          sector={stock.Sector}
+        />
+      );
+    } else {
+      root.render(
+        <GoldWhiteImage
+          key={Date.now()} // Force re-render with new key
+          company={stock.Company}
+          symbol={stock.Symbol}
+          fiscalYear={stock.year}
+          lastTradingPrice={stock.LastTradedPrice}
+          cashDividend={stock.CashDividend}
+          bonusDividend={stock.BonusDividend}
+          bookClose={stock.BookClose}
+          sector={stock.Sector}
+        />
+      );
+    }
+
     try {
       // Extended wait for Next.js image optimization
-      await new Promise(resolve => setTimeout(resolve, 500));
-  
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Wait for images specifically
       await waitForNextJSImages(tempContainer);
-  
+
       const dataUrl = await toPng(tempContainer.firstChild as HTMLElement, {
         backgroundColor: "white",
         pixelRatio: 3, // Higher quality
         cacheBust: true,
         skipFonts: false, // Ensure fonts load
       });
-  
-      const link = document.createElement('a');
+
+      const link = document.createElement("a");
       link.download = `${stock.Company}-dividend-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
-  
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
     } finally {
       // Clean up
       root.unmount();
@@ -157,28 +176,29 @@ export default function FinancialTable() {
   };
 
   const waitForNextJSImages = async (container: HTMLElement) => {
-    const nextImageWrappers = container.querySelectorAll('[data-next-img]');
-    
+    const nextImageWrappers = container.querySelectorAll("[data-next-img]");
+
     await Promise.all(
-      Array.from(nextImageWrappers).map(wrapper => {
-        const img = wrapper.querySelector('img');
+      Array.from(nextImageWrappers).map((wrapper) => {
+        const img = wrapper.querySelector("img");
         if (!img || img.complete) return Promise.resolve();
-        
+
         return new Promise<void>((resolve) => {
           const onLoad = () => {
-            img.removeEventListener('load', onLoad);
+            img.removeEventListener("load", onLoad);
             resolve();
           };
-          img.addEventListener('load', onLoad);
+          img.addEventListener("load", onLoad);
         });
       })
     );
-    
+
     // Additional safety delay
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
   };
+
   return (
-    <div className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-b from-zinc-950 to-zinc-950 text-gray-200  ">
+    <div className=" min-h-screen w-full p-4 md:p-8 bg-gradient-to-b from-zinc-950 to-zinc-950 text-gray-200 ">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -189,7 +209,7 @@ export default function FinancialTable() {
           </p>
         </div>
 
-        <div className="bg-zinc-900 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-zinc-800">
+        <div className="bg-zinc-900 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-zinc-800 w-full">
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
             <div className="flex-1">
               <label className="block text-sm text-gray-400 mb-2">
@@ -205,7 +225,7 @@ export default function FinancialTable() {
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full md:w-64 bg-zinc-900 border-zinc-700 text-gray-300">
+                <DropdownMenuContent className="w-full md:w-64 bg-zinc-900 border-zinc-700 text-gray-300 ">
                   {periods.map((period: string) => (
                     <DropdownMenuItem
                       key={period}
@@ -238,7 +258,7 @@ export default function FinancialTable() {
             <DividendLoading headers={headers.map((h) => h.label)} />
           ) : (
             <>
-              <div className="overflow-x-auto rounded-lg border border-zinc-800">
+              <div className="overflow-x-auto rounded-lg border border-zinc-800 w-full">
                 <table className="w-full border-collapse ">
                   <thead>
                     <tr className="bg-zinc-950 text-left">
@@ -268,7 +288,7 @@ export default function FinancialTable() {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="bg-zinc-900">
+                  <tbody className="bg-zinc-900 w-full">
                     {filteredData.map((stock, id) => (
                       <tr
                         key={stock.Symbol + id}
@@ -277,8 +297,17 @@ export default function FinancialTable() {
                         <td className="p-3 border-b border-zinc-800 text-gray-400">
                           {id + 1}
                         </td>
-                        <td className="p-3 border-b border-zinc-800 font-medium text-blue-400">
-                          {stock.Symbol}
+                        <td className="p-3 border-b border-zinc-800 font-medium ">
+                          <div className="flex gap-1 items-center">
+                            <Image
+                              src={`${process.env.NEXT_PUBLIC_GET_LOGO}/${stock.Symbol}.webp`}
+                              alt="Logo"
+                              height={30}
+                              width={30}
+                              className="rounded-full h-[30px] w-[30px] object-contain"
+                            />
+                            <p className="text-blue-400">{stock.Symbol}</p>
+                          </div>
                         </td>
                         <td className="p-3 border-b border-zinc-800">
                           {stock.Company}
@@ -322,60 +351,95 @@ export default function FinancialTable() {
                           {formatDate(stock.BookClose)}
                         </td>
                         <td className="p-3 border-b border-zinc-800 text-center align-middle">
-                          <div
-                            // onClick={() => downloadCompanyInfo(stock)}
-                            className="flex justify-center items-center hover:scale-110 transition-all duration-200 "
-                          >
-                            <Popover>
-                              <PopoverTrigger>
-                                <Download size={18} />
-                              </PopoverTrigger>
-                              <PopoverContent className="bg-zinc-900 text-slate-50 w-fit p-2 border-none">
-                              <div className="flex flex-col gap-2">
-                              <button onClick={() => downloadCompanyInfo(stock, "PortfolioNepal")} 
-                                className="px-2 py-1 text-sm font-medium text-amber-300  bg-black hover:text-amber-400 rounded-md transition-colors flex items-center justify-center">
-                                PortfolioNepal
-                              </button>
-                              <button onClick={() => downloadCompanyInfo(stock, "Saral Lagani")}
-                               className="px-2 py-1 text-sm font-medium text-white bg-black hover:text-slate-50 rounded-md transition-colors flex items-center justify-center">
-                                Saral Lagani
-                              </button>
+                          <div className="flex justify-center items-center hover:scale-110 transition-all duration-200 ">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="hover:scale-110 transition-all duration-200"
+                                >
+                                  <Download size={18} />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogTitle />
+                              <DialogContent className="bg-zinc-900 border border-zinc-600 text-slate-50 sm:max-w-[90vw] max-w-[100vw] max-h-[100vh] overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                <div className="flex flex-col items-center gap-4 p-4">
+                                  {toggle ? (
+                                    <>
+                                      <PremiumDividendAnnouncement
+                                        company={stock.Company}
+                                        symbol={stock.Symbol}
+                                        fiscalYear={stock.year}
+                                        lastTradingPrice={stock.LastTradedPrice}
+                                        cashDividend={stock.CashDividend}
+                                        bonusDividend={stock.BonusDividend}
+                                        bookClose={stock.BookClose}
+                                        sector={stock.Sector}
+                                      />
+                                      <div className="flex gap-4">
+                                        <Button
+                                          onClick={() =>
+                                            downloadCompanyInfo(stock, "black")
+                                          }
+                                          className="flex gap-1 text-black bg-white hover:bg-zinc-300"
+                                        >
+                                          <DownloadCloud /> Download
+                                        </Button>
+                                        <Button
+                                          onClick={() =>
+                                            setToggle((toggle) => !toggle)
+                                          }
+                                          className="flex gap-1 text-black bg-white hover:bg-zinc-300"
+                                        >
+                                          {toggle ? "Light" : "Dark"}
+                                        </Button>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <GoldWhiteImage
+                                        company={stock.Company}
+                                        symbol={stock.Symbol}
+                                        fiscalYear={stock.year}
+                                        lastTradingPrice={stock.LastTradedPrice}
+                                        cashDividend={stock.CashDividend}
+                                        bonusDividend={stock.BonusDividend}
+                                        bookClose={stock.BookClose}
+                                        sector={stock.Sector}
+                                      />
+                                      <div className="flex gap-4">
+                                        <Button
+                                          onClick={() =>
+                                            downloadCompanyInfo(
+                                              stock,
+                                              "whiteGold"
+                                            )
+                                          }
+                                          className="flex gap-1 text-black bg-white hover:bg-zinc-300"
+                                        >
+                                          <DownloadCloud /> Download
+                                        </Button>
+                                        <Button
+                                          onClick={() =>
+                                            setToggle((toggle) => !toggle)
+                                          }
+                                          className="flex gap-1 text-black bg-white hover:bg-zinc-300"
+                                        >
+                                          {toggle ? "Light" : "Dark"}
+                                        </Button>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
-                              </PopoverContent>
-                            </Popover>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-
-                {/* <div
-                  ref={previewImageRef}
-                  style={{
-                    position: "fixed",
-                    top: "-1000px",
-                    left: 0,
-                    width: "448px",
-                    height: "auto",
-                    visibility: "hidden",
-                    overflow: "hidden",
-                    backgroundColor: "white",
-                  }}
-                >
-                  {previewData && (
-                    <PremiumDividendAnnouncement
-                      company={previewData.Company}
-                      lastTradingPrice={previewData.LastTradedPrice}
-                      cashDividend={previewData.CashDividend}
-                      bonusDividend={previewData.BonusDividend}
-                      fiscalYear={previewData.year}
-                      bookClose={previewData.BookClose}
-                      sector={previewData.Sector}
-                      symbol={previewData.Symbol}
-                    />
-                  )}
-                </div> */}
               </div>
 
               {filteredData.length === 0 && (

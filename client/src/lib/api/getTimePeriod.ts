@@ -1,4 +1,7 @@
 import axios from "axios"
+interface TimePeriod {
+    year: string
+}
 
 export const getTimePeriod = async () => {
     try {
@@ -7,8 +10,16 @@ export const getTimePeriod = async () => {
                 Permission: process.env.NEXT_PUBLIC_PERMISSION
             }
         })
-        // console.log(data?.data)
-        return (data?.data) ? data?.data : []
+        if (data) {
+            const formattedPeriod = data?.data.sort((a: TimePeriod, b: TimePeriod) => {
+                const yearA = parseInt(a.year.split("/")[0])
+                const yearB = parseInt(b.year.split("/")[0])
+
+                return yearB - yearA
+            })
+
+            return formattedPeriod
+        }
     } catch (error) {
         if (axios.isAxiosError(error)) {
             console.log(error)
