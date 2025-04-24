@@ -127,7 +127,7 @@ export default {
   },
   plugins: [
     require("tailwindcss-animate"),
-    require('@tailwindcss/container-queries'),
+    // require('@tailwindcss/container-queries'),
     function ({ addUtilities }: { addUtilities: any }) {
       const newUtilities = {
         ".scroll-hide": {
