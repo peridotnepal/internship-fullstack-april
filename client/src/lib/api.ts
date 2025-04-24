@@ -77,28 +77,28 @@ export async function getTopFiveBrokersBuyingAndSellingForAll(brokerIds: string[
 /**
  * Fetches all brokers and then gets top five buying and selling for selected broker IDs.
  */
-export async function getAllBrokersTopFiveData({ token }: { token: string }) {
-  try {
-    const allBrokers = await getAllBrokers({ token })
+// export async function getAllBrokersTopFiveData({ token }: { token: string }) {
+//   try {
+//     const allBrokers = await getAllBrokers({ token })
 
-    if (!Array.isArray(allBrokers) || allBrokers.length === 0) {
-      throw new Error("No brokers found")
-    }
+//     if (!Array.isArray(allBrokers) || allBrokers.length === 0) {
+//       throw new Error("No brokers found")
+//     }
 
-    const allBrokerIds = allBrokers.map((broker) => String(broker.id))
+//     const allBrokerIds = allBrokers.map((broker) => String(broker.id))
 
-    console.log(`Fetching data for all ${allBrokerIds.length} brokers`)
+//     console.log(`Fetching data for all ${allBrokerIds.length} brokers`)
 
-    const topFiveData = await getTopFiveBrokersBuyingAndSellingForAll(allBrokerIds, token)
-    return {
-      allBrokers,
-      topFiveData,
-    }
-  } catch (error) {
-    console.error("Error fetching top five data for all brokers:", error)
-    throw error
-  }
-}
+//     const topFiveData = await getTopFiveBrokersBuyingAndSellingForAll(allBrokerIds, token)
+//     return {
+//       allBrokers,
+//       topFiveData,
+//     }
+//   } catch (error) {
+//     console.error("Error fetching top five data for all brokers:", error)
+//     throw error
+//   }
+// }
 
 /**
  * Fetches all company synopsis
@@ -153,11 +153,67 @@ export const getBrokerDetailsDeclaration: FunctionDeclaration = {
   },
 }
 
-//get top five brokers buying and selling function declaration
 export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration = {
   name: "getTopFiveBrokersBuyingAndSelling",
-  description:
-    "Fetches the top five brokers buying and selling data based on one or more specific broker IDs. You MUST provide the broker ID(s). If you only have the broker name, use getAllBrokers first to find the ID.",
+  description: `Fetches the top five brokers' buying and selling data based on one or more specific broker IDs. 
+  You MUST provide broker ID(s) to use this function. 
+  If you don’t know the broker ID or name, refer to the list below:
+  
+  111 - Arun Securities (PVT) Ltd.
+  112 - Opal Securities Investment (PVT) Ltd.
+  113 - Market Securities & Exchange (PVT) Ltd.
+  114 - Agrawal Securities (PVT) Ltd.
+  115 - J.F. Securites (PVT) Ltd.
+  116 - Ashutosh Brokerage & Securities (PVT) Ltd.
+  117 - Pragyan Securities (PVT) Ltd.
+  118 - Malla & Malla Stock Broking Company Pvt. Ltd.
+  119 - Thrive Brokerage House Pvt. Ltd.
+  120 - Nepal Stock House (PVT) Ltd.
+  121 - Primo Securities (PVT) Ltd.
+  122 - ABC Securities Private Limited
+  123 - Sagarmatha Securities Private Limited
+  124 - Nepal Investment And Securities Trading Pvt. Ltd.
+  125 - Sipla Securities Private Limited
+  126 - Midas Stock Broking Company Private Limited
+  127 - Siprabi Securities Pvt. Ltd.
+  128 - Sweta Securities Private Limited
+  129 - Asian Securities Private Ltd.
+  130 - Shree Krishna Securities Ltd.
+  131 - Trisul Securities & Invt. Ltd.
+  132 - Premier Securities Company Ltd.
+  133 - Creative Securities Pvt. Ltd.
+  134 - Dakshinkali Investment & Securities Pvt. Ltd.
+  135 - Linch Stock Market Ltd.
+  136 - Vision Securities Pvt. Ltd.
+  137 - Kohinoor Investment & Securities Pvt. Ltd.
+  138 - Secured Securities Ltd.
+  139 - Swarna Laxmi Securities Pvt. Ltd.
+  140 - Sani Securities Company Ltd.
+  141 - Dipshikha Dhitopatra Karobar Co. Pvt. Ltd.
+  142 - South Asian Bulls Pvt. Ltd.
+  143 - Sumeru Securities Pvt. Ltd.
+  144 - Dynamic Money Managers Securities Pvt. Ltd.
+  145 - Imperial Securities Company Pvt. Ltd.
+  146 - Kalika Securities Pvt. Ltd.
+  147 - Neev Securities Pvt. Ltd.
+  148 - Trishakti Securities Public Ltd.
+  149 - Online Securities Pvt. Ltd.
+  150 - Cristal Kanchanjanga Securites Pvt. Ltd.
+  151 - Oxford Securities Pvt. Ltd.
+  152 - Sundhara Securities Ltd.
+  153 - Sri Hari Securities Pvt. Ltd.
+  154 - Bhrikuti Stock Broking Co. Pvt. Ltd.
+  155 - Sewa Securities Pvt. Ltd.
+  156 - Investment Management Nepal Pvt. Ltd.
+  158 - Naasa Securities Co. Ltd.
+  161 - Bhole Ganesh Securities Ltd.
+  162 - Himalayan Brokerage Company Ltd.
+  163 - Sun Securities Pvt. Ltd.
+  164 - Sharepro Securities Pvt. Ltd.
+  165 - Miyo Securities Pvt. Ltd.
+  166 - Property Wiard Ltd.
+  167 - Capital Max Securities Ltd.`, 
+  
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -171,28 +227,29 @@ export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration =
     },
     required: ["brokerIds"],
   },
-}
+
+};
 
 /**
  * Declaration for the new auto-fetch function that gets top brokers in one step.
  */
-export const getAllBrokersTopFiveDataDeclaration: FunctionDeclaration = {
-  name: "getAllBrokersTopFiveData",
-  description:
-    "Fetches top five buying and selling data for ALL brokers in the system automatically. Warning: May be resource-intensive if there are many brokers.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {},
-    required: [],
-  },
-}
+// export const getAllBrokersTopFiveDataDeclaration: FunctionDeclaration = {
+//   name: "getAllBrokersTopFiveData",
+//   description:
+//     "Fetches top five buying and selling data for ALL brokers in the system automatically. Warning: May be resource-intensive if there are many brokers.",
+//   parameters: {
+//     type: Type.OBJECT,
+//     properties: {},
+//     required: [],
+//   },
+// }
 
 /**
  * Declaration for the getCompanySynopsis function.
  */
 export const getCompanySynopsisDeclaration: FunctionDeclaration = {
   name: "getCompanySynopsis",
-  description: "Retrieves a brief synopsis of a company based on its symbol, name, company name, or broker number.",
+  description: "Retrieves a brief synopsis of a company or broker based on its symbol, full company name, or broker name/code. if symbol is not provided or user provide full name of company ask user to provide symbol.",
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -240,9 +297,9 @@ export const async_tool_call = async ({ token, functionCall }: { token: string; 
         }
         result = await getTopFiveBrokersBuyingAndSellingForAll(functionCall.args.brokerIds, token)
         break
-      case getAllBrokersTopFiveDataDeclaration.name:
-        result = await getAllBrokersTopFiveData({ token })
-        break
+      // case getAllBrokersTopFiveDataDeclaration.name:
+      //   result = await getAllBrokersTopFiveData({ token })
+      //   break
       case getCompanySynopsisDeclaration.name:
   if (!functionCall.args || typeof functionCall.args.sym !== "string") {
     throw new Error(`Missing or invalid 'sym' string argument for ${functionCall.name}`)
@@ -272,6 +329,5 @@ export const availableDeclarations: FunctionDeclaration[] = [
   getAllBrokersDeclaration,
   getBrokerDetailsDeclaration,
   getTopFiveBrokersBuyingAndSellingDeclaration,
-  getAllBrokersTopFiveDataDeclaration,
   getCompanySynopsisDeclaration,
 ]
