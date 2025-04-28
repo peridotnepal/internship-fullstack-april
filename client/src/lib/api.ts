@@ -86,7 +86,7 @@ export const getBrokerDetailsDeclaration: FunctionDeclaration = {
   },
 };
 /**
- * Fetches top five brokers buying and selling data for a list of broker IDs.
+ * Fetches Top five brokers buying and selling data for a list of broker IDs.
  */
 export async function getTopFiveBrokersBuyingAndSellingForAll(
   brokerIds: string[],
@@ -98,7 +98,7 @@ export async function getTopFiveBrokersBuyingAndSellingForAll(
         const { data }: { data: { status: number; data: any[] } } =
           await request({
             token,
-            url: `/floorsheet/broker_breakdown/top_five_by_broker_id/${brokerId}`,
+            url: `/floorsheet/broker_breakdown/Top_five_by_broker_id/${brokerId}`,
             method: "GET",
             params: { brokerId },
           });
@@ -116,7 +116,7 @@ export async function getTopFiveBrokersBuyingAndSellingForAll(
     return brokerData;
   } catch (error) {
     console.error(
-      "Error fetching top five brokers buying and selling for all brokerIds:",
+      "Error fetching Top five brokers buying and selling for all brokerIds:",
       error
     );
     throw error;
@@ -126,7 +126,7 @@ export async function getTopFiveBrokersBuyingAndSellingForAll(
 export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration =
   {
     name: "getTopFiveBrokersBuyingAndSelling",
-    description: `Fetches the top five brokers' buying and selling data based on one or more specific broker IDs. 
+    description: `Fetches the Top five brokers' buying and selling data based on one or more specific broker IDs. 
   You MUST provide broker ID(s) to use this function. 
   If you don’t know the broker ID or name, refer to the list below:
   
@@ -160,7 +160,7 @@ export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration =
   138 - Secured Securities Ltd.
   139 - Swarna Laxmi Securities Pvt. Ltd.
   140 - Sani Securities Company Ltd.
-  141 - Dipshikha Dhitopatra Karobar Co. Pvt. Ltd.
+  141 - Dipshikha DhiTopatra Karobar Co. Pvt. Ltd.
   142 - South Asian Bulls Pvt. Ltd.
   143 - Sumeru Securities Pvt. Ltd.
   144 - Dynamic Money Managers Securities Pvt. Ltd.
@@ -202,7 +202,7 @@ export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration =
   };
 
 /**
- * Fetches all brokers and then gets top five buying and selling for selected broker IDs.
+ * Fetches all brokers and then gets Top five buying and selling for selected broker IDs.
  */
 // export async function getAllBrokersTopFiveData({ token }: { token: string }) {
 //   try {
@@ -216,13 +216,13 @@ export const getTopFiveBrokersBuyingAndSellingDeclaration: FunctionDeclaration =
 
 //     console.log(`Fetching data for all ${allBrokerIds.length} brokers`)
 
-//     const topFiveData = await getTopFiveBrokersBuyingAndSellingForAll(allBrokerIds, token)
+//     const TopFiveData = await getTopFiveBrokersBuyingAndSellingForAll(allBrokerIds, token)
 //     return {
 //       allBrokers,
-//       topFiveData,
+//       TopFiveData,
 //     }
 //   } catch (error) {
-//     console.error("Error fetching top five data for all brokers:", error)
+//     console.error("Error fetching Top five data for all brokers:", error)
 //     throw error
 //   }
 // }
@@ -255,12 +255,12 @@ export async function getCompanySynopsis({
 }
 
 /**
- * Declaration for the new auto-fetch function that gets top brokers in one step.
+ * Declaration for the new auto-fetch function that gets Top brokers in one step.
  */
 // export const getAllBrokersTopFiveDataDeclaration: FunctionDeclaration = {
 //   name: "getAllBrokersTopFiveData",
 //   description:
-//     "Fetches top five buying and selling data for ALL brokers in the system automatically. Warning: May be resource-intensive if there are many brokers.",
+//     "Fetches Top five buying and selling data for ALL brokers in the system automatically. Warning: May be resource-intensive if there are many brokers.",
 //   parameters: {
 //     type: Type.OBJECT,
 //     properties: {},
@@ -311,7 +311,7 @@ export const GetLiveData = async (
       },
       method: "GET",
     });
-    return response?.data?.data?.liveData;
+    return response?.data;
   } catch (error) {
     console.error("Error fetching live data:", error);
     throw error;
@@ -362,7 +362,7 @@ export const GetSectorWiseLiveData = async (
 export const GetSectorWiseLiveDataDeclaration: FunctionDeclaration = {
   name: "GetSectorWiseLiveData",
   description:
-    "Fetches sector-wise live data from the API. If the user requests data for a specific company or sector (e.g., Life Insurance, Non Life Insurance, Development Bank,Finance,Others), search across all pages and return the relevant data. Always use this function when user asks about top stocks by sector or simply asked about list providing name of sectors.",
+    "Fetches sector-wise live data from the API. If the user requests data for a specific company or sector (e.g., Life Insurance, Non Life Insurance, Development Banks,Finance,Others,Manufacturing And Processing,Micro Finance,Mutual Fund,Commercial Banks,Hotels And Tourism,Hydro Power,Tradings,Investment), search across all pages and return the relevant data. Always use this function when user asks about Top stocks by sector or simply asked about list providing name of sectors.",
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -382,7 +382,7 @@ export const GetSectorWiseLiveDataDeclaration: FunctionDeclaration = {
 
 export const GetGainersAndLosers = async (
   token: string,
-  type: "gainer" | "loser" | "Volume" | "Transaction" | "Turnover"
+  type: "gainer" | "loser" | "volume" | "transaction" | "turnover"
 ) => {
   try {
     const response = await request({
@@ -400,31 +400,31 @@ export const GetGainersAndLosers = async (
 export const GetGainersAndLosersDeclaration: FunctionDeclaration = {
   name: "GetGainersAndLosers",
   description:
-  "Retrieves live gainers, losers, transaction, volume or turnover data. Supports searching by specific company or sector across all pages.",
+  "Retrieves live gainer, loser, transaction, volume or turnover data. Supports searching by specific company or sector across all pages.",
 
   parameters: {
     type: Type.OBJECT,
     properties: {
       type: {
         type: Type.STRING,
-        description: "Type of gainers, losers , Turnover, Transaction, Volume",
+        description: "Type of gainer, loser , turnover, transaction or volume",
       },
     },
     required: ["type"],
   },
 };
 
-/** Get Today's Gainers by Sector */
-export const GetTodayGainersAndLosersBySector = async (
+/** Get Top's Gainers by Sector */
+export const GetTopGainersAndLosersBySector = async (
   token: string,
   sectors: string[],
-  type: "gainer" | "loser" | "Volume" | "Transaction" | "Turnover"
+  type: "gainer" | "loser" | "volume" | "transaction" | "turnover"
 
 ) => {
   try {
     const response = await request({
       token,
-      url: `/${type}/get_today_by_sector`,
+      url: `/${type}/get_Top_by_sector`,
       method: "POST",
       body: {
         sectors,
@@ -432,14 +432,14 @@ export const GetTodayGainersAndLosersBySector = async (
     })
     return response?.data
   } catch (error) {
-    console.error("Error fetching today's gainers by sector:", error)
+    console.error(`Error fetching Top's ${type} by sector:`, error)
     throw error
   }
 }
-export const GetTodayGainersAndLosersBySectorDeclaration: FunctionDeclaration = {
-  name: "GetTodayGainersAndLosersBySector",
+export const GetTopGainersAndLosersBySectorDeclaration: FunctionDeclaration = {
+  name: "GetTopGainersAndLosersBySector",
   description:
-    "Fetches today's gainers, losers, transaction, volume or turnover by sector from the API. If user asks for data of a specific sector like insurance, financial, search for it and return the data.",
+    "Fetches Top's gainer, loser, transaction, volume or turnover by sector from the API. If user asks for data of a specific sector like insurance, financial, search for it and return the data.",
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -452,8 +452,8 @@ export const GetTodayGainersAndLosersBySectorDeclaration: FunctionDeclaration = 
       },
       type: {
         type: Type.STRING,
-        description: "Specify whether to fetch 'gainer' ,'loser', 'Volume', 'Transaction' or 'Turnover'.",
-        enum: ["gainer", "loser", "Volume", "Transaction","Turnover"], 
+        description: "Specify whether to fetch 'gainer' ,'loser', 'volume', 'transaction' or 'turnover'.",
+        enum: ["gainer", "loser", "volume", "transaction","turnover"], 
       },
     },
     required: ["sectors", "type"], 
@@ -562,19 +562,19 @@ export const async_tool_call = async ({
         if (
           functionCall.args.type === "gainer" ||
           functionCall.args.type === "loser" ||
-          functionCall.args.type === "Volume" ||
-          functionCall.args.type === "Transaction" ||
-          functionCall.args.type === "Turnover"
+          functionCall.args.type === "volume" ||
+          functionCall.args.type === "transaction" ||
+          functionCall.args.type === "turnover"
         ) {
-          const type = functionCall.args.type as "gainer" | "loser" | "Volume" | "Transaction" | "Turnover";
+          const type = functionCall.args.type as "gainer" | "loser" | "volume" | "transaction" | "turnover";
           result = await GetGainersAndLosers(token, type);
         } else {
           throw new Error(
-            `Invalid 'type' argument: ${functionCall.args.type}. Expected 'gainers', 'losers', 'Volume', 'Transaction', or 'Turnover'.`
+            `Invalid 'type' argument: ${functionCall.args.type}. Expected 'gainer', 'loser', 'volume', 'transaction', or 'turnover'.`
           );
         }
         break;
-        case GetTodayGainersAndLosersBySectorDeclaration.name:
+        case GetTopGainersAndLosersBySectorDeclaration.name:
           if (
             !functionCall.args ||
             !functionCall.args.sectors ||
@@ -585,34 +585,31 @@ export const async_tool_call = async ({
           }
         
           const type = functionCall.args.type;
-          if (type !== "gainer" && type !== "loser" && type !== "Volume" && type !== "Transaction" && type !== "Turnover") {
+          if (type !== "gainer" && type !== "loser" && type !== "volume" && type !== "transaction" && type !== "turnover") {
             throw new Error(`Invalid 'type' argument for ${functionCall.name}. Expected 'gainer','loser','volume','transaction' or 'turnover'. Got '${type}'`);
           }
         
-          result = await GetTodayGainersAndLosersBySector(token, functionCall.args.sectors, type);
+          result = await GetTopGainersAndLosersBySector(token, functionCall.args.sectors, type);
         
           break;
         
 
-      default:
-        throw new Error(`Unsupported function: ${functionCall.name}`);
-    }
-    // Success payload
-    resultPayload = { result: result };
-  } catch (error) {
-    console.error(`Error during tool execution (${functionCall.name}):`, error);
-    // Error payload
-    resultPayload = {
-      error: error instanceof Error ? error.message : "Tool execution failed",
-    };
-  }
-
-  // Return the structure needed for the FunctionResponsePart in the chat loop
-  return {
-    name: functionCall.name,
-    response: resultPayload,
-  };
-};
+          default:
+            throw new Error(`Unsupported function: ${functionCall.name}`);
+          }
+              
+          resultPayload = {
+            tool_use_id: functionCall.id,
+            output: result,
+          };
+          
+          return resultPayload;
+          } catch (error) {
+          console.error(`Error executing tool ${functionCall.name}:`, error);
+          throw error;
+          }
+          };
+          
 // List of all declarations for convenience
 export const availableDeclarations: FunctionDeclaration[] = [
   getAllBrokersDeclaration,
@@ -622,5 +619,5 @@ export const availableDeclarations: FunctionDeclaration[] = [
   GetLiveDataDeclaration,
   GetSectorWiseLiveDataDeclaration,
   GetGainersAndLosersDeclaration,
-  GetTodayGainersAndLosersBySectorDeclaration
+  GetTopGainersAndLosersBySectorDeclaration
 ];

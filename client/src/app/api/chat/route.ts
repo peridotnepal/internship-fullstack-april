@@ -6,31 +6,23 @@ import {
   type GenerateContentResponse,
   GoogleGenAI,
 } from "@google/genai"
-import { async_tool_call, GetGainersAndLosersDeclaration, GetLiveDataDeclaration, GetSectorWiseLiveDataDeclaration, GetTodayGainersAndLosersBySectorDeclaration } from "@/lib/api"
+import { async_tool_call, GetGainersAndLosersDeclaration, GetLiveDataDeclaration, GetSectorWiseLiveDataDeclaration, GetTopGainersAndLosersBySectorDeclaration } from "@/lib/api"
 import {
   getAllBrokersDeclaration,
   getBrokerDetailsDeclaration,
   getCompanySynopsisDeclaration,
   getTopFiveBrokersBuyingAndSellingDeclaration,
 } from "@/lib/api"
-import generateSmartInstruction from "@/lib/systemInstruction"
+
 export async function POST(request: NextRequest) {
   try {
     const { input, token, chatHistory } = await request.json()
-
-    // Check if input is valid
-    if (!input || input.trim() === "") {
-      return NextResponse.json(
-        { error: "Prompt input cannot be empty." },
-        { status: 400 }
-      )
-    }
 
     // Create a new ReadableStream
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY})
+          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "your-api-key" })
           const config: GenerateContentConfig = {
             tools: [
               {
@@ -38,29 +30,24 @@ export async function POST(request: NextRequest) {
                   getAllBrokersDeclaration,
                   getBrokerDetailsDeclaration,
                   getTopFiveBrokersBuyingAndSellingDeclaration,
+                  getTopFiveBrokersBuyingAndSellingDeclaration,
                   getCompanySynopsisDeclaration,
+                  GetGainersAndLosersDeclaration,
                   GetLiveDataDeclaration,
                   GetSectorWiseLiveDataDeclaration,
-                  GetGainersAndLosersDeclaration,
-                  GetTodayGainersAndLosersBySectorDeclaration
+                  GetTopGainersAndLosersBySectorDeclaration,
                 ],
               },
             ],
           }
 
-          const systemInstruction = generateSmartInstruction(input);
-
-const contents: Content[] = [
-  ...(chatHistory || []),
-  {
-    role: "user",
-    parts: [{ text: systemInstruction + "\n\n" + input }], // notice: system instruction added inside user's input
-  },
-];
-
-          // Inform the client that the AI is generating a response
-          controller.enqueue(new TextEncoder().encode("AI is generating a response...\n"))
-
+          const contents: Content[] = [
+            ...(chatHistory || []),
+            {
+              role: "user",
+              parts: [{ text: input }],
+            },
+          ]
 
           const response: GenerateContentResponse = await ai.models.generateContent({
             model: "gemini-2.0-flash",
@@ -76,12 +63,21 @@ const contents: Content[] = [
 
             const functionCallsResponse = await async_tool_call({ token, functionCall })
 
-            // Append function call and result to contents
-            contents.push({ role: "model", parts: [{ functionCall }] })
-            contents.push({
-              role: "user",
-              parts: [{ functionResponse: functionCallsResponse as Record<string, unknown> }],
-            })
+           // Append function call and result to contents
+contents.push({ 
+  role: "model", 
+  parts: [{ functionCall }]  // Remove the text here, just include the functionCall
+});
+
+contents.push({
+  role: "function",
+  parts: [{ 
+    functionResponse: {
+      name: functionCall.name,
+      response: functionCallsResponse as Record<string, unknown>  // Cast to Record<string, unknown>
+    }
+  }]
+});
 
             // Inform the client that we're processing the function result
             controller.enqueue(new TextEncoder().encode(`Processing ${functionCall.name} results...\n\n`))
@@ -90,13 +86,17 @@ const contents: Content[] = [
             const final_response = await ai.models.generateContentStream({
               model: "gemini-2.0-flash",
               contents: contents,
+              config,
             })
 
+            // Stream the response chunks with a slight delay to make streaming more visible
             for await (const chunk of final_response) {
               if (chunk.text) {
+                // Split the text into smaller chunks to make streaming more visible
                 const words = chunk.text.split(" ")
                 for (const word of words) {
                   controller.enqueue(new TextEncoder().encode(word + " "))
+                  // Small delay to make streaming more visible (optional)
                   await new Promise((resolve) => setTimeout(resolve, 20))
                 }
               }
@@ -107,6 +107,7 @@ const contents: Content[] = [
               const text = response.text
               for (let i = 0; i < text.length; i++) {
                 controller.enqueue(new TextEncoder().encode(text[i]))
+                // Small delay to make streaming more visible
                 await new Promise((resolve) => setTimeout(resolve, 15))
               }
             } else {
