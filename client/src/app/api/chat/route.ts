@@ -6,14 +6,14 @@ import {
   type GenerateContentResponse,
   GoogleGenAI,
 } from "@google/genai"
-import { async_tool_call } from "@/lib/api"
+import { async_tool_call, GetGainersAndLosersDeclaration, GetLiveDataDeclaration, GetSectorWiseLiveDataDeclaration, GetTodayGainersAndLosersBySectorDeclaration } from "@/lib/api"
 import {
   getAllBrokersDeclaration,
   getBrokerDetailsDeclaration,
   getCompanySynopsisDeclaration,
   getTopFiveBrokersBuyingAndSellingDeclaration,
 } from "@/lib/api"
-
+import generateSmartInstruction from "@/lib/systemInstruction"
 export async function POST(request: NextRequest) {
   try {
     const { input, token, chatHistory } = await request.json()
@@ -39,18 +39,28 @@ export async function POST(request: NextRequest) {
                   getBrokerDetailsDeclaration,
                   getTopFiveBrokersBuyingAndSellingDeclaration,
                   getCompanySynopsisDeclaration,
+                  GetLiveDataDeclaration,
+                  GetSectorWiseLiveDataDeclaration,
+                  GetGainersAndLosersDeclaration,
+                  GetTodayGainersAndLosersBySectorDeclaration
                 ],
               },
             ],
           }
 
-          const contents: Content[] = [
-            ...(chatHistory || []),
-            {
-              role: "user",
-              parts: [{ text: input }],
-            },
-          ]
+          const systemInstruction = generateSmartInstruction(input);
+
+const contents: Content[] = [
+  ...(chatHistory || []),
+  {
+    role: "user",
+    parts: [{ text: systemInstruction + "\n\n" + input }], // notice: system instruction added inside user's input
+  },
+];
+
+          // Inform the client that the AI is generating a response
+          controller.enqueue(new TextEncoder().encode("AI is generating a response...\n"))
+
 
           const response: GenerateContentResponse = await ai.models.generateContent({
             model: "gemini-2.0-flash",
