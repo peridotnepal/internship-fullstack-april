@@ -459,6 +459,51 @@ export const GetTopGainersAndLosersBySectorDeclaration: FunctionDeclaration = {
     required: ["sectors", "type"], 
   },
 };
+export const getMarketOverview = async (
+  token: string,
+  types: Array<"gainer" | "loser" | "volume" | "transaction" | "turnover">
+) => {
+  try {
+    const results = await Promise.all(
+      types.map((type) =>
+        request({
+          token,
+          url: `/${type}/live`,
+          method: "GET",
+        }).then((res) => ({ [type]: res.data })) // return an object like {gainer: data}
+      )
+    );
+
+    // Merge all responses into one object
+    return Object.assign({}, ...results);
+  } catch (error) {
+    console.error(`Error fetching market overview:`, error);
+    throw error;
+  }
+};
+
+export const getMarketOverviewDeclaration: FunctionDeclaration = {
+  name: "getMarketOverview",
+  description: "Fetches market overview data for the specified types. If user asked to give top gainer and loser or top volume and turnover or top gainer and volume etc call this function",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      token: {
+        type: Type.STRING,
+        description: "Authorization token for API requests.",
+      },
+      types: {
+        type: Type.ARRAY,
+        description: "An array containing one or more market overview types.",
+        items: {
+          type: Type.STRING,
+          enum: ["gainer", "loser", "volume", "transaction", "turnover"],
+        },
+      },
+    },
+    required: ["types"],
+  },
+};
 
 
 /**
@@ -592,6 +637,20 @@ export const async_tool_call = async ({
           result = await GetTopGainersAndLosersBySector(token, functionCall.args.sectors, type);
         
           break;
+          case getMarketOverviewDeclaration.name:
+          if (
+            !functionCall.args ||
+            !functionCall.args.types ||
+            !Array.isArray(functionCall.args.types) ||
+            !functionCall.args.types.every((type: any) => typeof type === "string")
+          ) {
+            throw new Error(`Invalid or missing 'types' array argument for ${functionCall.name}`);
+          }
+          const types = functionCall.args.types as ("gainer" | "loser" | "volume" | "transaction" | "turnover")[];
+          const count = functionCall.args.count || 5;
+          result = await getMarketOverview(token, types);
+
+          break
         
 
           default:
@@ -619,5 +678,6 @@ export const availableDeclarations: FunctionDeclaration[] = [
   GetLiveDataDeclaration,
   GetSectorWiseLiveDataDeclaration,
   GetGainersAndLosersDeclaration,
-  GetTopGainersAndLosersBySectorDeclaration
+  GetTopGainersAndLosersBySectorDeclaration,
+  getMarketOverviewDeclaration
 ];
