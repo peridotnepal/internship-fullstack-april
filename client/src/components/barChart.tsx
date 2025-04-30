@@ -247,7 +247,11 @@ const BarChart: React.FC<BarChartProps> = ({
   return (
     <div
       className={`w-full ${
+<<<<<<< HEAD
         chart === "Default" ? "max-w-4xl" : "max-w-xl"
+=======
+        chart === "Default" ? "max-w-5xl" : "max-w-xl"
+>>>>>>> 69be3af2875471f2d047ba681ec50d5e738288a2
       } mx-auto p-6 ${themeOutside()} rounded-xl shadow-2xl`}
     >
       <div className="flex justify-between mb-6">

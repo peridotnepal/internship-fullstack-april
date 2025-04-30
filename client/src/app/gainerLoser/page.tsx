@@ -3,8 +3,7 @@
 import { allGainer, allLosers } from "@/lib/query/gainer-loser.query";
 import { GainerItem } from "@/lib/types/gainerloser";
 import React, { useRef, useState } from "react";
-import { toPng } from "html-to-image";
-import { saveAs } from "file-saver";
+
 import { Button } from "@/components/ui/button";
 import BarChart from "@/components/barChart";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, DownloadCloud } from "lucide-react";
+import handleDownload from "@/components/imageDownload";
 
 const sortAndFilterTopItems = (
   data: GainerItem[],
@@ -36,13 +36,14 @@ const sortAndFilterTopItems = (
 };
 
 const ImagePrev = () => {
-  const chartRef = useRef(null);
+  const chartRef = useRef<HTMLDivElement | null>(null);
   const [selectedCompany, setSelectedCompany] = useState("PortfolioNepal");
   const [selectedTheme, setSelectedTheme] = useState("Default");
   const [selectedInsideTheme, setInsideSelectedTheme] = useState("Default");
   const [selectedIndexAxis, setSelectedIndexAxis] = useState<"x" | "y">("x");
   const [reversed, setReversed] = useState(true);
   const [chart, setChart] = useState("Default");
+  const name = "Gainer-Loser-chart"
 
   const { data: gainer, isLoading: isGainerLoading } = allGainer();
   const { data: loser, isLoading: isLoserLoading } = allLosers();
@@ -57,25 +58,6 @@ const ImagePrev = () => {
 
   const topGainers = sortAndFilterTopItems(gainer, "gainer");
   const topLosers = sortAndFilterTopItems(loser, "loser");
-
-  const handleDownload = async () => {
-    if (!chartRef.current) return;
-
-    try {
-      const dataUrl = await toPng(chartRef.current, {
-        cacheBust: true,
-        pixelRatio: 3,
-        style: {
-          transform: "none",
-          margin: "0",
-          padding: "0",
-        },
-      });
-      saveAs(dataUrl, "chart.png");
-    } catch (err) {
-      console.error("Error generating image:", err);
-    }
-  };
 
   const handleCompanyChange = (company: string) => {
     setSelectedCompany(company);
@@ -109,7 +91,7 @@ const ImagePrev = () => {
           Customization
         </div>
 
-        <Button onClick={handleDownload} className="flex items-center gap-2">
+        <Button onClick={()=> handleDownload(chartRef, name)} className="flex items-center gap-2">
           <DownloadCloud size={18} />
           Download Chart
         </Button>
