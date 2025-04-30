@@ -1,15 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import puppeteer from "puppeteer";
-import { cleanData } from "./src/utils/cleanData";
-import { nepaliMonthMap } from "./src/utils/nepaliMonth";
+import { cleanData } from "./cleanData";
+import { nepaliMonthMap } from "./nepaliMonth";
 
 const prisma = new PrismaClient();
 
 
 type NepaliMonth = keyof typeof nepaliMonthMap;
-
-
-
 
 const scrape = async () => {
   const browser = await puppeteer.launch();
@@ -55,6 +52,9 @@ const scrape = async () => {
     date: `${year}-${monthNum}-${day.padStart(2, "0")}`,
     silver: silverData,
   };
+
+  console.log(todayGoldPrice);
+  console.log(todaySilverPrice);
 
 
   // await prisma.goldData.create({

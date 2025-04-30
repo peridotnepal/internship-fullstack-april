@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import scrape from '../scrapData';
+import scrape from './utils/scrapData';
 
 // const getData = async () => {
 //     const prisma = new PrismaClient();
