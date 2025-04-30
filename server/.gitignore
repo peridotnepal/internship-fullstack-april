@@ -1,0 +1,70 @@
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.idea
+.vscode
+
+
+
+# Prisma
+.env
+prisma/.env
+prisma/dev.db # If you're using SQLite for development
+prisma/migrations # Only if you don't want to track migration history (usually you do)
+prisma/seed.ts # If you have a seed file and don't want to track changes
+prisma/seed.js # If your seed file is compiled to JS
+
+# Generated Prisma Client
+node_modules/@prisma/client
+
+# TypeScript output (if you're using TypeScript)
+dist
+build
+
+# Logs
+*.log
+*.sqlite-journal # If you're using SQLite
+
+# Editor-specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Node.js specific
+node_modules/
+package-lock.json # Or yarn.lock, depending on your package manager
+
+# If you have other environment files
+*.env.local
+*.env.development
+*.env.test
+
+# Other temporary files or directories you might have
+# ...
