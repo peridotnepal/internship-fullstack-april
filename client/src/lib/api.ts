@@ -812,6 +812,7 @@ export const getHoldingBuySellStockDeclaration: FunctionDeclaration = {
       
     },
     required: [ "symbol", "type"],
+    
   },
 };
 
