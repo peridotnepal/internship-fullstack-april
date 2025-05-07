@@ -186,8 +186,8 @@ const BarChart: React.FC<BarChartProps> = ({
     },
     layout: {
       padding: {
-        top: 20,
-        right: 45,
+        top: 25,
+        right: 50,
       },
     },
   };
