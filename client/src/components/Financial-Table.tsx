@@ -26,7 +26,7 @@ import { useTimePeriod } from "@/lib/query/useTimePeriod";
 import { useDividend } from "@/lib/query/useDividend";
 import TimePeriodLoading from "./skeleton/TimePeriodLoading";
 import DividendLoading from "./skeleton/DividendLoading";
-import PremiumDividendAnnouncement from "./Image-Generator";
+import PremiumDividendAnnouncement from "./darkDividend";
 import { toPng } from "html-to-image";
 import { createRoot } from "react-dom/client";
 import GoldWhiteImage from "./Gold-White-Image";
@@ -153,7 +153,7 @@ export default function FinancialTable() {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Wait for images specifically
-      await waitForNextJSImages(tempContainer);
+      // await waitForNextJSImages(tempContainer);
 
       const dataUrl = await toPng(tempContainer.firstChild as HTMLElement, {
         backgroundColor: "white",
@@ -175,27 +175,27 @@ export default function FinancialTable() {
     }
   };
 
-  const waitForNextJSImages = async (container: HTMLElement) => {
-    const nextImageWrappers = container.querySelectorAll("[data-next-img]");
+  // const waitForNextJSImages = async (container: HTMLElement) => {
+  //   const nextImageWrappers = container.querySelectorAll("[data-next-img]");
 
-    await Promise.all(
-      Array.from(nextImageWrappers).map((wrapper) => {
-        const img = wrapper.querySelector("img");
-        if (!img || img.complete) return Promise.resolve();
+  //   await Promise.all(
+  //     Array.from(nextImageWrappers).map((wrapper) => {
+  //       const img = wrapper.querySelector("img");
+  //       if (!img || img.complete) return Promise.resolve();
 
-        return new Promise<void>((resolve) => {
-          const onLoad = () => {
-            img.removeEventListener("load", onLoad);
-            resolve();
-          };
-          img.addEventListener("load", onLoad);
-        });
-      })
-    );
+  //       return new Promise<void>((resolve) => {
+  //         const onLoad = () => {
+  //           img.removeEventListener("load", onLoad);
+  //           resolve();
+  //         };
+  //         img.addEventListener("load", onLoad);
+  //       });
+  //     })
+  //   );
 
-    // Additional safety delay
-    await new Promise((resolve) => setTimeout(resolve, 200));
-  };
+  //   // Additional safety delay
+  //   await new Promise((resolve) => setTimeout(resolve, 200));
+  // };
 
   return (
     <div className=" min-h-screen w-full p-4 md:p-8 bg-gradient-to-b from-zinc-950 to-zinc-950 text-gray-200 ">

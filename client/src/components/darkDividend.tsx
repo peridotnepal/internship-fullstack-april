@@ -1,5 +1,6 @@
 "use client"
 import Image from 'next/image';
+import { useState } from 'react';
 
 export interface DividendDataProps {
   company: string;
@@ -36,6 +37,9 @@ export default function PremiumDividendAnnouncement({
   
     return `${day}.${month}.${year}`;
   };
+
+    const [imageLoaded, setImageLoaded] = useState(true)
+    const imageUrl = `${process.env.NEXT_PUBLIC_GET_LOGO}/${symbol}.webp`
   return (
 
 
@@ -60,17 +64,27 @@ style={{
     {/* Company branding section */}
     <div className="pt-4 pb-2 px-6 text-center relative z-10">
       <div className="flex items-center justify-center mb-2">
-        <div>
-          <Image
-            priority={true}
-            unoptimized={true}
-            src={`${process.env.NEXT_PUBLIC_GET_LOGO}/${symbol}.webp?ts=${Date.now()}`} 
-            alt={`${symbol} Logo`} 
-            width={120} 
-            height={120} 
-            className=" object-contain  mix-blend-multiply rounded-md"   
-            style={{background:"transparent"}}
-          />
+        <div className='flex items-center justify-center rounded-md'>
+          {
+            imageLoaded ? (
+              <Image
+                priority={true}
+                unoptimized={true}
+                src={imageUrl} 
+                alt={`${symbol} Logo`} 
+                width={120} 
+                height={120} 
+                onError={() => setImageLoaded(false)}
+                className=" object-contain  rounded-md"   
+              />
+            ) : (
+              <span
+              className={`text-2xl font-bold text-gray-200 `}
+            >
+              {symbol}
+            </span>
+            )
+          }
         </div>
       </div>
       <h2 className="text-white text-xl font-bold mt-2">{company}</h2>

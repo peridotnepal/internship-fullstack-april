@@ -70,7 +70,7 @@ export default function StockTabs() {
   const [stockData, setStockData] = useState<{
     [key: string]: string | number | null
   } | null>(null)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(true)
   const imageUrl = `${process.env.NEXT_PUBLIC_GET_LOGO}/${stockData?.symbol}.webp`
   const picRef = useRef<HTMLDivElement | null>(null)
   const [logo, setLogo] = useState<"PortfolioNepal" | "SaralLagani">("PortfolioNepal")
