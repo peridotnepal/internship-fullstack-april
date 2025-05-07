@@ -8,48 +8,6 @@ const generateAdvisory = async (req, res) => {
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-    // const prompt = `Generate an HTML content block for a stock advisory report. 
-    // The report should include the following sections, styled with inline CSS similar to the example provided:
-    
-    // 1.  **Title:** "Stock Advisory Report" (color: #2563eb, font-size: 24px, margin-bottom: 16px)
-    // 2.  **Sector Information:** Display the selected sector: "${selectedSector}".
-    // 3.  **Date Range:** Display the date range: "${fromDate} to ${toDate}".
-    // 4.  **Selected Stocks Analysis:** 
-    //     - A heading "Selected Stocks Analysis" (color: #374151, font-size: 20px, margin-top: 24px, margin-bottom: 16px).
-    //     - A table with columns: "Symbol", "Company Name", "LTP", and "Change %".
-    //     - Style the table with width: 100%, border-collapse: collapse, margin-bottom: 24px.
-    //     - Style the table header row with background-color: #f3f4f6.
-    //     - Style table cells with padding: 12px, text-align: left (except for LTP and Change %), border: 1px solid #e5e7eb.
-    //     - Format "LTP" to 2 decimal places and align it to the right.
-    //     - Format "Change %" with a "+" sign for positive values, aligned to the right, with green color for positive and red for negative.
-    //     - Use simulated or estimated values for LTP and Change % for each stock, based on typical stock behavior during the given date range "${fromDate} to ${toDate}".
-    //     - The stock data to include in the table is:
-    //         ${selectedStockDetails
-    //           .map(
-    //             (stock) =>
-    //               `- Symbol: ${stock.symbol}, Company Name: ${stock.companyName}`
-    //           )
-    //           .join("\n        ")}
-    
-    // 5.  **Market Overview:** 
-    //     - A heading "Market Overview" (color: #374151, font-size: 20px, margin-top: 24px, margin-bottom: 16px).
-    //     - A paragraph summarizing the general trend of the "${selectedSector}" sector during the selected period. Be creative and use placeholders like [positive/negative] trends.
-    //     - A bulleted list of 2-3 general recommendations for investors in this sector. Use placeholders like [top stocks], [buying/selling] opportunities.
-    
-    // 6.  **Technical Analysis:**
-    //     - A heading "Technical Analysis" (color: #374151, font-size: 20px, margin-top: 24px, margin-bottom: 16px).
-    //     - A paragraph providing a brief technical overview, potentially mentioning the sector index's performance relative to the broader market using a random percentage.
-    
-    // 7.  **Recommendations:**
-    //     - A heading "Recommendations" (color: #374151, font-size: 20px, margin-top: 24px, margin-bottom: 16px).
-    //     - An ordered list of 2-3 general investment recommendations for short-term and long-term investors, and a point about risk management. Use placeholders like [taking profits/accumulating positions].
-    
-    // 8.  **Disclaimer:** 
-    //     - A paragraph with a disclaimer in italic style (color: #6b7280, font-style: italic, margin-top: 32px): 
-    //     "This advisory report is generated based on historical data and technical analysis. Investment decisions should be made after considering your financial goals and risk tolerance."
-    
-    // Ensure the entire output is a single HTML string with all styles inline.`;
-
     const prompt = `
     You are a professional stock market analyst. Your task is to generate a detailed HTML content block for a stock advisory report.  Provide a comprehensive analysis of the selected stocks, including their performance over the specified date range.
 
@@ -110,7 +68,7 @@ const generateAdvisory = async (req, res) => {
 
     Ensure the entire output is a single HTML string with all styles inline.
   `;
-  
+
     const requestBody = {
       contents: [
         {
