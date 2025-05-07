@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {Plus_Jakarta_Sans} from "next/font/google"
 import { QueryProvider } from "@/components/queryProvider";
+import toast, { Toaster } from 'react-hot-toast';
 
 
 const geistSans = Geist({
@@ -36,6 +37,7 @@ export default function RootLayout({
       >
         <QueryProvider>
            {children}
+           <Toaster/>
         </QueryProvider>
       </body>
     </html>
