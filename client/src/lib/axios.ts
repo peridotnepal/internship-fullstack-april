@@ -3,7 +3,7 @@ import { decryptMessage } from "@/hashing/decrypt";
 
 // Create an axios instance with strict typing based on AxiosInstance
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL ,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -18,7 +18,7 @@ api.interceptors.response.use(
     const url = response.config.url;
     if (
       url?.includes("economy") ||
-      url?.includes("financial_breakdown/loan/compare") ||
+      url?.includes("financial_breakdown") ||
       url?.includes("report") ||
       url?.includes("/screener") ||
       url?.includes("heat-map")
@@ -49,6 +49,7 @@ export interface RequestOptions<T = unknown> {
   params?: AxiosRequestConfig["params"];
   headers?: AxiosRequestConfig["headers"];
   body?: T;
+  
 }
 
 // Generic request function.
