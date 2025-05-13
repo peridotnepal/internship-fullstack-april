@@ -5,8 +5,6 @@ import {
 } from "@google/genai";
 import request from "./axios";
 
-
-
 import api from ".";
 import axios from "axios";
 
@@ -460,12 +458,30 @@ export async function getCompanySynopsis({
   sym: string;
 }) {
   try {
+    const allCompanies = await getAllCompany(token);
+
+    if (!Array.isArray(allCompanies)) {
+      throw new Error("Expected 'allCompanies' to be an array.");
+    }
+
+    const matched = allCompanies.find(
+      (company: any) =>
+        company.symbol?.toLowerCase() === sym.toLowerCase().trim() ||
+        company.companyName?.toLowerCase() === sym.toLowerCase().trim()
+    );
+
+    const resolvedSymbol = matched ? matched.symbol : sym.toUpperCase();
+
     const { data }: { data: { status: number; data: any } } = await request({
       token,
-      url: `financial_breakdown/short_synopsis/${sym}`,
+      url: `financial_breakdown/short_synopsis/${resolvedSymbol}`,
       method: "GET",
     });
+
     if (data.status === 200) {
+      if (!data.data) {
+        throw new Error(`No data found for symbol: ${resolvedSymbol}`);
+      }
       return data.data;
     } else {
       throw new Error(`Failed to fetch company synopsis: ${data.status}`);
@@ -509,9 +525,9 @@ This function should be triggered when the user is requesting a high-level overv
 - "Get brief info for broker [broker code]."
 - "I want to see the performance summary of this company."
 - "Can you fetch synopsis for [symbol]?"
+- "give me details about [company or symbol]"
 
-⚠️ If the user provides a full company or broker name instead of a symbol, ask them to provide the correct **symbol** for accurate results.
-If the user provides a symbol with capital or all lowercase letters, it should be converted to whatever is in the database or expects try with both ways.
+⚠️ If the provided name doesn’t exactly match any known company or broker, we will fallback to using it as a symbol. For best results, provide the exact symbol or correct company name.
 
 Use this API to present a snapshot of the financial state or description of a company, such as recent performance, market position, or other summarized financial data.`,
   parameters: {
@@ -534,10 +550,7 @@ Use this API to present a snapshot of the financial state or description of a co
  *
  * @returns Promise with formatted stock data and pagination info
  */
-export const GetLiveData = async (
-  token: string,
-  symbols: string[]
-) => {
+export const GetLiveData = async (token: string, symbols: string[]) => {
   try {
     const results = await Promise.all(
       symbols.map(async (sym) => {
@@ -562,7 +575,6 @@ export const GetLiveData = async (
     throw error;
   }
 };
-
 
 export const GetLiveDataDeclaration: FunctionDeclaration = {
   name: "GetLiveData",
@@ -864,8 +876,6 @@ Use this function when the user asks for:
   },
 };
 
-
-
 /** get holding/buy/sell stock https://peridotnepal.xyz/api/broker/broker_hystoric_${type}_by_sym
 payload: {"symbol": "adbl", "toDate": "2025/05/04", "fromDate": "2025/04/27"} type:buy||sell||holding */
 
@@ -894,12 +904,37 @@ export const getHoldingBuySellStock = async (
   const to = toDate || currentDate;
 
   try {
+    const allCompanies = await getAllCompany(token);
+
+    const symbolSet = new Set<string>();
+
+    (Array.isArray(symbol) ? symbol : [symbol]).forEach((input) => {
+      if (!Array.isArray(allCompanies)) {
+        throw new Error("Expected 'allCompanies' to be an array.");
+      }
+
+      const exactMatch = allCompanies.find(
+        (company: any) =>
+          company.symbol?.toLowerCase() === input.toLowerCase() ||
+          company.companyName?.toLowerCase() === input.toLowerCase()
+        //input.toLowerCase().trim()
+      );
+
+      if (exactMatch) {
+        symbolSet.add(exactMatch.symbol);
+      } else {
+        // If no match found, fallback to input (assuming it's a symbol)
+        symbolSet.add(input.toUpperCase());
+      }
+    });
+
+    const uniqueSymbols = Array.from(symbolSet);
     const response = await request({
       token,
       url: `/broker/broker_hystoric_${type}_by_sym`,
       method: "POST",
       body: {
-        symbol,
+        symbol: uniqueSymbols,
         fromDate: from,
         toDate: to,
       },
@@ -977,7 +1012,7 @@ export const getMarketSummary = async (token: string) => {
     throw error;
   }
 };
-export const getMarketSummaryDeclaration: FunctionDeclaration = { 
+export const getMarketSummaryDeclaration: FunctionDeclaration = {
   name: "getMarketSummary",
   description: `Fetches a comprehensive market summary including the current index, top gainers, top losers, and the highest traded volume.
 
@@ -996,18 +1031,29 @@ Use this function when the user asks for:
     },
     required: [],
   },
-
-}
+};
 
 /** Trending-stocks */
-export const getTrendingStocks = async (token: string, type: 'uptrending' | 'downtrending') => {  
-  
+export const getTrendingStocks = async (
+  token: string,
+  types: Array<"uptrending" | "downtrending">
+) => {
   try {
-    const response = await request({
-      token,
-      url: `/trending-stocks/${type}`,
-    });
-    return response?.data;
+    const results = await Promise.all(
+      types.map((type) =>
+        request({
+          token,
+          url: `/trending-stocks/${type}`,
+        })
+          .then((res) => ({ [type]: res.data }))
+          .catch((err) => {
+            console.error(`Failed to fetch ${type} stocks:`, err);
+            return { [type]: [] };
+          })
+      )
+    );
+
+    return Object.assign({}, ...results);
   } catch (error) {
     console.error("Error fetching trending stocks:", error);
     throw error;
@@ -1025,7 +1071,8 @@ export const getTrendingStocksDeclaration: FunctionDeclaration = {
   - "Show me the uptrending stocks."
   - "What are the downtrending stocks?"
   - "Give me the trending stocks."
-  - "What are the trending stocks?"`,
+  - "What are the trending stocks?"
+  - "Show me both uptrending and downtrending stocks."`,
 
   parameters: {
     type: Type.OBJECT,
@@ -1034,15 +1081,19 @@ export const getTrendingStocksDeclaration: FunctionDeclaration = {
         type: Type.STRING,
         description: "Authorization token for the request.",
       },
-      type: {
-        type: Type.STRING,
-        enum: ["uptrending", "downtrending"],
-        description: "Type of trending stocks to retrieve: 'uptrending' or 'downtrending'.",
+      types: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.STRING,
+          enum: ["uptrending", "downtrending"],
+        },
+        description:
+          "Array of stock types to fetch: one or both of 'uptrending' and 'downtrending'.",
       },
     },
-    required: ["type"],
+    required: ["types"],
   },
-}
+};
 
 /** broker holding */
 export const fetchBrokerHoldings = async (
@@ -1060,13 +1111,16 @@ export const fetchBrokerHoldings = async (
       toDate: formattedToDate,
     });
 
-    const response = await axios.get(`http://localhost:9000/api/broker-holdings/${memberCode}`, {
-      params: {
-        // buyerMemberId: memberCode,
-        fromDate: formattedFromDate,
-        toDate: formattedToDate,
-      },
-    });
+    const response = await axios.get(
+      `http://localhost:9000/api/broker-holdings/${memberCode}`,
+      {
+        params: {
+          // buyerMemberId: memberCode,
+          fromDate: formattedFromDate,
+          toDate: formattedToDate,
+        },
+      }
+    );
 
     return response.data;
   } catch (error) {
@@ -1074,8 +1128,6 @@ export const fetchBrokerHoldings = async (
     throw error;
   }
 };
-
-
 
 export const fetchBrokerHoldingsDeclaration: FunctionDeclaration = {
   name: "fetchBrokerHoldings",
@@ -1090,7 +1142,8 @@ export const fetchBrokerHoldingsDeclaration: FunctionDeclaration = {
     properties: {
       memberCode: {
         type: Type.NUMBER,
-        description: "The unique identifier of the broker whose holdings are to be fetched.",
+        description:
+          "The unique identifier of the broker whose holdings are to be fetched.",
       },
       fromDate: {
         type: Type.STRING,
@@ -1121,12 +1174,37 @@ export const getCompanyMarketInformationLoanCompare = async (
   symbol: string[]
 ) => {
   try {
+    const allCompanies = await getAllCompany(token);
+
+    const symbolSet = new Set<string>();
+
+    symbol.forEach((input) => {
+      if (!Array.isArray(allCompanies)) {
+        throw new Error("Expected 'allCompanies' to be an array.");
+      }
+
+      const exactMatch = allCompanies.find(
+        (company: any) =>
+          company.symbol?.toLowerCase() === input.toLowerCase() ||
+          company.companyName?.toLowerCase() === input.toLowerCase()
+        //input.toLowerCase().trim()
+      );
+
+      if (exactMatch) {
+        symbolSet.add(exactMatch.symbol);
+      } else {
+        // If no match found, fallback to input (assuming it's a symbol)
+        symbolSet.add(input.toUpperCase());
+      }
+    });
+
+    const uniqueSymbols = Array.from(symbolSet);
     const response = await request({
       token,
       url: `/company/market-information-loan-compare`,
       method: "POST",
       body: {
-        symbol, // shorthand syntax — no need to write symbol: symbol
+        symbol: uniqueSymbols, // shorthand syntax — no need to write symbol: symbol
       },
     });
     return response?.data;
@@ -1136,69 +1214,13 @@ export const getCompanyMarketInformationLoanCompare = async (
   }
 };
 
-export const getCompanyMarketInformationLoanCompareDeclaration: FunctionDeclaration = {
-  name: "getCompanyMarketInformationLoanCompare",
-  description: `Fetches market information and loan comparison data for a specific company symbol.
+export const getCompanyMarketInformationLoanCompareDeclaration: FunctionDeclaration =
+  {
+    name: "getCompanyMarketInformationLoanCompare",
+    description: `Fetches market information and loan comparison data for a specific company symbol.
 
 Use this function when the user asks for:
 - Market information and loan comparison data for a company
-`,
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      token: {
-        type: Type.STRING,
-        description: "Authorization token for the request.",
-      },
-      symbol: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.STRING, // Required!
-        },
-        description: "Multiple stock symbols (e.g., RBCL, JLI) for which to fetch data.",
-      },
-    },
-    required: ["symbol", "token"], // token should also be required
-  },
-};
-
-/** Company compare  */
-
-export const getCompanyCompare= async (
-  token: string,
-  symbol: string[],
-  quarter: string
-  )=>{
-    try{
-      const response = await request({
-        token,
-        url: `/company/compare`,
-        method: "POST",
-        body: {
-          symbol,
-          quarter
-        },
-      });
-      return response?.data;
-    
-    }
-    catch(error){
-      console.error("Error fetching company compare:", error);
-      throw error;
-    }
-  }
-
-  export const getCompanyCompareDeclaration:FunctionDeclaration={
-    name: "getCompanyCompare",
-    description: `Fetches company comparison data for a specific company symbol and quarter.
-
-Use this function when the user asks for:
-- Company comparison data for a company
-- Company comparison data for a company and quarter
-- Company comparison data for a company with quarter and symbol
-- Compnay compare data for symbols of q1 or Q1 or Q2 so on.
--symbol vs symbol 
--symbol vs symbol for q1 or q2 or q3 or q4
 `,
     parameters: {
       type: Type.OBJECT,
@@ -1212,34 +1234,124 @@ Use this function when the user asks for:
           items: {
             type: Type.STRING, // Required!
           },
-          description: "Multiple stock symbols (e.g., RBCL, JLI) for which to fetch data.",
-        },
-        quarter: {
-          type: Type.STRING,
-          description: "The quarter for which to fetch data.",
+          description:
+            "Multiple stock symbols (e.g., RBCL, JLI) for which to fetch data.",
         },
       },
-      required: ["symbol"], 
+      required: ["symbol"],
     },
-  }
-
-  /** get all company */
-  export const getAllCompany = async (token: string) => {
-    try {
-      const response = await request({
-        token,
-        url: `/company/get/all`,
-      });
-      console.log("🔍 getAllCompany response.data:", response.data);
-      return response?.data;
-    } catch (error) {
-      console.error("Error fetching all company:", error);
-      throw error;
-    }
   };
-  export const getAllCompanyDeclaration: FunctionDeclaration = {
-    name: "getAllCompany",
-    description: `Fetches all company data.
+
+/** Company compare  */
+
+export const getCompanyCompare = async (
+  token: string,
+  symbol: string[],
+  quarter: string
+) => {
+  try {
+    // Fetch all companies to resolve full names to symbols
+    const allCompanies = await getAllCompany(token);
+
+    const symbolSet = new Set<string>();
+
+    symbol.forEach((input) => {
+      if (!Array.isArray(allCompanies)) {
+        throw new Error("Expected 'allCompanies' to be an array.");
+      }
+
+      const exactMatch = allCompanies.find(
+        (company: any) =>
+          company.symbol?.toLowerCase() === input.toLowerCase() ||
+          company.companyName?.toLowerCase() === input.toLowerCase()
+        //input.toLowerCase().trim()
+      );
+
+      if (exactMatch) {
+        symbolSet.add(exactMatch.symbol);
+      } else {
+        // If no match found, fallback to input (assuming it's a symbol)
+        symbolSet.add(input.toUpperCase());
+      }
+    });
+
+    const uniqueSymbols = Array.from(symbolSet);
+
+    const response = await request({
+      token,
+      url: `/company/compare`,
+      method: "POST",
+      body: {
+        symbol: uniqueSymbols,
+        quarter,
+      },
+    });
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching company compare:", error);
+    throw error;
+  }
+};
+
+export const getCompanyCompareDeclaration: FunctionDeclaration = {
+  name: "getCompanyCompare",
+  description: `Fetches company comparison data for a specific company symbol and quarter.
+
+Use this function when the user asks for:
+- Company comparison data for a company
+- Company comparison data for a company and quarter
+- Company comparison data for a company with quarter and symbol
+- Compnay compare data for symbols of q1 or Q1 or Q2 so on.
+-symbol vs symbol 
+-symbol vs symbol for q1 or q2 or q3 or q4
+`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      token: {
+        type: Type.STRING,
+        description: "Authorization token for the request.",
+      },
+      symbol: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.STRING,
+        },
+        description:
+          "Multiple stock symbols (e.g., RBCL, JLI) for which to fetch data.",
+      },
+      quarter: {
+        type: Type.STRING,
+        description: "The quarter for which to fetch data.",
+      },
+    },
+    required: [], // Now nothing is strictly required
+  },
+};
+
+/** get all company */
+export const getAllCompany = async (token: string) => {
+  try {
+    const response = await request({
+      token,
+      url: `/company/get/all`,
+    });
+    console.log(
+      "🔍 getAllCompany response.data:",
+      (response as { data: { data: any } })?.data?.data
+    );
+    return (response as { data: { data: any } })?.data?.data;
+  } catch (error) {
+    console.error("Error fetching all company:", error);
+    throw error;
+  }
+};
+
+console.log(getAllCompany("assdfbbhjjmj"));
+export const getAllCompanyDeclaration: FunctionDeclaration = {
+  name: "getAllCompany",
+  description: `Fetches all company data.
 
 Use this function when the user asks for:
 - All company data
@@ -1247,23 +1359,68 @@ Use this function when the user asks for:
 - symbol for all company
 - symbol of Crest Micro Life Insurance Limited or another company name
 `,
-    parameters: {
-      type: Type.OBJECT,
-      properties: {
-        token: {
-          type: Type.STRING,
-          description: "Authorization token for the request.",
-        },
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      token: {
+        type: Type.STRING,
+        description: "Authorization token for the request.",
       },
-      required: [],
     },
-  };
-  
+    required: [],
+  },
+};
 
+/** company Product wise loan
+   * {
+    "symbol": "jbbl"
+}
+   */
 
+export const getCompanyProductWiseLoan = async (
+  token: string,
+  symbol: string[]
+) => {
+  try {
+    const response = await request({
+      token,
+      url: `/company/companyProductWiseLoan`,
+      method: "POST",
+      body: {
+        symbol,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching company product wise loan:", error);
+    throw error;
+  }
+};
 
-  
-
+export const getCompanyProductWiseLoanDeclaration: FunctionDeclaration = {
+  name: "getCompanyProductWiseLoan",
+  description: `Fetches company product wise loan data for a specific company symbol.
+  Use this function when the user asks for:
+  Company product wise loan data for a company`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      token: {
+        type: Type.STRING,
+        description: "Authorization token for the request.",
+      },
+      symbol: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.STRING, // Required!
+        },
+        description:
+          "Multiple stock symbols (e.g., RBCL, JLI) for which to fetch data.",
+      },
+    },
+    required: ["symbol"],
+  },
+};
 
 /**
  * Handles asynchronous tool calls.
@@ -1338,19 +1495,19 @@ export const async_tool_call = async ({
           sym: functionCall.args.sym,
         });
         break;
-        case GetLiveDataDeclaration.name: {
-          const { sym } = functionCall.args || {};
-        
-          if (!Array.isArray(sym) || !sym.every((s) => typeof s === "string")) {
-            throw new Error(
-              `Missing or invalid 'sym' array of strings for ${functionCall.name}`
-            );
-          }
-        
-          result = await GetLiveData(token, sym);
-          break;
+      case GetLiveDataDeclaration.name: {
+        const { sym } = functionCall.args || {};
+
+        if (!Array.isArray(sym) || !sym.every((s) => typeof s === "string")) {
+          throw new Error(
+            `Missing or invalid 'sym' array of strings for ${functionCall.name}`
+          );
         }
-        
+
+        result = await GetLiveData(token, sym);
+        break;
+      }
+
       case GetSectorWiseLiveDataDeclaration.name:
         if (
           !functionCall.args ||
@@ -1367,31 +1524,41 @@ export const async_tool_call = async ({
           sectors: functionCall.args.sectors,
         });
         break;
-        case GetGainersAndLosersDeclaration.name: {
-          const { type, time } = functionCall.args || {};
-        
-          // Validate 'type' is a supported string
-          const validTypes = ["gainer", "loser", "volume", "transaction", "turnover"];
-          if (typeof type !== "string" || !validTypes.includes(type)) {
-            throw new Error(
-              `Invalid 'type' argument: ${type}. Expected one of: ${validTypes.join(", ")}.`
-            );
-          }
-        
-          // Validate 'time' is valid, fallback to '1hour' if not provided
-          const validTimes = ["1hour", "2hour", "3hour", "weekly"];
-          const resolvedTime =
-            typeof time === "string" && validTimes.includes(time) ? time : "1hour";
-        
-          // Call the GetGainersAndLosers API
-          result = await GetGainersAndLosers(
-            token,
-            type as "gainer" | "loser" | "volume" | "transaction" | "turnover",
-            resolvedTime as "1hour" | "2hour" | "3hour" | "weekly"
+      case GetGainersAndLosersDeclaration.name: {
+        const { type, time } = functionCall.args || {};
+
+        // Validate 'type' is a supported string
+        const validTypes = [
+          "gainer",
+          "loser",
+          "volume",
+          "transaction",
+          "turnover",
+        ];
+        if (typeof type !== "string" || !validTypes.includes(type)) {
+          throw new Error(
+            `Invalid 'type' argument: ${type}. Expected one of: ${validTypes.join(
+              ", "
+            )}.`
           );
-          break;
         }
-        
+
+        // Validate 'time' is valid, fallback to '1hour' if not provided
+        const validTimes = ["1hour", "2hour", "3hour", "weekly"];
+        const resolvedTime =
+          typeof time === "string" && validTimes.includes(time)
+            ? time
+            : "1hour";
+
+        // Call the GetGainersAndLosers API
+        result = await GetGainersAndLosers(
+          token,
+          type as "gainer" | "loser" | "volume" | "transaction" | "turnover",
+          resolvedTime as "1hour" | "2hour" | "3hour" | "weekly"
+        );
+        break;
+      }
+
       case GetTopGainersAndLosersBySectorDeclaration.name:
         if (
           !functionCall.args ||
@@ -1446,103 +1613,144 @@ export const async_tool_call = async ({
           functionCall.args.toDate
         );
         break;
-        case getMarketOverviewDeclaration.name:
-          if (
-            !functionCall.args ||
-            !Array.isArray(functionCall.args.types) ||
-            !functionCall.args.types.every((t: string) =>
-              ["gainer", "loser", "volume", "transaction", "turnover"].includes(t)
-            )
-          ) {
-            throw new Error(
-              `Missing or invalid 'types' array argument for ${functionCall.name}`
-            );
-          }
-        
-          const timeArg = functionCall.args.time;
-          const validTimes = ["1hour", "2hour", "3hour", "weekly"];
-          const time: "1hour" | "2hour" | "3hour" | "weekly" =
-            validTimes.includes(timeArg as string) ? (timeArg as "1hour" | "2hour" | "3hour" | "weekly") : "1hour";
-        
-          result = await getMarketOverview(
-            token,
-            functionCall.args.types as Array<
-              "gainer" | "loser" | "volume" | "transaction" | "turnover"
-            >,
-            time
+      case getMarketOverviewDeclaration.name:
+        if (
+          !functionCall.args ||
+          !Array.isArray(functionCall.args.types) ||
+          !functionCall.args.types.every((t: string) =>
+            ["gainer", "loser", "volume", "transaction", "turnover"].includes(t)
+          )
+        ) {
+          throw new Error(
+            `Missing or invalid 'types' array argument for ${functionCall.name}`
           );
-          break;
-          case getMarketSummaryDeclaration.name:
-            result = await getMarketSummary(token);
-            break;
+        }
 
-            case getTrendingStocksDeclaration.name:
-              if (!functionCall.args || typeof functionCall.args.type !== "string") {
-                throw new Error(`Missing or invalid 'type' argument for ${functionCall.name}`);
-              }
-              const trendingType = functionCall.args.type;
-              if (trendingType !== "uptrending" && trendingType !== "downtrending") {
-                throw new Error(`Invalid 'type' argument for ${functionCall.name}. Expected 'uptrending' or 'downtrending'. Got '${trendingType}'`);
-              }
-              result = await getTrendingStocks(token, trendingType);
-              break;
+        const timeArg = functionCall.args.time;
+        const validTimes = ["1hour", "2hour", "3hour", "weekly"];
+        const time: "1hour" | "2hour" | "3hour" | "weekly" =
+          validTimes.includes(timeArg as string)
+            ? (timeArg as "1hour" | "2hour" | "3hour" | "weekly")
+            : "1hour";
 
-              case fetchBrokerHoldingsDeclaration.name:
-                if (
-                  !functionCall.args ||
-                  typeof functionCall.args.memberCode !== "number" ||
-                  typeof functionCall.args.fromDate !== "string" ||
-                  typeof functionCall.args.toDate !== "string"
-                ) {
-                  throw new Error(
-                    `Missing or invalid arguments for ${functionCall.name}`
-                  );
-                }
-                result = await fetchBrokerHoldings(
-                  functionCall.args.memberCode,
-                  new Date(functionCall.args.fromDate),
-                  new Date(functionCall.args.toDate),
-                
-                );
-                break;
+        result = await getMarketOverview(
+          token,
+          functionCall.args.types as Array<
+            "gainer" | "loser" | "volume" | "transaction" | "turnover"
+          >,
+          time
+        );
+        break;
+      case getMarketSummaryDeclaration.name:
+        result = await getMarketSummary(token);
+        break;
 
-                case getCompanyMarketInformationLoanCompareDeclaration.name:
-                  if (
-                    !functionCall.args ||
-                    !Array.isArray(functionCall.args.symbol) ||
-                    !functionCall.args.symbol.every((s) => typeof s === "string")
-                  ) {
-                    throw new Error(
-                      `Missing or invalid arguments for ${functionCall.name}`
-                    );
-                  }
-                
-                  result = await getCompanyMarketInformationLoanCompare(
-                    token,
-                    functionCall.args.symbol
-                  );
-                  break;
+      case getTrendingStocksDeclaration.name: {
+  const trendingTypes = functionCall.args?.types;
 
-                  case getCompanyCompareDeclaration.name:
-                    if (
-                      !functionCall.args ||
-                      !Array.isArray(functionCall.args.symbol) ||
-                      !functionCall.args.symbol.every((s) => typeof s === "string")
-                    ) {
-                      throw new Error(
-                        `Missing or invalid arguments for ${functionCall.name}`
-                      );
-                    }
-                    result = await getCompanyCompare(
-                      token,
-                      functionCall.args.symbol,
-                      typeof functionCall.args.quarter === "string" ? functionCall.args.quarter : ""
-                    );
-                    break;
-                    case getAllCompanyDeclaration.name:
-                      result = await getAllCompany(token);
-                      break;
-                
+  // Validate that `types` is provided and is a non-empty array
+  if (!Array.isArray(trendingTypes) || trendingTypes.length === 0) {
+    throw new Error(
+      `Invalid 'types' argument for ${functionCall.name}. Expected a non-empty array of 'uptrending' and/or 'downtrending'. Got '${JSON.stringify(trendingTypes)}'`
+    );
+  }
+
+  // Ensure each type is either 'uptrending' or 'downtrending'
+  const validTypes = ["uptrending", "downtrending"];
+  const invalidTypes = trendingTypes.filter((type) => !validTypes.includes(type));
+
+  if (invalidTypes.length > 0) {
+    throw new Error(
+      `Invalid value(s) in 'types': ${JSON.stringify(invalidTypes)}. Allowed values are 'uptrending' and/or 'downtrending'.`
+    );
+  }
+
+  // If everything is valid, call the actual function
+  result = await getTrendingStocks(token, trendingTypes);
+  break;
+}
+
+
+      case fetchBrokerHoldingsDeclaration.name:
+        if (
+          !functionCall.args ||
+          typeof functionCall.args.memberCode !== "number" ||
+          typeof functionCall.args.fromDate !== "string" ||
+          typeof functionCall.args.toDate !== "string"
+        ) {
+          throw new Error(
+            `Missing or invalid arguments for ${functionCall.name}`
+          );
+        }
+        result = await fetchBrokerHoldings(
+          functionCall.args.memberCode,
+          new Date(functionCall.args.fromDate),
+          new Date(functionCall.args.toDate)
+        );
+        break;
+
+      case getCompanyMarketInformationLoanCompareDeclaration.name:
+        if (
+          !functionCall.args ||
+          !Array.isArray(functionCall.args.symbol) ||
+          !functionCall.args.symbol.every((s) => typeof s === "string")
+        ) {
+          throw new Error(
+            `Missing or invalid arguments for ${functionCall.name}`
+          );
+        }
+
+        result = await getCompanyMarketInformationLoanCompare(
+          token,
+          functionCall.args.symbol
+        );
+        break;
+
+      case getCompanyCompareDeclaration.name:
+        if (!functionCall.args) {
+          throw new Error(`Missing arguments for ${functionCall.name}`);
+        }
+
+        const symbolArg = functionCall.args.symbol;
+        const quarterArg =
+          typeof functionCall.args.quarter === "string"
+            ? functionCall.args.quarter
+            : "";
+
+        if (
+          symbolArg &&
+          (!Array.isArray(symbolArg) ||
+            !symbolArg.every((s) => typeof s === "string"))
+        ) {
+          throw new Error(`Invalid 'symbol' argument for ${functionCall.name}`);
+        }
+
+        result = await getCompanyCompare(
+          token,
+          Array.isArray(symbolArg) ? symbolArg : [],
+          quarterArg
+        );
+        break;
+
+      case getAllCompanyDeclaration.name:
+        result = await getAllCompany(token);
+        break;
+
+      case getCompanyProductWiseLoanDeclaration.name:
+        if (
+          !functionCall.args ||
+          !Array.isArray(functionCall.args.symbol) ||
+          !functionCall.args.symbol.every((s) => typeof s === "string")
+        ) {
+          throw new Error(
+            `Missing or invalid arguments for ${functionCall.name}`
+          );
+        }
+        result = await getCompanyProductWiseLoan(
+          token,
+          functionCall.args.symbol
+        );
+        break;
 
       default:
         throw new Error(`Unsupported function: ${functionCall.name}`);
@@ -1577,4 +1785,5 @@ export const availableDeclarations: FunctionDeclaration[] = [
   getCompanyMarketInformationLoanCompareDeclaration,
   getCompanyCompareDeclaration,
   getAllCompanyDeclaration,
+  getCompanyProductWiseLoanDeclaration,
 ];

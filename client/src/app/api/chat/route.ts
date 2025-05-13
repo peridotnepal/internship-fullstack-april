@@ -24,6 +24,7 @@ import {
   getCompanyMarketInformationLoanCompareDeclaration,
   getCompanyCompareDeclaration,
   getAllCompanyDeclaration,
+  getCompanyProductWiseLoanDeclaration,
 
 } from "@/lib/api";
 import function_call_systemInstruction from "@/lib/systemInstruction/systemInstruction";
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
             getCompanyMarketInformationLoanCompareDeclaration,
             getCompanyCompareDeclaration,
             getAllCompanyDeclaration,
+            getCompanyProductWiseLoanDeclaration,
           ],
         },
       ],

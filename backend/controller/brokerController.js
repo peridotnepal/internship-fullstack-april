@@ -1,16 +1,30 @@
-// controller/brokerController.js
 const db = require("../db/server");
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr.trim());
+  if (isNaN(date)) return null;
+  return date.toISOString().slice(0, 10); // Returns 'YYYY-MM-DD'
+}
 
 exports.getBrokerHoldings = (req, res) => {
   const buyerMemberId = req.params.buyerMemberId;
-  const { fromDate, toDate } = req.query;
+  let { fromDate, toDate } = req.query;
 
-  console.log("\uD83D\uDCC5 Incoming request:");
-  console.log("   \uD83D\uDD39 buyerMemberId:", buyerMemberId);
-  console.log("   \uD83D\uDD39 fromDate:", fromDate, "toDate:", toDate);
+  console.log("📅 Incoming request:");
+  console.log("   🔹 buyerMemberId:", buyerMemberId);
+  console.log("   🔹 fromDate:", fromDate, "toDate:", toDate);
 
   if (!buyerMemberId) {
     return res.status(400).json({ message: "buyer member ID is required" });
+  }
+
+  // Sanitize and format dates
+  if (fromDate && toDate) {
+    fromDate = formatDate(fromDate);
+    toDate = formatDate(toDate);
+    if (!fromDate || !toDate) {
+      return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
+    }
   }
 
   let query = `
@@ -41,11 +55,11 @@ exports.getBrokerHoldings = (req, res) => {
 
   query += ` GROUP BY buyerMemberId, symbol`;
 
-  console.log("\uD83D\uDCE6 Executing query:", query);
-  console.log("\uD83E\uDD2E With params:", queryParams);
+  console.log("Executing query:", query);
+  console.log("With params:", queryParams);
 
   const timeout = setTimeout(() => {
-    console.error("\u23F0 Query timeout");
+    console.error(" Query timeout");
     return res.status(500).json({ message: "Query took too long" });
   }, 50000);
 
@@ -53,7 +67,7 @@ exports.getBrokerHoldings = (req, res) => {
     clearTimeout(timeout);
 
     if (err) {
-      console.error("\u274C Query error:", err);
+      console.error("❌ Query error:", err);
       return res.status(500).json({ error: "Internal server error" });
     }
 
@@ -61,7 +75,7 @@ exports.getBrokerHoldings = (req, res) => {
       return res.status(404).json({ message: "No data found for this broker" });
     }
 
-    console.log("\u2705 Query success, returning data...");
+    console.log("✅ Query success, returning data...");
     return res.json(results);
   });
 };
