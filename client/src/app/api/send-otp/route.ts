@@ -30,6 +30,7 @@ export async function POST(req: Request) {
   })
 
   try {
+    
     await transporter.sendMail({
       from: EMAIL_FROM,
       to: email,
