@@ -32,11 +32,15 @@ export async function POST(req: Request) {
   try {
     
     await transporter.sendMail({
-      from: EMAIL_FROM,
-      to: email,
-      subject: "Your OTP Code",
-      text: `Your OTP is: ${otp}\n\nIt will expire in 5 minutes.`,
-    })
+  from: EMAIL_FROM,
+  to: email,
+  subject: "Your OTP Code",
+  html: `
+    <p>Your OTP is: <strong>${otp}</strong></p>
+    <p>This code will expire in <strong>5 minutes</strong>.</p>
+    <p>Please do not share this code with anyone.</p>
+  `,
+});
 
     return NextResponse.json({ success: true })
   } catch (error) {

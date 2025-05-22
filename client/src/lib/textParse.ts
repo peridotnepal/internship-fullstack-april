@@ -119,7 +119,7 @@ function extractRelevantTransactionData(html: string): string {
     
     // Look for tables with stock/share related information
     $('table').each((_, table) => {
-      const tableHtml = $(table).html() || '';
+      // const tableHtml = $(table).html() || '';
       const tableText = $(table).text().toLowerCase();
       
       // Process any table that might contain transaction data (broader matching)

@@ -49,7 +49,7 @@ const anotherBrokerFormat = ` <table border='1' cellspacing='0' cellpadding='5'>
 const __filename = fileURLToPath(import.meta.url);
  const __dirname = path.dirname(__filename);
 
-const mdText = readFileSync(path.join(__dirname, "../output.md"), "utf-8");
+const mdText = readFileSync(path.join(__dirname, "../extract_pdf.py"), "utf-8");
 // import { fileURLToPath } from 'url';
 // import { execFile } from 'child_process';
 
