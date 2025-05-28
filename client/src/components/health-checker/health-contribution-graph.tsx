@@ -1,107 +1,88 @@
-"use client";
+import React from "react";
 
-import React, { useMemo } from "react";
-import { Card } from "../ui/card";
-
-interface HealthContributionGraphProps {
-  endDate: Date;
-  data: {
-    date: string;
-    value: number;
-  }[];
-}
-
-const HealthContributionGraph: React.FC<HealthContributionGraphProps> = ({
-  endDate,
-  data,
-}) => {
-  const startDate = useMemo(() => {
-    const date = new Date(endDate);
-    date.setMonth(date.getMonth() - 12); // Go back 12 months
-    return date;
-  }, [endDate]);
-
-  const daysInWeek = ["Mon", "Wed", "Fri"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // Generate calendar data
-  const calendarData = useMemo(() => {
-    const calendar: any[][] = Array(7)
-      .fill(null)
-      .map(() => []);
-    let currentDate = new Date(startDate);
-
-    while (currentDate <= endDate) {
-      const dayOfWeek = currentDate.getDay();
-      const weekIndex = (dayOfWeek + 6) % 7; // Adjust to make Monday first day (0)
-
-      const dateStr = currentDate.toISOString().split("T")[0];
-      const dayData = data.find((d) => d.date === dateStr);
-
-      calendar[weekIndex].push({
-        date: new Date(currentDate),
-        value: dayData?.value || 0,
-      });
-
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return calendar;
-  }, [startDate, endDate, data]);
-
-  const getColorForValue = (value: number) => {
-    if (value === 0) return "bg-gray-800";
-    if (value < 0) return "bg-red-500";
-    return "bg-green-500";
-  };
-
+const ContributionsGraph = () => {
   return (
-    <Card className="p-4 w-full">
-      <div className="flex">
-        <div className="flex flex-col pr-2 pt-6 text-xs text-gray-400">
-          {daysInWeek.map((day, index) => (
-            <div key={day} className="h-[30px] flex items-center">
-              {day}
-            </div>
-          ))}
+    <div className="w-full bg-gray-900 text-white p-6 rounded-lg">
+      <div className="mb-4">
+        <div className="text-sm text-gray-400 mb-4">
+          Learn how we count contributions
         </div>
-        <div className="w-full overflow-x-auto">
-          <div className="flex flex-col">
-            <div className="flex justify-between text-xs text-gray-400 mb-1 px-1">
-              {months.map((month) => (
-                <div key={month}>{month}</div>
-              ))}
+
+        {/* Month labels */}
+        <div className="flex mb-2">
+          <div className="w-12"></div> {/* Space for day labels */}
+          <div className="flex-1 overflow-x-auto">
+            <div className="flex gap-1 min-w-max">
+              {weeks.map((_, weekIndex) => {
+                // Show month label for first week of each month
+                const firstDayOfWeek = weeks[weekIndex]?.[0]?.date;
+                if (!firstDayOfWeek)
+                  return <div key={weekIndex} className="w-3"></div>;
+
+                const date = new Date(firstDayOfWeek);
+                const isFirstWeekOfMonth = date.getDate() <= 7;
+                const monthName = date.toLocaleDateString("en-US", {
+                  month: "short",
+                });
+
+                return (
+                  <div
+                    key={weekIndex}
+                    className="w-3 text-xs text-gray-400 text-center"
+                  >
+                    {isFirstWeekOfMonth ? monthName : ""}
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex gap-1">
-              {calendarData[0].map((_, colIndex) => (
-                <div key={colIndex} className="flex flex-col gap-1">
-                  {calendarData.map((row, rowIndex) => {
-                    const cell = row[colIndex];
-                    return cell ? (
+          </div>
+        </div>
+
+        {/* Main grid */}
+        <div className="flex">
+          {/* Day labels */}
+          <div className="w-12 flex flex-col justify-between text-xs text-gray-400 pr-2">
+            {days.map((day, index) => (
+              <div key={index} className="h-3 flex items-center">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Contribution grid */}
+          <div className="flex-1 overflow-x-auto">
+
+            
+            <div className="flex gap-1 min-w-max">
+              {weeks.map((week, weekIndex) => (
+                <div key={weekIndex} className="flex flex-col gap-1">
+                  {Array.from({ length: 7 }, (_, dayIndex) => {
+                    const day = week[dayIndex];
+                    const today = new Date();
+                    const startDate = new Date(today);
+                    startDate.setDate(startDate.getDate() - 364);
+
+                    const dayDate = day ? new Date(day.date) : null;
+                    const isInRange =
+                      dayDate && dayDate >= startDate && dayDate <= today;
+
+                    return (
                       <div
-                        key={`${rowIndex}-${colIndex}`}
-                        className={`w-3 h-3 rounded-sm ${getColorForValue(
-                          cell.value
-                        )}`}
-                        title={`${cell.date.toDateString()}: ${cell.value}`}
-                      />
-                    ) : (
-                      <div
-                        key={`${rowIndex}-${colIndex}`}
-                        className="w-3 h-3"
+                        key={dayIndex}
+                        className={`w-3 h-3 rounded-sm transition-all ${
+                          day && isInRange
+                            ? `cursor-pointer hover:ring-1 hover:ring-white/50 ${getColorClass(
+                                day
+                              )}`
+                            : "bg-gray-900"
+                        }`}
+                        onMouseEnter={
+                          day && isInRange
+                            ? (e) => handleMouseEnter(day, e)
+                            : undefined
+                        }
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
                       />
                     );
                   })}
@@ -110,16 +91,43 @@ const HealthContributionGraph: React.FC<HealthContributionGraphProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Legend */}
+        <div className="flex items-center justify-end mt-4 gap-2 text-xs text-gray-400">
+          <span>loss</span>
+          <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
+          <div className="flex gap-1 ml-4">
+            <div className="w-3 h-3 bg-gray-800 rounded-sm"></div>
+            <div className="w-3 h-3 bg-green-900 rounded-sm"></div>
+            <div className="w-3 h-3 bg-green-700 rounded-sm"></div>
+            <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+            <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
+          </div>
+          <span>gain</span>
+        </div>
       </div>
-      <div className="flex justify-end items-center gap-2 mt-2 text-xs text-gray-400">
-        <span>Poor Health</span>
-        <div className="w-3 h-3 rounded-sm bg-red-500"></div>
-        <div className="w-3 h-3 rounded-sm bg-gray-800"></div>
-        <div className="w-3 h-3 rounded-sm bg-green-500"></div>
-        <span>Good Health</span>
-      </div>
-    </Card>
+
+      {/* Tooltip */}
+      {hoveredDay && (
+        <div
+          className="fixed z-50 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none"
+          style={{
+            left: mousePosition.x + 10,
+            top: mousePosition.y - 30,
+          }}
+        >
+          <div className="font-medium">
+            {hoveredDay.count > 0
+              ? `${hoveredDay.count} ${
+                  hoveredDay.type === "gain" ? "contributions" : "losses"
+                }`
+              : "No contributions"}
+          </div>
+          <div className="text-gray-400">{formatDate(hoveredDay.date)}</div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default HealthContributionGraph;
+export default ContributionsGraph;
