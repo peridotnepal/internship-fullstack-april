@@ -95,11 +95,12 @@ const ContributionsGraph = ({
           className
         )}
       >
-        <div className="overflow-x-auto" ref={containerRef}>
-          <div className="min-w-max">
+        <div className="overflow-x-auto w-full" ref={containerRef}>
+          <div className="w-full">
             {/* Month labels */}
             <div className="flex mb-2 text-xs select-none">
-              <div className="w-10 flex-none" />
+              <div className="w-[36px] flex-none" />{" "}
+              {/* Adjusted width for day labels */}
               <div className="flex flex-1">
                 {monthLabels.map((month, i: number) => (
                   <div
@@ -114,21 +115,26 @@ const ContributionsGraph = ({
             </div>
 
             {/* Main graph container */}
-            <div className="flex select-none">
+            <div className="flex w-full select-none">
               {/* Day labels */}
-              <div className="flex flex-col gap-[3px] mr-2 text-xs sticky left-0 bg-gray-900 z-10 w-10">
-                {[0, 2, 4].map((i: number) => (
-                  <div
-                    key={i}
-                    className="h-[14px] leading-[14px] text-right pr-1"
-                  >
-                    {getDayLabel(i)}
-                  </div>
-                ))}
+              <div className="flex flex-col mr-2 text-xs sticky left-0 bg-gray-900 z-10">
+                <div className="h-[14px]" /> {/* Space for first cell */}
+                <div className="h-[14px] leading-[14px] text-right pr-2 w-[30px]">
+                  {getDayLabel(0)} {/* Mon */}
+                </div>
+                <div className="h-[28px]" /> {/* 2 cell gap */}
+                <div className="h-[14px] leading-[14px] text-right pr-2 w-[30px]">
+                  {getDayLabel(1)} {/* Wed */}
+                </div>
+                <div className="h-[28px]" /> {/* 2 cell gap */}
+                <div className="h-[14px] leading-[14px] text-right pr-2 w-[30px]">
+                  {getDayLabel(2)} {/* Fri */}
+                </div>
+                <div className="h-[14px]" /> {/* Space for last cell */}
               </div>
 
               {/* Contribution squares */}
-              <div className="grid grid-flow-col gap-[3px] auto-cols-[14px]">
+              <div className="grid w-full grid-flow-col gap-[3px] auto-cols-[14px]">
                 {weeks.map((week, weekIndex) => (
                   <div key={weekIndex} className="grid grid-rows-7 gap-[3px]">
                     {week.map((date, dayIndex) => {
@@ -159,14 +165,12 @@ const ContributionsGraph = ({
                 ))}
               </div>
             </div>
-
-
           </div>
         </div>
 
         {/* Learn More and label */}
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex w-full flex-col sm:flex-row items-center justify-between gap-4">
           {/* learn more */}
           <div className="w-full sm:w-auto text-center">
             <Link
@@ -183,7 +187,7 @@ const ContributionsGraph = ({
               <span>loss</span>
               <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
             </div>
-            
+
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 bg-gray-800 rounded-sm"></div>
               <div className="w-3 h-3 bg-green-900 rounded-sm"></div>
@@ -191,10 +195,10 @@ const ContributionsGraph = ({
               <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
               <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
             </div>
-            
+
             <span>gain</span>
           </div>
-          </div>
+        </div>
       </div>
     </TooltipProvider>
   );

@@ -60,11 +60,11 @@ export function getMonthLabels(startDate: Date, endDate: Date): MonthLabel[] {
     "Dec",
   ];
 
-  // Adjust to start from Monday
+  // Adjust to start from Sunday
   const day = currentDate.getDay();
-  if (day !== 1) {
-    // If not Monday
-    const diff = day === 0 ? -6 : 1 - day; // Sunday = 0, so handle specially
+  if (day !== 0) {
+    // If not Sunday
+    const diff = -day; // Move back to previous Sunday
     currentDate.setDate(currentDate.getDate() + diff);
   }
 
@@ -81,8 +81,8 @@ export function getMonthLabels(startDate: Date, endDate: Date): MonthLabel[] {
       currentDate.getFullYear() === year
     ) {
       const dayOfWeek = currentDate.getDay();
-      if (dayOfWeek === 1 || weekCount === 0) {
-        // Monday or first week
+      if (dayOfWeek === 0 || weekCount === 0) {
+        // Sunday or first week
         weekCount++;
       }
       currentDate.setDate(currentDate.getDate() + 7); // Jump by weeks
@@ -103,11 +103,11 @@ export function getWeeksInYear(startDate: Date, endDate: Date): Date[][] {
   const weeks: Date[][] = [];
   let currentDate = new Date(startDate);
 
-  // Adjust to start from Monday
+  // Adjust to start from Sunday
   const day = currentDate.getDay();
-  if (day !== 1) {
-    // If not Monday
-    const diff = day === 0 ? -6 : 1 - day; // Sunday = 0, so handle specially
+  if (day !== 0) {
+    // If not Sunday
+    const diff = -day; // Move back to previous Sunday
     currentDate.setDate(currentDate.getDate() + diff);
   }
 
