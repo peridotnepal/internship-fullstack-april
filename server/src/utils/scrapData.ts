@@ -12,7 +12,7 @@ const scrape = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  await page.goto("https://www.fenegosida.org/", {waitUntil: "domcontentloaded",timeout: 60000,});
+  await page.goto("https://www.fenegosida.org/rate-graph.php", {waitUntil: "domcontentloaded",timeout: 60000,});
 
   const rawGoldData = await page.$$eval("#vtab .rate-gold", (elements) => {
     return elements.map((el) => el.textContent ?? "");
@@ -53,26 +53,9 @@ const scrape = async () => {
     silver: silverData,
   };
 
-  console.log(todayGoldPrice);
-  console.log(todaySilverPrice);
-
-
-  // await prisma.goldData.create({
-  //   data: {
-  //     date: todayGoldPrice.date,
-  //     tenGram: todayGoldPrice.gold.tenGram ?? new Date().getDate(),
-  //     oneTola: todayGoldPrice.gold.oneTola ?? new Date().getDate(),
-  //   }
-  // })
-  // await prisma.silverData.create({
-  //   data: {
-  //     date: todaySilverPrice.date,
-  //     tenGram: todaySilverPrice.silver.tenGram ?? new Date().getDate(),
-  //     oneTola: todaySilverPrice.silver.oneTola ?? new Date().getDate(),
-  //   }
-  // })
-
   await browser.close();
+
+  return { todayGoldPrice, todaySilverPrice };
 };
 
 export default scrape;
