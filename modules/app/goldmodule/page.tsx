@@ -1,13 +1,15 @@
 "use client";
 
-import { DollarSign } from "lucide-react";
+import { CalendarIcon, DollarSign, IndianRupee, Rss } from "lucide-react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useGoldHistory } from "@/hooks/useGoldHistory";
 import { useTodayMetals } from "@/hooks/useMetalRate";
 import { useClock } from "@/hooks/useClock";
+import { usesymbolRates } from "@/hooks/useCurrency";
+import Navbar from "@/components/Navbar";
 
 const goldImage =
   "https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg";
@@ -24,11 +26,27 @@ const SliverAndGold = () => {
   const { price, currency, selectedCurrency, setSelectedCurrency } =
     useTodayMetals();
 
-  const { selectedDate, setSelectedDate, selectedPrice } =
-    useGoldHistory();
+  const { selectedDate, setSelectedDate, selectedPrice } = useGoldHistory();
 
+  const [rates, setRates] = React.useState({});
   const [type, setType] = React.useState("gold");
   const [unit, setUnit] = React.useState("tola");
+
+  const fetchRates = async () => {
+    try {
+      const response = await fetch("https://open.er-api.com/v6/latest/USD");
+      const data = await response.json();
+      console.log("fetched rates", data);
+
+      setRates(data.rates || {});
+    } catch (error) {
+      console.error("Error fetching symbol rates:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRates();
+  }, []);
 
   // DATA EXTRACTION
   const goldItem = price?.data?.find((x) => x.name.includes("GOLD"));
@@ -37,90 +55,173 @@ const SliverAndGold = () => {
   const goldOz = goldItem?.bid || 0;
   const silverOz = silverItem?.bid || 0;
 
-  const rate = currency?.[selectedCurrency] || 1;
+  const rate = rates[selectedCurrency] || 1;
 
-  const convertToTola = (usdPrice) =>
-    usdPrice / rate / OUNCE_TO_TOLA;
+  const convertToTola = (usdPrice) => (usdPrice * rate) / OUNCE_TO_TOLA;
 
-  const convertToGram = (tolaPrice) =>
-    tolaPrice / TOLA_TO_GRAM;
+  const convertToGram = (tolaPrice) => tolaPrice / TOLA_TO_GRAM;
 
   const goldTola = convertToTola(goldOz);
   const silverTola = convertToTola(silverOz);
 
-  const goldValue =
-    unit === "tola" ? goldTola : convertToGram(goldTola);
+  const goldValue = unit === "tola" ? goldTola : convertToGram(goldTola);
 
-  const silverValue =
-    unit === "tola" ? silverTola : convertToGram(silverTola);
+  const silverValue = unit === "tola" ? silverTola : convertToGram(silverTola);
 
   const currentValue = type === "gold" ? goldValue : silverValue;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen">
+      <Navbar />
+      <header className="max-w-[1400px] mx-auto mt-20 mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="text-left">
+          <h1 className="text-4xl font-black text-black tracking-tight">
+            Gold & Silver Rates
+          </h1>
 
-      {/* HEADER */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">
-          Gold & Silver Prices
-        </h1>
+          <p className="text-sm font-medium text-gray-500 mt-1">
+            {new Date().toLocaleDateString()} — {time}
+          </p>
+        </div>
 
-        <p className="text-sm text-gray-500">
-          Live market tracking dashboard
-        </p>
-
-        <p className="text-sm mt-2">
-          {new Date().toLocaleDateString()} | {time}
-        </p>
-      </div>
-
-      {/* PRICE */}
-      <div className="bg-white p-4 rounded-lg border">
-        <p className="text-2xl font-bold flex items-center gap-2">
-          <DollarSign />
-          {currentValue.toFixed(2)} / {unit}
-        </p>
-      </div>
-
-      {/* CONTROLS */}
-      <div className="flex gap-2">
-        <select
-          value={selectedCurrency}
-          onChange={(e) => setSelectedCurrency(e.target.value)}
-          className="border p-2 rounded"
-        >
-          {Object.keys(currency || {}).map((cur) => (
-            <option key={cur}>{cur}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* CALENDAR */}
-      <div className="bg-white p-4 rounded-xl shadow flex gap-6">
-        <Calendar
-          onChange={setSelectedDate}
-          value={selectedDate}
-        />
-
-        {selectedPrice && (
-          <div className="p-4 border rounded-lg bg-yellow-50">
-            <h3 className="font-bold">
-              {selectedDate.toDateString()}
-            </h3>
-            <p>Gold: {selectedPrice.price}</p>
-            <p className="text-sm text-gray-500">
-              Source: {selectedPrice.source}
-            </p>
+        {/* TOOLBAR */}
+        <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-xl border">
+          <div className="flex bg-gray-100 p-1 rounded-lg">
+            {["gold", "silver"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setType(t)}
+                className={`px-5 py-2 rounded-md text-sm font-semibold ${
+                  type === t ? "bg-black text-white" : "text-gray-600"
+                }`}
+              >
+                {t.toUpperCase()}
+              </button>
+            ))}
           </div>
-        )}
-      </div>
 
-      {/* IMAGE */}
-      <img
-        src={type === "gold" ? goldImage : silverImage}
-        className="h-[220px] w-full object-cover rounded-xl"
-        alt={type}
-      />
+          <div className="h-6 w-[1px] bg-gray-200" />
+
+          <div className="flex gap-2">
+            {["gram", "tola"].map((u) => (
+              <button
+                key={u}
+                onClick={() => setUnit(u)}
+                className={`px-4 py-2 rounded-md text-xs font-semibold border ${
+                  unit === u
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-600"
+                }`}
+              >
+                {u.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          <select
+            value={selectedCurrency}
+            onChange={(e) => setSelectedCurrency(e.target.value)}
+            className="bg-white text-sm font-semibold py-2 px-4 rounded-lg border outline-none"
+          >
+            {Object.keys(rates || {}).map((cur) => (
+              <option key={cur}>{cur}</option>
+            ))}
+          </select>
+        </div>
+      </header>
+
+      {/* MAIN GRID */}
+      <main className="max-w-[1400px] mx-auto grid grid-cols-12 gap-8">
+        {/* LEFT */}
+        <div className="col-span-12 lg:col-span-7 space-y-6">
+          <div className="relative overflow-hidden bg-black rounded-3xl h-[500px]">
+            <img
+              src={type === "gold" ? goldImage : silverImage}
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              alt={type}
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
+
+            <div className="absolute bottom-0 left-0 p-10 w-full">
+              <div className="flex justify-between items-end">
+                <div>
+                  <p className="text-gray-400 text-xs tracking-widest mb-2">
+                    CURRENT PRICE
+                  </p>
+
+                  <h2 className="text-7xl font-black text-white flex items-center gap-4">
+                    <span className="text-3xl text-gray-400">$</span>
+                    {currentValue.toFixed(2)}
+                  </h2>
+
+                  <p className="text-gray-400 mt-3">
+                    Price per <span className="text-white">{unit}</span> in{" "}
+                    {selectedCurrency}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="col-span-12 lg:col-span-5 flex flex-col gap-6">
+          <div className="bg-white p-8 rounded-3xl border flex flex-col h-full">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-semibold text-black">
+                Gold Archives
+              </h3>
+              <CalendarIcon size={20} />
+            </div>
+
+            <div className="flex-grow flex justify-center items-start">
+              <Calendar
+                onChange={setSelectedDate}
+                value={selectedDate}
+                className="w-full"
+              />
+            </div>
+
+            <div
+              className={`mt-8 p-6 rounded-xl ${
+                selectedPrice
+                  ? "bg-white text-black"
+                  : "bg-gray-50 text-gray-400 border border-dashed"
+              }`}
+            >
+              {selectedPrice ? (
+                <>
+                  <p className="text-xs uppercase opacity-70">
+                    {selectedDate.toDateString()}
+                  </p>
+
+                  <div className="flex justify-between items-center mt-3">
+                    <div className="flex flex-col">
+                      <span className="flex gap-2 items-center text-3xl font-black">
+                        <DollarSign />
+                        {(selectedPrice.price / 2.66).toFixed(3) }/ tola USD
+                      </span>
+                      <span className="flex gap-2 items-center text-3xl font-black">
+                        <DollarSign />
+                        {(selectedPrice.price * 149 /2.66).toFixed(3)}/ tola NPR
+                      </span>
+                    </div>
+
+                    <span className="text-[10px] border px-2 py-1 rounded">
+                      {selectedPrice.source}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="text-center py-4 italic">
+                  Select a date to view historical spot rates
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

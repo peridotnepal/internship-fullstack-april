@@ -13,8 +13,7 @@ const fetchData = async () => {
   const metals = await page.evaluate(() => {
     const rows = document.querySelectorAll("tr.prField");
 
-    const clean = (val) =>
-      parseFloat(val?.replace(/[^0-9.-]/g, "")) || null;
+    const clean = (val) => parseFloat(val?.replace(/[^0-9.-]/g, "")) || null;
 
     return Array.from(rows).map((row) => ({
       name: row.querySelector("td.name")?.innerText.trim(),
@@ -31,3 +30,4 @@ const fetchData = async () => {
 };
 
 export default fetchData;
+export const scrapeGold = fetchData;

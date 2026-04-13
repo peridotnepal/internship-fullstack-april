@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { useCurrencyRates } from "@/hooks/useCurrency";
+import Navbar from "@/components/Navbar";
 
 const CurrencyRates = () => {
   const {
     rates,
+    setRates,
     selectedCurrency,
     setSelectedCurrency,
     convertedNPR,
@@ -32,114 +34,115 @@ const CurrencyRates = () => {
 
   const handleSave = (currency) => {
     const newRate = parseFloat(tempRate);
+
     if (!isNaN(newRate)) {
-      rates[currency] = newRate; // (you can move this into hook later)
+      setRates((prev) => ({
+        ...prev,
+        [currency]: newRate,
+      }));
     }
+
     setEditingKey(null);
+    setTempRate("");
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div>
+      <Navbar />
+      <div className="p-6 max-w-3xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4">Currency Exchange Rates</h2>
 
-      <h2 className="text-2xl font-bold mb-4">
-        Currency Exchange Rates
-      </h2>
+        <table className="w-full border border-gray-300 border-collapse">
+          <thead className="bg-gray-100">
+            <tr className="text-left  border-b border-gray-300">
+              <th rowSpan={2} className="p-2 border border-gray-300">
+                Currency
+              </th>
+              <th rowSpan={2} className="p-2 border border-gray-300">
+                Rate
+              </th>
+              <th className="p-2 border border-gray-300">
+                <select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  className="bg-white border rounded p-1"
+                >
+                  <option value="" disabled className="rounded border-2">
+                    Select Currency
+                  </option>
+                  {Object.keys(rates).map((cur) => (
+                    <option key={cur}>{cur}</option>
+                  ))}
+                </select>
+              </th>
+            </tr>
+          </thead>
 
-      <table className="w-full border">
-        <thead>
-          <tr>
-            <th>Currency</th>
-            <th>Rate</th>
-            <th>
-              <select
-                value={selectedCurrency}
-                onChange={(e) =>
-                  setSelectedCurrency(e.target.value)
-                }
-              >
-                <option value="">Select Currency</option>
-                {Object.keys(rates).map((cur) => (
-                  <option key={cur}>{cur}</option>
-                ))}
-              </select>
-            </th>
-          </tr>
-        </thead>
+          <tbody className="divide-y divide-x border-gray-200">
+            {paginatedData.map(([currency, value], i) => (
+              <tr key={currency}>
+                <td className="p-2 border border-gray-300">{currency}</td>
 
-        <tbody>
-          {paginatedData.map(([currency, value], i) => (
-            <tr key={currency}>
-              <td>{currency}</td>
-
-              <td>
-                {editingKey === currency ? (
-                  <>
-                    <input
-                      value={tempRate}
-                      onChange={(e) =>
-                        setTempRate(e.target.value)
-                      }
-                    />
-                    <button onClick={() => handleSave(currency)}>
-                      Save
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {value.toFixed(4)}
-                    <button
-                      onClick={() =>
-                        handleEdit(currency, value)
-                      }
-                    >
-                      Edit
-                    </button>
-                  </>
-                )}
-              </td>
-
-              {i === 0 && (
-                <td rowSpan={paginatedData.length}>
-                  {selectedCurrency && (
+                <td className="p-2 border border-gray-300">
+                  {editingKey === currency ? (
                     <>
-                      <p>{selectedCurrency}</p>
-                      <p>{rates[selectedCurrency]?.toFixed(4)}</p>
-
-                      <button onClick={convertToNPR}>
-                        Convert to NPR
+                      <input
+                        value={tempRate}
+                        onChange={(e) => setTempRate(e.target.value)}
+                      />
+                      <button onClick={() => handleSave(currency)}>Save</button>
+                    </>
+                  ) : (
+                    <>
+                      {value.toFixed(4)}
+                      <button
+                        onClick={() => handleEdit(currency, value)}
+                        className="ml-7 text-green-600"
+                      >
+                        Edit
                       </button>
-
-                      {convertedNPR && (
-                        <p>₨ {convertedNPR}</p>
-                      )}
                     </>
                   )}
                 </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
-      {/* Pagination */}
-      <div className="mt-4 flex gap-4">
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-        >
-          Prev
-        </button>
+                {i === 0 && (
+                  <td rowSpan={paginatedData.length}>
+                    {selectedCurrency && (
+                      <div className="flex flex-col items-center gap-4">
+                        <p>{selectedCurrency}</p>
+                        <p>{rates[selectedCurrency]?.toFixed(4)}</p>
 
-        <span>
-          {page} / {totalPages}
-        </span>
+                        <button
+                          className="bg-blue-500 text-white px-2 py-1 rounded"
+                          onClick={convertToNPR}
+                        >
+                          Convert to NPR
+                        </button>
 
-        <button
-          onClick={() =>
-            setPage((p) => Math.min(totalPages, p + 1))
-          }
-        >
-          Next
-        </button>
+                        {convertedNPR && <p>₨ {convertedNPR}</p>}
+                      </div>
+                    )}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Pagination */}
+        <div className="mt-4 flex gap-4">
+          <button onClick={() => setPage((p) => Math.max(1, p - 1))}>
+            Prev
+          </button>
+
+          <span>
+            {page} / {totalPages}
+          </span>
+
+          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

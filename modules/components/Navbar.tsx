@@ -10,6 +10,7 @@ export default function Navbar() {
     { name: "Currency", href: "/currencyExchangeRate" },
     { name: "Gold & Silver", href: "/goldmodule" },
     { name: "FD Rates", href: "/fdrates" },
+    { name: "NEPSE Data", href: "/nepseData" },
   ];
 
   return (
