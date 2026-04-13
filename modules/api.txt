@@ -1,0 +1,2 @@
+"https://api.metals.dev/v1/latest?api_key=P9A1IYJKJ53TINP5RQZK926P5RQZK"; sliver and gold apis 
+https://open.er-api.com/v6/latest/USD

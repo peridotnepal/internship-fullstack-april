@@ -8,8 +8,8 @@ const Main = () => {
   return (
     <div>
       {/* <CurrencyRates/> */}
-      {/* <SliverAndGold/> */}
-          <FdRates/>
+      <SliverAndGold/>
+          {/* <FdRates/> */}
     </div>
   )
 }

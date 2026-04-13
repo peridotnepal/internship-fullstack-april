@@ -4,6 +4,7 @@ import axios from "axios";
 const FdRates = () => {
   const [fdRates, setFdRates] = React.useState([]);
 
+  
   const fetchRates = async () => {
     try {
       const { data } = await axios.get("http://localhost:8080/fd-rates/");
