@@ -13,6 +13,10 @@ try {
     queueLimit: 0,
   });
 
+  const connection = await db.getConnection();
+  console.log("Database connected successfully to internapi!");
+  connection.release();
+
   console.log("MySQL pool created successfully");
 } catch (error) {
   console.error(" Error creating database pool:", error);

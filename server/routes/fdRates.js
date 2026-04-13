@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { fetchAndStore, getAllRates } from "../controller/fdRates.js";
+import { fetchAndStore, getAllRates } from "../controller/FdScraper.js";
 const router = Router();
 
 

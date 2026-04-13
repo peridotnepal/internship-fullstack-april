@@ -1,17 +1,16 @@
-"use client"
-import React from 'react'
-import CurrencyRates from './currencyExchangeRate/page'
-import SliverAndGold from './goldmodule/page'
-import FdRates from './fdrates/page'
+import Navbar from "@/components/Navbar";
 
-const Main = () => {
+export default function Home() {
   return (
     <div>
-      {/* <CurrencyRates/> */}
-      <SliverAndGold/>
-          {/* <FdRates/> */}
-    </div>
-  )
-}
+      <Navbar />
+      <div className="flex flex-col justify-center items-center mt-10">
+        <h1 className="text-4xl font-bold">Welcome to the Dashboard</h1>
 
-export default Main
+        <p className="text-gray-500 mt-2">
+          Select a module from the navbar above
+        </p>
+      </div>
+    </div>
+  );
+}

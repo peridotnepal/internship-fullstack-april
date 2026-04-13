@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import scrapeFD from "../service/scraper.js";
+import scrapeFD from "../service/FdScraper.js";
 
 // 🕒 Runs every Sunday at 2:00 AM
 cron.schedule("0 2 * * 0", async () => {
