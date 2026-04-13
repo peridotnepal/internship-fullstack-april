@@ -85,10 +85,7 @@ function getLosers(data, limit = 5) {
     .slice(0, limit);
 }
 
-// =============================
-// MAIN SERVICE
-// =============================
-export async function fetchNepseSnapshot() {
+const fetchNepseSnapshot = async () => {
   const html = await fetchHtml();
   const stocks = parseTable(html);
 
@@ -102,14 +99,9 @@ export async function fetchNepseSnapshot() {
 
     summary: {
       total_volume: stocks.reduce((sum, x) => sum + x.volume, 0),
-      total_turnover: stocks.reduce(
-        (sum, x) => sum + x.ltp * x.volume,
-        0
-      ),
-      total_movement: stocks.reduce(
-        (sum, x) => sum + x.point_change,
-        0
-      ),
+      total_turnover: stocks.reduce((sum, x) => sum + x.ltp * x.volume, 0),
+      total_movement: stocks.reduce((sum, x) => sum + x.point_change, 0),
     },
   };
-}
+};
+export default fetchNepseSnapshot;

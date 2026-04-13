@@ -1,8 +1,5 @@
-import { fetchNepseSnapshot } from "../service/nepseScraper.js";
+import fetchNepseSnapshot from "../service/nepseScraper.js";
 
-// =============================
-// CONTROLLER
-// =============================
 export async function getNepseSnapshot(req, res) {
   try {
     const data = await fetchNepseSnapshot();

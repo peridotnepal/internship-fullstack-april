@@ -25,44 +25,96 @@ function extractCompany(title) {
 }
 
 // =========================
-// EXTRACT AGM DATE
+// SMART DATE EXTRACTOR
 // =========================
-function extractAgmDate(text) {
-  const match = text.match(/held on (.+)/i);
-  return match ? match[1] : null;
+function extractEffectiveDate(text) {
+  let start_date = null;
+  let end_date = null;
+
+  // 1. from X to Y
+  let rangeMatch = text.match(/from\s+(.+?)\s+to\s+(.+?)(\.|,|$)/i);
+  if (rangeMatch) {
+    start_date = rangeMatch[1].trim();
+    end_date = rangeMatch[2].trim();
+  }
+
+  // 2. effective from X
+  let effMatch = text.match(/effective from\s+(.+?)(\.|,|$)/i);
+  if (effMatch) {
+    start_date = effMatch[1].trim();
+  }
+
+  // 3. valid from X to Y
+  let validMatch = text.match(/valid from\s+(.+?)\s+(to|till|until)\s+(.+?)(\.|,|$)/i);
+  if (validMatch) {
+    start_date = validMatch[1].trim();
+    end_date = validMatch[3].trim();
+  }
+
+  // 4. till X
+  let tillMatch = text.match(/till\s+(.+?)(\.|,|$)/i);
+  if (tillMatch && !end_date) {
+    end_date = tillMatch[1].trim();
+  }
+
+  // 5. ends on X
+  let endsMatch = text.match(/ends on\s+(.+?)(\.|,|$)/i);
+  if (endsMatch) {
+    end_date = endsMatch[1].trim();
+  }
+
+  return { start_date, end_date };
 }
 
 // =========================
 // PARSE LIST PAGE
 // =========================
 async function parseListing() {
-  const html = await fetchHtml(URL);
-  const $ = cheerio.load(html);
-
+  let nextUrl = URL;
   const results = [];
 
-  $(".col-lg-11.col-md-11.col-sm-11.col-xs-12").each((_, el) => {
-    const aTag = $(el).find("a");
-    const titleTag = $(el).find("h4.featured-announcement-title");
-    const dateTag = $(el).find("span.text-org");
+  while (nextUrl) {
+    const html = await fetchHtml(nextUrl);
+    const $ = cheerio.load(html);
 
-    if (!aTag.length || !titleTag.length) return;
+    // scrape announcements
+    $(".featured-news-list").each((_, el) => {
+      const container = $(el);
 
-    const title = titleTag.text().trim();
-    const link = BASE_URL + aTag.attr("href");
-    const published_date = dateTag.text().trim() || null;
+      const title = container
+        .find("h4.featured-announcement-title")
+        .text()
+        .trim();
 
-    const company_name = extractCompany(title);
-    const agm_date = extractAgmDate(title);
+      const link =
+        BASE_URL + container.find("a").first().attr("href");
 
-    results.push({
-      company_name,
-      agm_date,
-      published_date,
-      agenda: title,
-      link,
+      const published_date = container
+        .find("span.text-org")
+        .text()
+        .trim();
+
+      const { start_date, end_date } =
+        extractEffectiveDate(container.text());
+
+      results.push({
+        title,
+        start_date,
+        end_date,
+        published_date,
+        link,
+      });
     });
-  });
+
+    // extract NEXT cursor
+    const nextHref = $('a[rel="next"]').attr("href");
+
+    if (nextHref) {
+      nextUrl = BASE_URL + nextHref;
+    } else {
+      nextUrl = null;
+    }
+  }
 
   return results;
 }
@@ -76,9 +128,7 @@ async function parseDetailPage(url) {
 
   const text = $("body").text();
 
-  const match = text.match(
-    /book close.*?(\d{1,2}.*?20\d{2})/i
-  );
+  const match = text.match(/book close.*?(\d{1,2}.*?20\d{2})/i);
 
   return {
     book_close_date: match ? match[1] : null,
@@ -86,20 +136,22 @@ async function parseDetailPage(url) {
 }
 
 // =========================
-// ENRICH DATA (FULL SNAPSHOT)
+// MAIN EXPORT FUNCTION
 // =========================
-export async function fetchAgmSnapshot() {
+export const fetchAgmSnapshot = async () => {
   const baseData = await parseListing();
 
   const enriched = [];
-
-  // limit for performance (like your Python version)
-  const limited = baseData.slice(0, 10);
+  const limited = baseData.slice(0, 10); // limit for performance
 
   for (const item of limited) {
     try {
       const detail = await parseDetailPage(item.link);
-      enriched.push({ ...item, ...detail });
+
+      enriched.push({
+        ...item,
+        ...detail,
+      });
     } catch (err) {
       enriched.push({
         ...item,
@@ -112,4 +164,4 @@ export async function fetchAgmSnapshot() {
     total: enriched.length,
     agms: enriched,
   };
-}
+};
