@@ -8,9 +8,11 @@ export default function Navbar() {
 
   const navItems = [
     { name: "Currency", href: "/currencyExchangeRate" },
-    { name: "Gold & Silver", href: "/goldmodule" },
-    { name: "FD Rates", href: "/fdrates" },
+    { name: "Gold & Silver", href: "/goldRate" },
+    { name: "FD Rates", href: "/fdRate" },
     { name: "NEPSE Data", href: "/nepseData" },
+    { name: "AGM", href: "/agm" },
+    
   ];
 
   return (
