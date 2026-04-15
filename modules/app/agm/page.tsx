@@ -1,8 +1,12 @@
 "use client";
+import Navbar from "@/components/Navbar";
 import React, { useEffect, useState } from "react";
 
 const Agm = () => {
   const [data, setData] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const itemsPerPage = 5;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,72 +22,120 @@ const Agm = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
-  const removeNullValues = (obj) => {
+  const removeNullValues = (obj = {}) => {
     return Object.fromEntries(
       Object.entries(obj).filter(
-        ([_, value]) => value !== null && value !== undefined,
-      ),
+        ([_, value]) => value !== null && value !== undefined
+      )
     );
   };
 
   const agms = data?.agms || [];
   const cleanStocks = agms.map(removeNullValues);
 
-  if(!data) {
-    return <div className="flex justify-center h-screen items-center">Wait a few seconds ! data is loading...</div>
+  // Pagination logic
+  const totalPages = Math.ceil(cleanStocks.length / itemsPerPage);
+
+  const startIndex = (page - 1) * itemsPerPage;
+  const paginatedData = cleanStocks.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  if (!data) {
+    return (
+      <div className="flex justify-center h-screen items-center">
+        Loading AGM data...
+      </div>
+    );
   }
 
   return (
-    <div className="p-5 m-5">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        AGM Details Daily Updates
-      </h1>
+    <div>
+      <Navbar />
 
-      {/* GRID CONTAINER */}
-      <div className="flex flex-col gap-4">
-        {cleanStocks.map((item, idx) => (
-          <div
-            key={idx}
-            className="w-full flex items-start justify-between gap-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-          >
-            {/* LEFT SIDE - TITLE */}
-            <div className="flex-1">
-              <div className="flex items-start gap-3">
-                <span className="mt-1 text-gray-400">📢</span>
+      <div className="p-4 max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold text-center mb-6 mt-10">
+          AGM Details Daily Updates
+        </h1>
 
-                <h2 className="text-sm md:text-base font-medium text-gray-800 leading-relaxed">
-                  {item.title}
-                </h2>
-              </div>
-            </div>
+        {/* LIST */}
+        <div className="flex flex-col gap-4">
+          {paginatedData.map((item, idx) => (
+            <div
+              key={idx}
+              className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition"
+            >
+              {/* LEFT */}
+              <div className="flex-1">
+                <div className="flex items-start gap-3">
+                  <span className="text-gray-400 mt-1">📢</span>
 
-            {/* RIGHT SIDE - DATES */}
-            <div className="w-[220px] shrink-0 text-xs md:text-sm text-gray-600 space-y-1">
+                  <div>
+                    <h2 className="text-base font-semibold text-gray-900">
+                      {item.company || "Unknown Company"}
+                    </h2>
 
-                
-              <div className="flex justify-between">
-                <span className="text-gray-400">Start</span>
-                <span>{item.start_date }</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-gray-400">End</span>
-                <span>{item.end_date }</span>
-              </div>
-
-              {item.published_date && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Published</span>
-                  <span className="text-gray-700">{item.published_date}</span>
+                    <p className="text-sm text-gray-700 mt-1 leading-relaxed">
+                      {item.title}
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* RIGHT */}
+              <div className="w-full md:w-[220px] text-sm text-gray-600 space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Start</span>
+                  <span>{item.start_date}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-400">End</span>
+                  <span>{item.end_date}</span>
+                </div>
+
+                {item.published_date && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Published</span>
+                    <span>{item.published_date}</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* PAGINATION */}
+        <div className="flex justify-center items-center gap-2 mt-8 flex-wrap">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            className="px-3 py-1 border rounded-md disabled:opacity-50"
+            disabled={page === 1}
+          >
+            Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i + 1)}
+              className={`px-3 py-1 border rounded-md ${
+                page === i + 1 ? "bg-black text-white" : ""
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            className="px-3 py-1 border rounded-md disabled:opacity-50"
+            disabled={page === totalPages}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

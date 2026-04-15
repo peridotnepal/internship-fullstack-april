@@ -7,6 +7,7 @@ import metalScraperRoute from "./routes/metalScraper.js";
 import fdRoutes from "./routes/fdRates.js";
 import nepseScraperRoute from "./routes/nepseScraper.js";
 import agmRoutes from "./routes/agmScraper.js";
+import newsRoutes from "./routes/news.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/fd-rates", fdRoutes);
 app.use("/metals", metalScraperRoute);
 app.use("/nepse", nepseScraperRoute);
 app.use("/agm", agmRoutes);
+app.use("/news", newsRoutes);
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });

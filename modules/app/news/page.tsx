@@ -9,6 +9,7 @@ import {
   updateNews,
 } from "@/lib/indexeddb";
 import { PlusSquareIcon, X } from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 const colors = {
   red: "text-red-400",
@@ -29,7 +30,22 @@ export default function Page() {
   const [color, setColor] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
   const [handleNewsDetails, setHandleNewsDetails] = useState();
+  const [googleNews, setGoogleNews] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const pageSize = 4;
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/news");
+        const result = await response.json();
+        setGoogleNews(result);
+      } catch (err) {
+        console.error("Google News API error:", err);
+      }
+    };
+    fetchNews();
+  }, []);
   async function loadNews() {
     const data = await getNews();
     setNews(data);
@@ -93,95 +109,224 @@ export default function Page() {
     loadNews();
   }
 
+  const apiNews = googleNews?.news || [];
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const currentNews = apiNews.slice(startIndex, endIndex);
+  const totalPage = Math.ceil(apiNews.length / pageSize);
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* HEADER */}
-      <h1 className="text-3xl font-bold mb-6">News</h1>
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <Navbar />
 
-      <button className="cursor-pointer">
-        <PlusSquareIcon onClick={() => setOpen(!open)} />
-      </button>
+      {/* Main Wrapper */}
+      <div className="flex flex-1 overflow-hidden px-4 md:px-8 py-6 gap-8">
+        {/* LEFT SIDE: CUSTOM NEWS GRID */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-slate-800">News Feed</h1>
+            <button
+              className="cursor-pointer bg-blue-600 text-white p-2 rounded-full shadow-lg  "
+              onClick={() => setOpen(!open)}
+            >
+              <PlusSquareIcon size={24} />
+            </button>
+          </div>
 
-      {/* NEWS LIST */}
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 gap-4">
-        {news.length === 0 && (
-          <p className="text-gray-500 flex justify-center items-center">
-            No news available
-          </p>
-        )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {news.length === 0 ? (
+              <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white/50 border-2 border border-slate-300 rounded-3xl">
+                <p className="text-slate-500 font-medium italic">
+                  No custom news added
+                </p>
+              </div>
+            ) : (
+              news.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group"
+                >
+                  {item.image && (
+                    <div className="w-full h-48 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt="preview"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="p-5 flex-1">
+                    <h2
+                      className={`text-xl font-bold leading-snug mb-2 text-${color}`}
+                    >
+                      {item.title}
+                    </h2>
+                    <p
+                      className={`text-sm leading-relaxed line-clamp-4 ${color}`}
+                    >
+                      {item.summary}
+                    </p>
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
+                      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+                        Expires: {new Date(item.expiresAt).toLocaleTimeString()}
+                      </p>
+                      <span
+                        onClick={() => setHandleNewsDetails(item)}
+                        className="text-sm font-bold text-indigo-600 cursor-pointer hover:underline"
+                      >
+                        Read More
+                      </span>
+                    </div>
+                  </div>
+                  <div className="px-5 py-4 bg-slate-50 border-t border-slate-100">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="flex-1 bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditId(item.id);
+                          setTitle(item.title);
+                          setSummary(item.summary);
+                          setImage(item.image || "");
+                          setColor(item.color || "");
+                          setOpen(true);
+                        }}
+                        className="flex-1 bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                      >
+                        Update
+                      </button>
+                    </div>
+                    <select
+                      value={color}
+                      onChange={(e) => setColor(e.target.value)}
+                      className="w-full border border-slate-200 bg-white p-2 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    >
+                      <option value="" disabled>
+                        Change Accent Color
+                      </option>
+                      {Object.keys(colors).map((key) => (
+                        <option
+                          key={key}
+                          value={colors[key]}
+                          className={colors[key]}
+                        >
+                          {key}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
-        {news.map((item) => (
-          <div
-            key={item.id}
-            className="flex flex-col bg-white p-4 rounded-xl shadow-md border"
-          >
-            <div className="flex justify-center">
-              {item.image && (
-                <img
-                  src={item.image}
-                  alt="preview"
-                  className="w-full h-100 rounded-3xl object-cover rounded mb-2"
-                />
-              )}
-            </div>
-            {/* TITLE */}
-            <h2 className={`text-xl font-bold text-${color}`}>{item.title}</h2>
-
-            {/* SUMMARY */}
-            <p className={`${color} mt-2 line-clamp-4`}>{item.summary}</p>
-
-            {/* TTL INFO */}
-            <div className="flex justify-between">
-              <p className="text-sm text-gray-400 mt-2">
-                Expires at: {new Date(item.expiresAt).toLocaleTimeString()}
-              </p>
-              <span
-                onClick={() => setHandleNewsDetails(item)}
-                className="cursor-pointer"
+        {/* RIGHT SIDE: API NEWS LIST (FLEX-COL) */}
+        <div className="hidden md:flex flex-col w-[350px] shrink-0 h-[calc(100vh-120px)] sticky top-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4 px-2 border-l-4  ml-2">
+            Global Updates
+          </h2>
+          <div className="flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+            {currentNews.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:border-blue-300 transition-all group"
               >
-                Read More
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-blue-600 uppercasepx-2 py-0.5 rounded">
+                    {new Date(item.published).toLocaleDateString()}
+                  </span>
+                  <span className="text-[9px] text-slate-400 italic truncate max-w-[100px]">
+                    {item.source || "Global News"}
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-slate-800 leading-snug line-clamp-2 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-slate-500 line-clamp-2 mb-3">
+                  {item.description || item.discription}
+                </p>
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-bold text-slate-900 flex items-center gap-1 "
+                >
+                  READ FULL STORY →
+                </a>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-6 mb-4">
+            {/* PREVIOUS BUTTON */}
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2.5 rounded-xl border border-slate-200 bg-white shadow-sm text-slate-600 transition-all 
+               enabled:hover:bg-slate-50 enabled:hover:border-slate-300 enabled:active:scale-95
+               disabled:opacity-40 disabled:cursor-not-allowed group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            {/* PAGE INDICATOR */}
+            <div className="flex items-center gap-1.5 px-4 py-2 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-xl shadow-sm">
+              <span className="text-sm font-bold text-slate-800">
+                {currentPage}
+              </span>
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+                /
+              </span>
+              <span className="text-sm font-semibold text-slate-500">
+                {totalPage}
               </span>
             </div>
 
-            {/* ACTIONS */}
-            <div className="mt-3 flex gap-2 ">
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
+            {/* NEXT BUTTON */}
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPage))
+              }
+              disabled={currentPage === totalPage}
+              className="p-2.5 rounded-xl border border-slate-200 bg-white shadow-sm text-slate-600 transition-all 
+               enabled:hover:bg-slate-50 enabled:hover:border-slate-300 enabled:active:scale-95
+               disabled:opacity-40 disabled:cursor-not-allowed group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Delete
-              </button>
-              <button
-                onClick={() => {
-                  setEditId(item.id);
-                  setTitle(item.title);
-                  setSummary(item.summary);
-                  setImage(item.image || "");
-                  setColor(item.color || "");
-                  setOpen(true);
-                }}
-                className="cursor-pointer bg-green-700 text-white px-3 py-1 rounded cursor-pointer"
-              >
-                Update
-              </button>
-              <select
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="border p-2  mb-2"
-              >
-                <option value="" disabled>
-                  Select color
-                </option>
-
-                {Object.keys(colors).map((key) => (
-                  <option key={key} value={colors[key]} className={colors[key]}>
-                    {key}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
           </div>
-        ))}
+        </div>
       </div>
 
       {handleNewsDetails && (

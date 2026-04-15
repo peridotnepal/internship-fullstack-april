@@ -12,13 +12,12 @@ export default function Navbar() {
     { name: "FD Rates", href: "/fdRate" },
     { name: "NEPSE Data", href: "/nepseData" },
     { name: "AGM", href: "/agm" },
-    
+    { name: "NEWS", href: "/news" },
   ];
 
   return (
     <nav className="w-full border-b bg-white shadow-sm ">
       <div className="max-w-6xl mx-auto flex justify-center items-center p-5 ">
-        
         <div className="flex gap-6">
           {navItems.map((item) => (
             <Link
@@ -34,7 +33,6 @@ export default function Navbar() {
             </Link>
           ))}
         </div>
-
       </div>
     </nav>
   );

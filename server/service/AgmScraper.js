@@ -21,7 +21,7 @@ async function fetchHtml(url) {
 // EXTRACT COMPANY NAME
 // =========================
 function extractCompany(title) {
-  return title.split("has announced")[0].trim();
+  return title.split(/has announced|has published|is selling/i)[0].trim();
 }
 
 // =========================
@@ -45,7 +45,9 @@ function extractEffectiveDate(text) {
   }
 
   // 3. valid from X to Y
-  let validMatch = text.match(/valid from\s+(.+?)\s+(to|till|until)\s+(.+?)(\.|,|$)/i);
+  let validMatch = text.match(
+    /valid from\s+(.+?)\s+(to|till|until)\s+(.+?)(\.|,|$)/i,
+  );
   if (validMatch) {
     start_date = validMatch[1].trim();
     end_date = validMatch[3].trim();
@@ -86,19 +88,17 @@ async function parseListing() {
         .text()
         .trim();
 
-      const link =
-        BASE_URL + container.find("a").first().attr("href");
+      const link = BASE_URL + container.find("a").first().attr("href");
 
-      const published_date = container
-        .find("span.text-org")
-        .text()
-        .trim();
+      const published_date = container.find("span.text-org").text().trim();
 
-      const { start_date, end_date } =
-        extractEffectiveDate(container.text());
+      const { start_date, end_date } = extractEffectiveDate(container.text());
+
+      const company = extractCompany(title);
 
       results.push({
         title,
+        company,
         start_date,
         end_date,
         published_date,
