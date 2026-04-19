@@ -1,15 +1,16 @@
 "use client";
 
-import { CalendarIcon, DollarSign, IndianRupee, Rss } from "lucide-react";
+import { CalendarIcon, DollarSign } from "lucide-react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import React, { useEffect } from "react";
+import html2canvas from "html2canvas";
 
 import { useGoldHistory } from "@/hooks/useGoldHistory";
 import { useTodayMetals } from "@/hooks/useMetalRate";
 import { useClock } from "@/hooks/useClock";
-import { usesymbolRates } from "@/hooks/useCurrency";
 import Navbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
 
 const goldImage =
   "https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg";
@@ -19,33 +20,44 @@ const silverImage =
 
 const OUNCE_TO_TOLA = 2.667;
 const TOLA_TO_GRAM = 11.6638;
+const INSTAGRAM_POST_WIDTH = 1080;
+const INSTAGRAM_POST_HEIGHT = 1350;
+const DOWNLOAD_CARD_ID = "gold-rate-download-card";
 
 const SliverAndGold = () => {
   // 🔥 hooks
   const time = useClock();
-  const { price, currency, selectedCurrency, setSelectedCurrency } =
-    useTodayMetals();
+  const { price, selectedCurrency, setSelectedCurrency } = useTodayMetals();
 
   const { selectedDate, setSelectedDate, selectedPrice } = useGoldHistory();
 
   const [rates, setRates] = React.useState({});
   const [type, setType] = React.useState("gold");
   const [unit, setUnit] = React.useState("tola");
-
-  const fetchRates = async () => {
-    try {
-      const response = await fetch("https://open.er-api.com/v6/latest/USD");
-      const data = await response.json();
-      console.log("fetched rates", data);
-
-      setRates(data.rates || {});
-    } catch (error) {
-      console.error("Error fetching symbol rates:", error);
-    }
-  };
+  const [isDownloading, setIsDownloading] = React.useState(false);
+  const downloadCardRef = React.useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    fetchRates();
+    let isMounted = true;
+
+    const fetchRates = async () => {
+      try {
+        const response = await fetch("https://open.er-api.com/v6/latest/USD");
+        const data = await response.json();
+
+        if (isMounted) {
+          setRates(data.rates || {});
+        }
+      } catch (error) {
+        console.error("Error fetching symbol rates:", error);
+      }
+    };
+
+    void fetchRates();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // DATA EXTRACTION
@@ -69,6 +81,93 @@ const SliverAndGold = () => {
   const silverValue = unit === "tola" ? silverTola : convertToGram(silverTola);
 
   const currentValue = type === "gold" ? goldValue : silverValue;
+
+  const downloadInstagramPost = async () => {
+    const element = downloadCardRef.current;
+
+    if (!element || isDownloading) return;
+
+    try {
+      setIsDownloading(true);
+
+      const sourceCanvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        onclone: (clonedDocument) => {
+          const sourceRoot = element;
+          const clonedRoot = clonedDocument.getElementById(DOWNLOAD_CARD_ID);
+
+          if (!clonedRoot) return;
+
+          const syncResolvedStyles = (sourceNode: Element, clonedNode: Element) => {
+            const computedStyle = window.getComputedStyle(sourceNode);
+            const clonedElement = clonedNode as HTMLElement;
+
+            clonedElement.style.color = computedStyle.color;
+            clonedElement.style.backgroundColor = computedStyle.backgroundColor;
+            clonedElement.style.borderColor = computedStyle.borderColor;
+            clonedElement.style.outlineColor = computedStyle.outlineColor;
+            clonedElement.style.textDecorationColor =
+              computedStyle.textDecorationColor;
+            clonedElement.style.boxShadow = computedStyle.boxShadow;
+
+            const sourceChildren = Array.from(sourceNode.children);
+            const clonedChildren = Array.from(clonedNode.children);
+
+            sourceChildren.forEach((child, index) => {
+              const clonedChild = clonedChildren[index];
+              if (clonedChild) {
+                syncResolvedStyles(child, clonedChild);
+              }
+            });
+          };
+
+          syncResolvedStyles(sourceRoot, clonedRoot);
+        },
+      });
+
+      const exportCanvas = document.createElement("canvas");
+      exportCanvas.width = INSTAGRAM_POST_WIDTH;
+      exportCanvas.height = INSTAGRAM_POST_HEIGHT;
+
+      const ctx = exportCanvas.getContext("2d");
+      if (!ctx) return;
+
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+      const sourceAspectRatio = sourceCanvas.width / sourceCanvas.height;
+      const targetAspectRatio =
+        INSTAGRAM_POST_WIDTH / INSTAGRAM_POST_HEIGHT;
+
+      let drawWidth = exportCanvas.width;
+      let drawHeight = exportCanvas.height;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      if (sourceAspectRatio > targetAspectRatio) {
+        drawHeight = exportCanvas.height;
+        drawWidth = drawHeight * sourceAspectRatio;
+        offsetX = (exportCanvas.width - drawWidth) / 2;
+      } else {
+        drawWidth = exportCanvas.width;
+        drawHeight = drawWidth / sourceAspectRatio;
+        offsetY = (exportCanvas.height - drawHeight) / 2;
+      }
+
+      ctx.drawImage(sourceCanvas, offsetX, offsetY, drawWidth, drawHeight);
+
+      const link = document.createElement("a");
+      link.href = exportCanvas.toDataURL("image/png");
+      link.download = `${type}-${unit}-${selectedCurrency}-instagram-post.png`;
+      link.click();
+    } catch (error) {
+      console.error("Failed to download gold rate card:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -127,6 +226,10 @@ const SliverAndGold = () => {
               <option key={cur}>{cur}</option>
             ))}
           </select>
+
+          <Button onClick={downloadInstagramPost} disabled={isDownloading}>
+            {isDownloading ? "Preparing..." : "Download Post"}
+          </Button>
         </div>
       </header>
 
@@ -134,7 +237,11 @@ const SliverAndGold = () => {
       <main className="max-w-[1400px] mx-auto grid grid-cols-12 gap-8">
         {/* LEFT */}
         <div className="col-span-12 lg:col-span-7 space-y-6">
-          <div className="relative overflow-hidden bg-black rounded-3xl h-[500px]">
+          <div
+            ref={downloadCardRef}
+            id={DOWNLOAD_CARD_ID}
+            className="relative overflow-hidden bg-black rounded-3xl h-[500px]"
+          >
             <img
               src={type === "gold" ? goldImage : silverImage}
               className="absolute inset-0 w-full h-full object-cover opacity-40"
