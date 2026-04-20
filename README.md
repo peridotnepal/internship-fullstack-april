@@ -79,11 +79,10 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 
 ### Pending Features
 
-- [ ] Export tables as PNG/JPG
-- [ ] Export full page layouts as social media post
-- [ ] Download full layout as Instagram-ready post
-- [ ] Advanced data filtering and sorting
-- [ ] User preferences and settings
+- [x] Export tables as PNG/JPG
+- [x] Export full page layouts as social media post
+- [X] Download full layout as Instagram-ready post
+
 
 ##  Project Structure
 

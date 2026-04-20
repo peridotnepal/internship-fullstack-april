@@ -35,7 +35,7 @@ export default function Page() {
   const [googleNews, setGoogleNews] = useState();
   const [currentPage, setCurrentPage] = useState(1);
 
-  const cardRefs = useRef({});
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pageSize = 4;
   useEffect(() => {
     const fetchNews = async () => {
@@ -63,6 +63,38 @@ export default function Page() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const exportCardToImage = async (id) => {
+    const element = cardRefs.current[id];
+    const hideElements = element?.querySelectorAll("button, select");
+    if (!element) return;
+
+    hideElements?.forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.display = "none";
+      }
+    });
+    try {
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      const link = document.createElement("a");
+      link.download = `news-${id}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      hideElements?.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = "block";
+        }
+      });
+    }
+  };
 
   const handleImage = (e) => {
     const file = e.target.files?.[0];
@@ -148,48 +180,63 @@ export default function Page() {
               news.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group"
+                  ref={(el) => {
+                    cardRefs.current[item.id] = el;
+                  }}
+                  className="relative flex flex-col justify-between rounded-2xl h-[500px] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group bg-cover bg-center"
+                  style={{
+                    backgroundImage: item.image ? `url(${item.image})` : "none",
+                  }}
                 >
-                  {item.image && (
-                    <div className="w-full h-48 overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt="preview"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  )}
-                  <div className="p-5 flex-1">
+                  {/* overlay for readability */}
+                  <div className="absolute inset-0 bg-black/40" />
+
+                  {/* CONTENT */}
+                  <div className="relative flex flex-col justify-end items-center pt-5 mt-25 text-white">
                     <h2
-                      className={`text-xl font-bold leading-snug mb-2 text-${color}`}
+                      className={`text-xl text-center rounded-lg p-3 font-bold leading-snug text-[#f8f200] `}
                     >
                       {item.title}
                     </h2>
+
                     <p
-                      className={`text-sm leading-relaxed line-clamp-4 ${color}`}
+                      className={`text-sm leading-relaxed line-clamp-4 bg-red-500 backdrop-blur-md rounded-2xl p-4 mt-2 ${color}`}
                     >
                       {item.summary}
                     </p>
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
-                      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
-                        Expires: {new Date(item.expiresAt).toLocaleTimeString()}
-                      </p>
-                      <span
-                        onClick={() => setHandleNewsDetails(item)}
-                        className="text-sm font-bold text-indigo-600 cursor-pointer hover:underline"
-                      >
-                        Read More
-                      </span>
-                    </div>
                   </div>
-                  <div className="px-5 py-4 bg-slate-50 border-t border-slate-100">
+
+                  {/* ACTIONS */}
+                  <div className="relative flex justify-between items-center  px-5 py-3 border-t border-white/20 text-white">
+                    <button className="text-[10px] uppercase tracking-wider font-semibold">
+                      Expires: {new Date(item.expiresAt).toLocaleTimeString()}
+                    </button>
+
+                    <button
+                      onClick={() => setHandleNewsDetails(item)}
+                      className="text-sm font-bold cursor-pointer hover:underline"
+                    >
+                      Read More
+                    </button>
+
+                    <button
+                      onClick={() => exportCardToImage(item.id)}
+                      className="bg-black/70 text-white px-3 py-1 rounded-lg text-sm"
+                    >
+                      Download PNG
+                    </button>
+                  </div>
+
+                  {/* FOOTER */}
+                  <div className="relative px-5 py-4 bg-white/90 backdrop-blur border-t border-slate-100">
                     <div className="flex flex-wrap gap-2 mb-3">
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="flex-1 bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        className="flex-1 bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer"
                       >
                         Delete
                       </button>
+
                       <button
                         onClick={() => {
                           setEditId(item.id);
@@ -199,19 +246,21 @@ export default function Page() {
                           setColor(item.color || "");
                           setOpen(true);
                         }}
-                        className="flex-1 bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        className="flex-1 bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer"
                       >
                         Update
                       </button>
                     </div>
+
                     <select
                       value={color}
                       onChange={(e) => setColor(e.target.value)}
-                      className="w-full border border-slate-200 bg-white p-2 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                      className="w-full border border-slate-200 bg-white p-2 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="" disabled>
                         Change Accent Color
                       </option>
+
                       {Object.keys(colors).map((key) => (
                         <option
                           key={key}
