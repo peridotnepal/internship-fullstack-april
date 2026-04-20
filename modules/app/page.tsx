@@ -10,7 +10,7 @@ export default function Home() {
 
         <p className="text-gray-500 mt-2">
           Select a module from the navbar above
-          <DownloadCard/>
+          {/* <DownloadCard/> */}
         </p>
       </div>
     </div>

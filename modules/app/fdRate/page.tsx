@@ -21,11 +21,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { toPng } from "html-to-image";
 
 const FdRates = () => {
   const [fdRates, setFdRates] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
- 
 
   const itemsPerPage = 10;
 
@@ -35,6 +35,44 @@ const FdRates = () => {
       setFdRates(data);
     } catch (error) {
       console.error("Error fetching FD rates:", error);
+    }
+  };
+
+  const exportToImage = async () => {
+    const element = document.getElementById("fd-table-export");
+
+    if (!element) return;
+    const findUiElementsToHide = element.querySelectorAll("button, select");
+    try {
+      findUiElementsToHide.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = "none";
+        }
+      });
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#f9fafb",
+        // This style object ensures the captured area has enough room
+        style: {
+          margin: "0",
+          padding: "40px",
+          width: "1000px", // Force a consistent width for the "paper" size
+        },
+      });
+
+      const link = document.createElement("a");
+      link.download = `Fixed-Deposit-Rates-${new Date().toLocaleDateString()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setTimeout(() => {
+        findUiElementsToHide.forEach((element) => {
+          if (element instanceof HTMLElement) element.style.display = "block";
+        });
+      }, 1000);
     }
   };
 
@@ -60,13 +98,12 @@ const FdRates = () => {
               Compare interest rates across commercial and development banks.
             </p>
           </div>
-
         </header>
 
         {/* Comparison Table Mode */}
-        {(
+        {
           <div className="rounded-md border bg-white overflow-hidden">
-            <Table>
+            <Table id="fd-table-export">
               <TableHeader className="bg-slate-50">
                 <TableRow>
                   <TableHead className="font-bold ">S.N</TableHead>
@@ -114,7 +151,7 @@ const FdRates = () => {
               </TableBody>
             </Table>
           </div>
-        ) }
+        }
 
         {/* Pagination using Shadcn Buttons */}
         <footer className="flex flex-col items-center gap-4 pt-4">
@@ -152,7 +189,9 @@ const FdRates = () => {
               Next
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
+            <Button variant="outline"   onClick={exportToImage}>Export table</Button>
           </div>
+
           <p className="text-xs text-muted-foreground italic">
             Showing {indexOfFirstItem + 1} to{" "}
             {Math.min(indexOfLastItem, fdRates.length)} of {fdRates.length}{" "}

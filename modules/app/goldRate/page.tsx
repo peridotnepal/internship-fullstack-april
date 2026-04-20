@@ -4,10 +4,9 @@ import { CalendarIcon, DollarSign } from "lucide-react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import React, { useEffect } from "react";
-import html2canvas from "html2canvas";
+
 import { toCanvas } from "html-to-image";
 import $ from "jquery";
-import domtoimage from "dom-to-image";
 
 import { useGoldHistory } from "@/hooks/useGoldHistory";
 import { useTodayMetals } from "@/hooks/useMetalRate";
@@ -94,59 +93,47 @@ const SliverAndGold = () => {
   const silverImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://www.romadesignerjewelry.com/cdn/shop/articles/1800x1000_white_gold_vs_sterling_silver.jpg?v=1705548831&width=1400")}`;
 
   // ... (Inside your component)
-
-  const downloadInstagramPost = () => {
+  const downloadInstagramPost = async () => {
     if (typeof window === "undefined" || isDownloading) return;
 
     const element = document.getElementById(DOWNLOAD_CARD_ID);
     if (!element) return;
 
-    setIsDownloading(true);
+    try {
+      setIsDownloading(true);
 
-    // 2. JQUERY STYLE CLEANER (Fixes the "lab" color error)
-    // We loop through all elements and force them to use standard RGB strings
-    $(element)
-      .find("*")
-      .each(function () {
-        const $el = $(this);
-        const computed = window.getComputedStyle(this);
-        $el.css({
-          color: computed.color,
-          "background-color": computed.backgroundColor,
-          "border-color": computed.borderColor,
-        });
-      });
+      // wait for rendering
+      await new Promise((r) => requestAnimationFrame(r));
 
-    // 3. CAPTURE ENGINE
-    domtoimage
-      .toCanvas(element, {
-        quality: 1,
-        // We set width/height to ensure 1080x1350 output
-        width: 1080,
-        height: 1350,
+      // 🔥 GET REAL SIZE OF DIV
+      const rect = element.getBoundingClientRect();
+
+      const canvas = await toCanvas(element, {
+        cacheBust: true,
+        pixelRatio: 2,
+
+        // IMPORTANT: use real size
+        width: rect.width,
+        height: rect.height,
+
         style: {
           transform: "scale(1)",
-          left: "0",
-          top: "0",
+          transformOrigin: "top left",
+          width: `${rect.width}px`,
+          height: `${rect.height}px`,
         },
-      })
-      .then((canvas) => {
-        // 4. DOWNLOAD TRIGGER
-        const link = document.createElement("a");
-        link.download = `rate-card-${new Date().getTime()}.png`;
-        link.href = canvas.toDataURL("image/png", 1.0);
-        link.click();
-        setIsDownloading(false);
-      })
-      .catch((error) => {
-        console.error("Capture failed:", error);
-        alert(
-          "Capture failed. Check if external images are loading correctly.",
-        );
-        setIsDownloading(false);
       });
-  };
 
+      const link = document.createElement("a");
+      link.download = `rate-card-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -232,14 +219,15 @@ const SliverAndGold = () => {
               <div className="flex justify-between items-end">
                 <div>
                   <p className="text-gray-400 text-xs tracking-widest mb-2">
-                    CURRENT PRICE
+                    {type === "gold"
+                      ? "Today Gold Rate is "
+                      : "Today Silver Rate is "}
                   </p>
 
-                  <h2 className="text-7xl font-black text-white flex items-center gap-4">
+                  <h2 className="text-[72px] font-black text-white flex items-end gap-4 leading-none whitespace-nowrap">
                     <span className="text-3xl text-gray-400">$</span>
                     {currentValue.toFixed(2)}
                   </h2>
-
                   <p className="text-gray-400 mt-3">
                     Price per <span className="text-white">{unit}</span> in{" "}
                     {selectedCurrency}
