@@ -1,7 +1,8 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import React, { useEffect, useState } from "react";
-
+import { toPng } from "html-to-image";
+import { Button } from "@base-ui/react";
 const Agm = () => {
   const [data, setData] = useState(null);
   const [page, setPage] = useState(1);
@@ -25,9 +26,47 @@ const Agm = () => {
   const removeNullValues = (obj = {}) => {
     return Object.fromEntries(
       Object.entries(obj).filter(
-        ([_, value]) => value !== null && value !== undefined
-      )
+        ([_, value]) => value !== null && value !== undefined,
+      ),
     );
+  };
+
+  const exportToImage = async () => {
+    const element = document.getElementById("agm-table-export");
+
+    if (!element) return;
+    const uiToHide = element.querySelectorAll("button, select");
+    try {
+      uiToHide.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = "none";
+        }
+      });
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#f9fafb",
+        // This style object ensures the captured area has enough room
+        style: {
+          margin: "0",
+          padding: "40px",
+          width: "1000px", // Force a consistent width for the "paper" size
+        },
+      });
+
+      const link = document.createElement("a");
+      link.download = `AGM-Rates-${new Date().toLocaleDateString()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      uiToHide.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = "block";
+        }
+      });
+    }
   };
 
   const agms = data?.agms || [];
@@ -39,7 +78,7 @@ const Agm = () => {
   const startIndex = (page - 1) * itemsPerPage;
   const paginatedData = cleanStocks.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + itemsPerPage,
   );
 
   if (!data) {
@@ -54,17 +93,17 @@ const Agm = () => {
     <div>
       <Navbar />
 
-      <div className="p-4 max-w-6xl mx-auto">
+      <div id="agm-table-export" className="p-4 max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold text-center mb-6 mt-10">
           AGM Details Daily Updates
         </h1>
 
         {/* LIST */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 bg-gray-50 p-9 rounded-4xl shadow-md">
           {paginatedData.map((item, idx) => (
             <div
               key={idx}
-              className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition"
+              className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl bg-white p-5 shadow-sm hover:shadow-md transition"
             >
               {/* LEFT */}
               <div className="flex-1">
@@ -135,6 +174,7 @@ const Agm = () => {
           >
             Next
           </button>
+          <Button className="hover:bg-black hover:text-white border  p-2 rounded-4xl cursor-pointer" onClick={exportToImage}>Download</Button>
         </div>
       </div>
     </div>

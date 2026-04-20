@@ -10,6 +10,8 @@ import {
 } from "@/lib/indexeddb";
 import { PlusSquareIcon, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { toPng } from "html-to-image";
+import { useRef } from "react";
 
 const colors = {
   red: "text-red-400",
@@ -33,6 +35,7 @@ export default function Page() {
   const [googleNews, setGoogleNews] = useState();
   const [currentPage, setCurrentPage] = useState(1);
 
+  const cardRefs = useRef({});
   const pageSize = 4;
   useEffect(() => {
     const fetchNews = async () => {
