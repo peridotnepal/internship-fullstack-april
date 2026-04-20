@@ -2,7 +2,7 @@
 
 A comprehensive financial data dashboard built with Next.js frontend and Node.js backend, providing real-time currency rates, gold/silver prices, FD rates, NEPSE stock data, and financial news.
 
-##  Tech Stack
+## Tech Stack
 
 ### Backend
 
@@ -30,7 +30,6 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - **HTML-to-Image** - Converting DOM to PNG/JPG
 - **HTML2Canvas** - Canvas-based HTML to image conversion
 - **DOM-to-Image** - DOM serialization to image format
-- **jQuery** - DOM manipulation (used with html-to-image)
 - **Axios** - HTTP client for API requests
 - **idb (IndexedDB)** - Client-side database for caching
 - **Class-variance-authority** - Type-safe CSS class management
@@ -81,10 +80,9 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 
 - [x] Export tables as PNG/JPG
 - [x] Export full page layouts as social media post
-- [X] Download full layout as Instagram-ready post
+- [x] Download full layout as Instagram-ready post
 
-
-##  Project Structure
+## Project Structure
 
 ```
 root/
@@ -146,7 +144,7 @@ root/
     └── server.js               # Express server entry point
 ```
 
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -184,7 +182,7 @@ pnpm dev  # Start Next.js development server
 - **API Endpoints**: Backend runs on port (configured in server.js)
 - **Frontend**: Runs on `http://localhost:3000`
 
-##  Data Flow
+## Data Flow
 
 1. **Automated Data Scraping**: Node-Cron triggers scheduled scraper jobs
 2. **Web Scraping**: Puppeteer and Cheerio extract data from websites
