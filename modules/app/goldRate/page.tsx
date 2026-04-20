@@ -5,6 +5,9 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import React, { useEffect } from "react";
 import html2canvas from "html2canvas";
+import { toCanvas } from "html-to-image";
+import $ from "jquery";
+import domtoimage from "dom-to-image";
 
 import { useGoldHistory } from "@/hooks/useGoldHistory";
 import { useTodayMetals } from "@/hooks/useMetalRate";
@@ -82,91 +85,66 @@ const SliverAndGold = () => {
 
   const currentValue = type === "gold" ? goldValue : silverValue;
 
-  const downloadInstagramPost = async () => {
-    const element = downloadCardRef.current;
+  // 1. Update the Instagram Constants if needed
+  const INSTAGRAM_WIDTH = 1080;
+  const INSTAGRAM_HEIGHT = 1350;
 
-    if (!element || isDownloading) return;
+  // 1. USE PROXY FOR EXTERNAL IMAGES (Fixes CORS/Blank image issue)
+  const goldImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg")}`;
+  const silverImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://www.romadesignerjewelry.com/cdn/shop/articles/1800x1000_white_gold_vs_sterling_silver.jpg?v=1705548831&width=1400")}`;
 
-    try {
-      setIsDownloading(true);
+  // ... (Inside your component)
 
-      const sourceCanvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        onclone: (clonedDocument) => {
-          const sourceRoot = element;
-          const clonedRoot = clonedDocument.getElementById(DOWNLOAD_CARD_ID);
+  const downloadInstagramPost = () => {
+    if (typeof window === "undefined" || isDownloading) return;
 
-          if (!clonedRoot) return;
+    const element = document.getElementById(DOWNLOAD_CARD_ID);
+    if (!element) return;
 
-          const syncResolvedStyles = (sourceNode: Element, clonedNode: Element) => {
-            const computedStyle = window.getComputedStyle(sourceNode);
-            const clonedElement = clonedNode as HTMLElement;
+    setIsDownloading(true);
 
-            clonedElement.style.color = computedStyle.color;
-            clonedElement.style.backgroundColor = computedStyle.backgroundColor;
-            clonedElement.style.borderColor = computedStyle.borderColor;
-            clonedElement.style.outlineColor = computedStyle.outlineColor;
-            clonedElement.style.textDecorationColor =
-              computedStyle.textDecorationColor;
-            clonedElement.style.boxShadow = computedStyle.boxShadow;
-
-            const sourceChildren = Array.from(sourceNode.children);
-            const clonedChildren = Array.from(clonedNode.children);
-
-            sourceChildren.forEach((child, index) => {
-              const clonedChild = clonedChildren[index];
-              if (clonedChild) {
-                syncResolvedStyles(child, clonedChild);
-              }
-            });
-          };
-
-          syncResolvedStyles(sourceRoot, clonedRoot);
-        },
+    // 2. JQUERY STYLE CLEANER (Fixes the "lab" color error)
+    // We loop through all elements and force them to use standard RGB strings
+    $(element)
+      .find("*")
+      .each(function () {
+        const $el = $(this);
+        const computed = window.getComputedStyle(this);
+        $el.css({
+          color: computed.color,
+          "background-color": computed.backgroundColor,
+          "border-color": computed.borderColor,
+        });
       });
 
-      const exportCanvas = document.createElement("canvas");
-      exportCanvas.width = INSTAGRAM_POST_WIDTH;
-      exportCanvas.height = INSTAGRAM_POST_HEIGHT;
-
-      const ctx = exportCanvas.getContext("2d");
-      if (!ctx) return;
-
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-
-      const sourceAspectRatio = sourceCanvas.width / sourceCanvas.height;
-      const targetAspectRatio =
-        INSTAGRAM_POST_WIDTH / INSTAGRAM_POST_HEIGHT;
-
-      let drawWidth = exportCanvas.width;
-      let drawHeight = exportCanvas.height;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      if (sourceAspectRatio > targetAspectRatio) {
-        drawHeight = exportCanvas.height;
-        drawWidth = drawHeight * sourceAspectRatio;
-        offsetX = (exportCanvas.width - drawWidth) / 2;
-      } else {
-        drawWidth = exportCanvas.width;
-        drawHeight = drawWidth / sourceAspectRatio;
-        offsetY = (exportCanvas.height - drawHeight) / 2;
-      }
-
-      ctx.drawImage(sourceCanvas, offsetX, offsetY, drawWidth, drawHeight);
-
-      const link = document.createElement("a");
-      link.href = exportCanvas.toDataURL("image/png");
-      link.download = `${type}-${unit}-${selectedCurrency}-instagram-post.png`;
-      link.click();
-    } catch (error) {
-      console.error("Failed to download gold rate card:", error);
-    } finally {
-      setIsDownloading(false);
-    }
+    // 3. CAPTURE ENGINE
+    domtoimage
+      .toCanvas(element, {
+        quality: 1,
+        // We set width/height to ensure 1080x1350 output
+        width: 1080,
+        height: 1350,
+        style: {
+          transform: "scale(1)",
+          left: "0",
+          top: "0",
+        },
+      })
+      .then((canvas) => {
+        // 4. DOWNLOAD TRIGGER
+        const link = document.createElement("a");
+        link.download = `rate-card-${new Date().getTime()}.png`;
+        link.href = canvas.toDataURL("image/png", 1.0);
+        link.click();
+        setIsDownloading(false);
+      })
+      .catch((error) => {
+        console.error("Capture failed:", error);
+        alert(
+          "Capture failed. Check if external images are loading correctly.",
+        );
+        setIsDownloading(false);
+      });
   };
 
   return (
@@ -307,11 +285,12 @@ const SliverAndGold = () => {
                     <div className="flex flex-col">
                       <span className="flex gap-2 items-center text-3xl font-black">
                         <DollarSign />
-                        {(selectedPrice.price / 2.66).toFixed(3) }/ tola USD
+                        {(selectedPrice.price / 2.66).toFixed(3)}/ tola USD
                       </span>
                       <span className="flex gap-2 items-center text-3xl font-black">
                         <DollarSign />
-                        {(selectedPrice.price * 149 /2.66).toFixed(3)}/ tola NPR
+                        {((selectedPrice.price * 149) / 2.66).toFixed(3)}/ tola
+                        NPR
                       </span>
                     </div>
 
