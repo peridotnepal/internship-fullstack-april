@@ -13,6 +13,7 @@ export default function Navbar() {
     { name: "NEPSE Data", href: "/nepseData" },
     { name: "AGM", href: "/agm" },
     { name: "NEWS", href: "/news" },
+    { name: "PETROL", href: "/petrol" },
   ];
 
   return (

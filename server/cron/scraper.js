@@ -2,6 +2,7 @@ import cron from "node-cron";
 import scrapeFD from "../service/FdScraper.js";
 import { scrapeGold } from "../service/metalScraper.js";
 import fetchNepseSnapshot from "../service/nepseScraper.js";
+import scrapeFuelPrices from "../service/PetrolScraper.js";
 
 export const Fdcron = cron.schedule("0 2 * * 0", async () => {
   console.log(" Weekly FD scraping started...");
@@ -33,5 +34,14 @@ export const NepseCron = cron.schedule("0 4 * * *", async () => {
     console.log(" Daily NEPSE scraping completed successfully!");
   } catch (error) {
     console.error("Cron job failed:", error.message);
+  }
+});
+
+export const PetrolCron = cron.schedule("0 4 * * *", async () => {
+  try {
+    await scrapeFuelPrices();
+    console.log(" Daily petrol scraping completed successfully!");
+  } catch (err) {
+    console.log("Cron job failed:", err.message);
   }
 });

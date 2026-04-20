@@ -52,29 +52,29 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 
 ### Frontend Pages (Completed)
 
-[x] **Currency Exchange Rate Module** - Real-time currency conversion rates
-[x] **Gold & Silver Rate Module** - Precious metal price tracking  
-[x] **FD Interest Rate Module** - Fixed Deposit interest rate information
-[x] **News UI Module** - Financial news display from RSS feeds and web scraping
-[x] **NEPSE Weekly Summary** - Nepal Stock Exchange data and statistics
-[x] **AGM Module** - Annual General Meeting information
-[x] **Gainer / Loser Section** - Stock performance indicators
+- [x] **Currency Exchange Rate Module** - Real-time currency conversion rates
+- [x] **Gold & Silver Rate Module** - Precious metal price tracking
+- [x] **FD Interest Rate Module** - Fixed Deposit interest rate information
+- [x] **News UI Module** - Financial news display from RSS feeds and web scraping
+- [x] **NEPSE Weekly Summary** - Nepal Stock Exchange data and statistics
+- [x] **Gainer / Loser Section** - Stock performance indicators
+- [x] **AGM Module** - Annual General Meeting information
 
 ### Backend Services (Completed)
 
-[x] **Metal Scraper Service** - Automated gold/silver price scraping
-[x] **Currency Scraper Service** - Currency rate data collection
-[x] **FD Rates Scraper Service** - Fixed deposit rate information
-[x] **NEPSE Data Scraper Service** - Stock market data aggregation
-[x] **News Parser Service** - RSS feed and web-based news collection
-[x] **AGM Scraper Service** - Annual general meeting data extraction
-[x] **Cron Job Scheduler** - Automated periodic data refresh
+- [x] **Metal Scraper Service** - Automated gold/silver price scraping
+- [x] **Currency Scraper Service** - Currency rate data collection
+- [x] **FD Rates Scraper Service** - Fixed deposit rate information
+- [x] **NEPSE Data Scraper Service** - Stock market data aggregation
+- [x] **News Parser Service** - RSS feed and web-based news collection
+- [x] **AGM Scraper Service** - Annual general meeting data extraction
+- [x] **Cron Job Scheduler** - Automated periodic data refresh
 
 ### Pending Modules
 
-[ ] Did You Know Section
-[ ] Sector Performance Module
-[ ] Energy Update Module
+- [ ] Did You Know Section
+- [ ] Sector Performance Module
+- [ ] Energy Update Module
 
 ### Pending Features
 

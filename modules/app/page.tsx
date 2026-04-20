@@ -1,5 +1,6 @@
 import DownloadCard from "@/components/DownloadCard";
 import Navbar from "@/components/Navbar";
+import FuelPriceDownloader from "@/components/petroliumDownload";
 
 export default function Home() {
   return (
@@ -11,6 +12,8 @@ export default function Home() {
         <p className="text-gray-500 mt-2">
           Select a module from the navbar above
           {/* <DownloadCard/> */}
+         
+          
         </p>
       </div>
     </div>

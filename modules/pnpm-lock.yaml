@@ -23,6 +23,9 @@ importers:
       dom-to-image:
         specifier: ^2.6.0
         version: 2.6.0
+      downloadjs:
+        specifier: ^1.4.7
+        version: 1.4.7
       html-to-image:
         specifier: ^1.11.13
         version: 1.11.13
@@ -1369,6 +1372,9 @@ packages:
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
+
+  downloadjs@1.4.7:
+    resolution: {integrity: sha512-LN1gO7+u9xjU5oEScGFKvXhYf7Y/empUIIEAGBs1LzUq/rg5duiDrkuH5A2lQGd5jfMOb9X9usDa2oVXwJ0U/Q==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -4346,6 +4352,8 @@ snapshots:
   dom-to-image@2.6.0: {}
 
   dotenv@17.4.2: {}
+
+  downloadjs@1.4.7: {}
 
   dunder-proto@1.0.1:
     dependencies:
