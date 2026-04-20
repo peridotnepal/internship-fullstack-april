@@ -74,7 +74,7 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 
 - [ ] Did You Know Section
 - [ ] Sector Performance Module
-- [ ] Energy Update Module
+- [x] Energy Update Module
 
 ### Pending Features
 
