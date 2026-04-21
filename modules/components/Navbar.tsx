@@ -14,7 +14,6 @@ export default function Navbar() {
     { name: "AGM", href: "/agm" },
     { name: "NEWS", href: "/news" },
     { name: "PETROL", href: "/petrol" },
-    { name: "Sector Performance", href: "/sectorPerformance" },
   ];
 
   return (
