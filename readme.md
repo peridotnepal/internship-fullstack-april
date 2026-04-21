@@ -59,6 +59,8 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - [x] **NEPSE Weekly Summary** - Nepal Stock Exchange data and statistics
 - [x] **Gainer / Loser Section** - Stock performance indicators
 - [x] **AGM Module** - Annual General Meeting information
+- [x] **Sector Performance Module**
+- [x] **Energy Update Module**
 
 ### Backend Services (Completed)
 
@@ -73,8 +75,6 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 ### Pending Modules
 
 - [ ] Did You Know Section
-- [ ] Sector Performance Module
-- [x] Energy Update Module
 
 ### Pending Features
 
