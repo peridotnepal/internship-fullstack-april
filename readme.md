@@ -73,9 +73,6 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - [x] **News Parser Service** - RSS feed and web-based news collection
 - [x] **AGM Scraper Service** - Annual general meeting data extraction
 - [x] **Cron Job Scheduler** - Automated periodic data refresh
-
-### Pending Modules
-
 - [ ] Did You Know Section
 
 ### Pending Features
@@ -92,47 +89,6 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
   - Added `QueryClientProvider` in root layout (`provider/tanstack.tsx`)
   - Configured 5-minute cache freshness with 30-minute garbage collection
   - Applied to AGM, NEPSE, Gold Rates, and Petroleum modules
-
-### UI/UX Enhancements
-
-- **AGM Module**:
-  - Enhanced styling with colored headers (green accent)
-  - Improved typography with better contrast
-  - Better date/time display formatting
-
-- **Currency Exchange Rates**:
-  - Added LED-style digital display using DotGothic16 font
-  - Implemented glow effect with text-shadow for futuristic look
-  - Enhanced table styling with better readability
-  - Added red/amber highlighting for rate values
-
-- **FD Rates Module**:
-  - Updated header with blue background and white text
-  - Added export table functionality with proper ID
-  - Zebra stripe pattern for better table readability
-  - Improved badge styling
-
-- **Gold & Silver Rates**:
-  - Redesigned download card with gradient overlay
-  - Enhanced typography and spacing
-  - Added date/time display on card
-  - Improved currency symbol and price display
-
-- **NEPSE Daily Snapshot**:
-  - Redesigned summary section with card-based layout
-  - Added color-coded indicators (green for gainers, red for losers)
-  - Enhanced table formatting with improved typography
-  - Added directional triangle indicators for gains/losses
-  - Better pagination controls
-
-- **News Module**:
-  - Redesigned card layout with gradient overlay
-  - Added badges for "NEWS" and date display
-  - Improved action button styling
-  - Better separation of admin controls
-
-- **Sector Performance**:
-  - Updated static data values for more accurate representation
 
 ## Project Structure
 
