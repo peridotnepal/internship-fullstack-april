@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { toJpeg } from "html-to-image";
-import download from "downloadjs";
+import { useQuery } from "@tanstack/react-query";
 
 const FuelPriceDownloader = () => {
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState(null);
   const exportRef = useRef(null);
 
   // 🔹 Fetch API data
@@ -12,15 +12,18 @@ const FuelPriceDownloader = () => {
     try {
       const res = await fetch("http://localhost:8080/petrol/fuel");
       const result = await res.json();
-      setData(result);
+
+      return result;
     } catch (err) {
       console.log(err);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["petrol"],
+    queryFn: fetchData,
+    staleTime: 1000 * 60 * 5,
+  });
 
   // 🔹 Extract fuel array safely
   const Fuel = data?.data || [];
@@ -31,8 +34,6 @@ const FuelPriceDownloader = () => {
     diesel: Fuel.find((x) => x.name === "Diesel")?.price,
     gas: Fuel.find((x) => x.name === "Gas Price")?.price,
   };
-
-  console.log("fuelData:", fuelData);
 
   // 🔹 Download image
   const handleDownload = async () => {
@@ -72,8 +73,6 @@ const FuelPriceDownloader = () => {
 
         {/* Header */}
         <div>
-          
-
           <div className="bg-white text-red-600 inline-block px-3 py-1 font-black text-sm mb-6 rounded-sm">
             BREAKING NEWS
           </div>
@@ -88,11 +87,7 @@ const FuelPriceDownloader = () => {
 
         {/* Fuel Prices */}
         <div className="grid grid-cols-3 gap-4 z-10">
-          <PriceCard
-            label="पेट्रोल"
-            price={fuelData.petrol}
-            increase={0}
-          />
+          <PriceCard label="पेट्रोल" price={fuelData.petrol} increase={0} />
           <PriceCard
             label="डिजेल/मट्टितेल"
             price={fuelData.diesel}
@@ -122,7 +117,7 @@ const FuelPriceDownloader = () => {
         onClick={handleDownload}
         className="mt-10 bg-red-600 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg hover:bg-red-700 transition-all active:scale-95"
       >
-        Download 
+        Download
       </button>
     </div>
   );
@@ -141,8 +136,6 @@ const PriceCard = ({ label, price, increase, unit = "/लिटर" }) => (
     </div>
 
     <div className="text-[10px] text-gray-400 font-bold mb-4">{unit}</div>
-
-  
   </div>
 );
 

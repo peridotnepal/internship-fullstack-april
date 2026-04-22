@@ -6,62 +6,43 @@ import "react-calendar/dist/Calendar.css";
 import React, { useEffect } from "react";
 
 import { toCanvas } from "html-to-image";
-import $ from "jquery";
 
 import { useGoldHistory } from "@/hooks/useGoldHistory";
 import { useTodayMetals } from "@/hooks/useMetalRate";
 import { useClock } from "@/hooks/useClock";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-
-const goldImage =
-  "https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg";
-
-const silverImage =
-  "https://www.romadesignerjewelry.com/cdn/shop/articles/1800x1000_white_gold_vs_sterling_silver.jpg?v=1705548831&width=1400";
+import { useQuery } from "@tanstack/react-query";
 
 const OUNCE_TO_TOLA = 2.667;
 const TOLA_TO_GRAM = 11.6638;
-const INSTAGRAM_POST_WIDTH = 1080;
-const INSTAGRAM_POST_HEIGHT = 1350;
+
 const DOWNLOAD_CARD_ID = "gold-rate-download-card";
 
 const SliverAndGold = () => {
-  // 🔥 hooks
   const time = useClock();
   const { price, selectedCurrency, setSelectedCurrency } = useTodayMetals();
 
   const { selectedDate, setSelectedDate, selectedPrice } = useGoldHistory();
 
-  const [rates, setRates] = React.useState({});
+  // const [rates, setRates] = React.useState({});
   const [type, setType] = React.useState("gold");
   const [unit, setUnit] = React.useState("tola");
   const [isDownloading, setIsDownloading] = React.useState(false);
   const downloadCardRef = React.useRef<HTMLDivElement | null>(null);
+  const fetchRates = async () => {
+    const response = await fetch("https://open.er-api.com/v6/latest/USD");
+    if (!response.ok) throw new Error("Failed to fetch rates");
+    return response.json();
+  };
 
-  useEffect(() => {
-    let isMounted = true;
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["currency-rates"],
+    queryFn: fetchRates,
+    staleTime: 1000 * 60 * 5,
+  });
 
-    const fetchRates = async () => {
-      try {
-        const response = await fetch("https://open.er-api.com/v6/latest/USD");
-        const data = await response.json();
-
-        if (isMounted) {
-          setRates(data.rates || {});
-        }
-      } catch (error) {
-        console.error("Error fetching symbol rates:", error);
-      }
-    };
-
-    void fetchRates();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
+  const rates = data?.rates || {};
   // DATA EXTRACTION
   const goldItem = price?.data?.find((x) => x.name.includes("GOLD"));
   const silverItem = price?.data?.find((x) => x.name.includes("SILVER"));
@@ -84,15 +65,9 @@ const SliverAndGold = () => {
 
   const currentValue = type === "gold" ? goldValue : silverValue;
 
-  // 1. Update the Instagram Constants if needed
-  const INSTAGRAM_WIDTH = 1080;
-  const INSTAGRAM_HEIGHT = 1350;
-
-  // 1. USE PROXY FOR EXTERNAL IMAGES (Fixes CORS/Blank image issue)
   const goldImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg")}`;
   const silverImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://www.romadesignerjewelry.com/cdn/shop/articles/1800x1000_white_gold_vs_sterling_silver.jpg?v=1705548831&width=1400")}`;
 
-  // ... (Inside your component)
   const downloadInstagramPost = async () => {
     if (typeof window === "undefined" || isDownloading) return;
 
@@ -102,17 +77,14 @@ const SliverAndGold = () => {
     try {
       setIsDownloading(true);
 
-      // wait for rendering
       await new Promise((r) => requestAnimationFrame(r));
 
-      // 🔥 GET REAL SIZE OF DIV
       const rect = element.getBoundingClientRect();
 
       const canvas = await toCanvas(element, {
         cacheBust: true,
         pixelRatio: 2,
 
-        // IMPORTANT: use real size
         width: rect.width,
         height: rect.height,
 
@@ -148,7 +120,6 @@ const SliverAndGold = () => {
           </p>
         </div>
 
-        {/* TOOLBAR */}
         <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-xl border">
           <div className="flex bg-gray-100 p-1 rounded-lg">
             {["gold", "silver"].map((t) => (
@@ -198,47 +169,54 @@ const SliverAndGold = () => {
         </div>
       </header>
 
-      {/* MAIN GRID */}
       <main className="max-w-[1400px] mx-auto grid grid-cols-12 gap-8">
-        {/* LEFT */}
-        <div className="col-span-12 lg:col-span-7 space-y-6">
+        <div className="col-span-12 lg:col-span-7">
           <div
             ref={downloadCardRef}
             id={DOWNLOAD_CARD_ID}
-            className="relative overflow-hidden bg-black rounded-3xl h-[500px]"
+            className="relative overflow-hidden rounded-3xl h-[500px] bg-black flex items-end justify-center text-center"
           >
             <img
               src={type === "gold" ? goldImage : silverImage}
-              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              className="absolute inset-0 w-full h-full object-cover"
               alt={type}
             />
+            <div className="absolute inset-0 bg-black/50" />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
+            <div className="relative z-10 w-full p-10 pb-16 flex flex-col items-center">
+              <p className="text-white text-3xl tracking-[0.4em] uppercase mb-4 font-bold">
+                {type === "gold" ? "Current Gold Rate" : "Current Silver Rate"}
+              </p>
+              <h2
+                className={`text-[90px] leading-none flex items-center justify-center gap-4 whitespace-nowrap `}
+              >
+                <span className="text-4xl text-white opacity-80">$</span>
+                <span className="text-yellow-300">
+                  {currentValue.toFixed(2)}
+                </span>
+              </h2>
 
-            <div className="absolute bottom-0 left-0 p-10 w-full">
-              <div className="flex justify-between items-end">
-                <div>
-                  <p className="text-gray-400 text-xs tracking-widest mb-2">
-                    {type === "gold"
-                      ? "Today Gold Rate is "
-                      : "Today Silver Rate is "}
-                  </p>
-
-                  <h2 className="text-[72px] font-black text-white flex items-end gap-4 leading-none whitespace-nowrap">
-                    <span className="text-3xl text-gray-400">$</span>
-                    {currentValue.toFixed(2)}
-                  </h2>
-                  <p className="text-gray-400 mt-3">
-                    Price per <span className="text-white">{unit}</span> in{" "}
-                    {selectedCurrency}
-                  </p>
-                </div>
-              </div>
+              <p className="text-white text-lg mt-6 font-medium tracking-wide">
+                Price per{" "}
+                <span className="font-black border-b-2 border-yellow-300 pb-1">
+                  {unit}
+                </span>{" "}
+                in {selectedCurrency}
+              </p>
+              <p className="text-white text-xs tracking-[0.4em] uppercase mb-4 font-bold">
+                {new Date().toLocaleDateString("en-US", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+              <p className="text-white text-xs tracking-[0.4em] uppercase mb-4 font-sm">
+                {time}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-6">
           <div className="bg-white p-8 rounded-3xl border flex flex-col h-full">
             <div className="flex items-center justify-between mb-8">

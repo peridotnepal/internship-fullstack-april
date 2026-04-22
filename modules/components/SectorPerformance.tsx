@@ -13,14 +13,15 @@ import {
 } from "recharts";
 import { toPng } from "html-to-image";
 
+
 // Static Data (Replace later with API)
 const sectorData = [
-  { name: "Banking", current: 3125.45, previous: 3100.2 },
-  { name: "Hydropower", current: 2450.0, previous: 2500.0 },
-  { name: "Finance", current: 1980.5, previous: 1960.0 },
-  { name: "Development Bank", current: 1450.25, previous: 1460.0 },
-  { name: "Life Insurance", current: 7200.0, previous: 7100.0 },
-  { name: "Microfinance", current: 3890.0, previous: 3800.0 },
+  { name: "Banking", current: 3925.45, previous: 3100.2 },
+  { name: "Hydropower", current: 1050.0, previous: 2500.0 },
+  { name: "Finance", current: 1580.5, previous: 1960.0 },
+  { name: "Development Bank", current: 1050.25, previous: 1460.0 },
+  { name: "Life Insurance", current: 7900.0, previous: 7100.0 },
+  { name: "Microfinance", current: 3990.0, previous: 3800.0 },
 ];
 
 // Calculate change and percent

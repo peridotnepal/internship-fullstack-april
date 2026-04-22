@@ -3,7 +3,12 @@ import React, { useState, useMemo } from "react";
 import { useCurrencyRates } from "@/hooks/useCurrency";
 import Navbar from "@/components/Navbar";
 import { toPng } from "html-to-image";
-
+import { DotGothic16 } from "next/font/google";
+const dotFont = DotGothic16({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 const CurrencyRates = () => {
   const {
     rates,
@@ -102,16 +107,29 @@ const CurrencyRates = () => {
   return (
     <div>
       <Navbar />
-      <div id="currency-table-export" className="p-6 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4">Currency Exchange Rates</h2>
+      <div id="currency-table-export" className={`p-6 max-w-3xl mx-auto py-10`}>
+        <div className="relative bg-red-800 p-2 flex justify-between items-center ">
+          <h2 className={`text-2xl font-bold text-white flex items-end gap-2 `}>
+            Currency Exchange Rates
+            <span className="font-normal text-sm">(Based on USD)</span>
+          </h2>
 
-        <table className="w-full border border-gray-300 border-collapse">
-          <thead className="bg-gray-100">
-            <tr className="text-left  border-b border-gray-300">
-              <th rowSpan={2} className="p-2 border border-gray-300">
+          <h2 className="text-white">{new Date().toLocaleDateString()}</h2>
+        </div>
+
+        <table className="w-full border border-gray-300 border-collapse mx-auto ">
+          <thead className="bg-gray-300">
+            <tr className="text-left  border-b border-gray-300 ">
+              <th
+                rowSpan={2}
+                className="p-2 border border-gray-300 text-center"
+              >
                 Currency
               </th>
-              <th rowSpan={2} className="p-2 border border-gray-300">
+              <th
+                rowSpan={2}
+                className="p-2 border border-gray-300 text-center"
+              >
                 Rate
               </th>
               {/* <th className="p-2 border border-gray-300">
@@ -141,56 +159,60 @@ const CurrencyRates = () => {
     transition-colors
     ${
       selectedCurrencies.includes(currency)
-        ? "bg-amber-200"
+        ? "bg-orange-300"
         : i % 2 === 0
           ? "bg-white"
-          : "bg-gray-50"
+          : "bg-gray-300"
     }
   `}
               >
-                <td className="p-2 border border-gray-300">{currency}</td>
+                <td className="p-2 border border-gray-300 text-center">
+                  {currency}
+                </td>
 
-                <td className="p-2 border border-gray-300">
+                <td className="p-2 border min-w-[200px] text-center">
                   {editingKey === currency ? (
-                    <>
+                    <div className="flex justify-center text-center  gap-2">
                       <input
+                        className={`bg-black text-[#ff3131]  rounded px-2 py-1 w-24 focus:outline-none ${dotFont.className}`}
                         value={tempRate}
                         onChange={(e) => setTempRate(e.target.value)}
+                        autoFocus
                       />
-                      <button onClick={() => handleSave(currency)}>Save</button>
-                    </>
+                      <button
+                        onClick={() => handleSave(currency)}
+                        className="text-[10px] bg-green-800 text-white px-2 py-1 rounded uppercase font-sans"
+                      >
+                        Save
+                      </button>
+                    </div>
                   ) : (
-                    <>
-                      {value.toFixed(4)}
+                    <div className="flex items-center justify-center group">
+                      <div className="relative inline-block">
+                        {/* Background "Off" LEDs (The 8888 effect) */}
+
+                        {/* The Actual "Lit" Rate */}
+                        <span
+                          className={`relative text-[#ff3131] text-3xl tracking-wider ${dotFont.className}`}
+                          style={{
+                            textShadow:
+                              "0 0 8px rgba(255, 49, 49, 0.9), 0 0 20px rgba(255, 0, 0, 0.4)",
+                          }}
+                        >
+                          {value.toFixed(4)}
+                        </span>
+                      </div>
+
+                      {/* Edit Button - Hidden until hover to keep the board clean */}
                       <button
                         onClick={() => handleEdit(currency, value)}
-                        className="ml-7 text-green-600"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 text-[10px] text-gray-500 border border-gray-700 px-2 py-1 rounded uppercase font-sans hover:bg-gray-800 hover:text-white"
                       >
                         Edit
                       </button>
-                    </>
+                    </div>
                   )}
                 </td>
-
-                {i === 0 && (
-                  <td rowSpan={paginatedData.length}>
-                    {selectedCurrency && (
-                      <div className="flex flex-col items-center gap-4">
-                        <p>{selectedCurrency}</p>
-                        <p>{rates[selectedCurrency]?.toFixed(4)}</p>
-
-                        <button
-                          className="bg-blue-500 text-white px-2 py-1 rounded"
-                          onClick={convertToNPR}
-                        >
-                          Convert to NPR
-                        </button>
-
-                        {convertedNPR && <p>₨ {convertedNPR}</p>}
-                      </div>
-                    )}
-                  </td>
-                )}
               </tr>
             ))}
           </tbody>
@@ -198,7 +220,7 @@ const CurrencyRates = () => {
 
         {/* Pagination */}
 
-        <div className="flex justify-around">
+        <div className="flex justify-around items-center ">
           <div className="mt-4 flex gap-4">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))}>
               Prev

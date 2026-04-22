@@ -183,56 +183,61 @@ export default function Page() {
                   ref={(el) => {
                     cardRefs.current[item.id] = el;
                   }}
-                  className="relative flex flex-col justify-between rounded-2xl h-[500px] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group bg-cover bg-center"
+                  className="relative flex flex-col justify-between 
+    rounded-2xl h-[520px] shadow-lg 
+    overflow-hidden group bg-cover bg-center"
                   style={{
                     backgroundImage: item.image ? `url(${item.image})` : "none",
                   }}
                 >
-                  {/* overlay for readability */}
-                  <div className="absolute inset-0 bg-black/40" />
+                  {/* GRADIENT OVERLAY */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
+
+                  {/* TOP BADGE */}
+                  <div className="relative flex justify-between p-4">
+                    <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full shadow">
+                      NEWS
+                    </span>
+
+                    <span className="bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                      {new Date(item.expiresAt).toLocaleDateString()}
+                    </span>
+                  </div>
 
                   {/* CONTENT */}
-                  <div className="relative flex flex-col justify-end items-center pt-5 mt-25 text-white">
-                    <h2
-                      className={`text-xl text-center rounded-lg p-3 font-bold leading-snug text-[#f8f200] `}
-                    >
+                  <div className="relative px-6 pb-6 text-white">
+                    <h2 className="text-2xl font-bold leading-snug text-yellow-300">
                       {item.title}
                     </h2>
 
-                    <p
-                      className={`text-sm leading-relaxed line-clamp-4 bg-red-500 backdrop-blur-md rounded-2xl p-4 mt-2 ${color}`}
-                    >
+                    <p className="mt-3 text-sm leading-relaxed line-clamp-5 text-gray-200">
                       {item.summary}
                     </p>
                   </div>
 
-                  {/* ACTIONS */}
-                  <div className="relative flex justify-between items-center  px-5 py-3 border-t border-white/20 text-white">
-                    <button className="text-[10px] uppercase tracking-wider font-semibold">
-                      Expires: {new Date(item.expiresAt).toLocaleTimeString()}
-                    </button>
+                  {/* FOOTER ACTIONS */}
+                  <div className="relative bg-white/95 backdrop-blur p-4 space-y-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setHandleNewsDetails(item)}
+                        className="flex-1 bg-slate-900 text-white py-2 rounded-lg text-sm font-medium hover:bg-slate-800"
+                      >
+                        Read More
+                      </button>
 
-                    <button
-                      onClick={() => setHandleNewsDetails(item)}
-                      className="text-sm font-bold cursor-pointer hover:underline"
-                    >
-                      Read More
-                    </button>
+                      <button
+                        onClick={() => exportCardToImage(item.id)}
+                        className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+                      >
+                        Download
+                      </button>
+                    </div>
 
-                    <button
-                      onClick={() => exportCardToImage(item.id)}
-                      className="bg-black/70 text-white px-3 py-1 rounded-lg text-sm"
-                    >
-                      Download PNG
-                    </button>
-                  </div>
-
-                  {/* FOOTER */}
-                  <div className="relative px-5 py-4 bg-white/90 backdrop-blur border-t border-slate-100">
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    {/* ADMIN CONTROLS */}
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="flex-1 bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer"
+                        className="flex-1 bg-red-500 text-white py-1.5 rounded-lg text-xs font-medium"
                       >
                         Delete
                       </button>
@@ -246,31 +251,11 @@ export default function Page() {
                           setColor(item.color || "");
                           setOpen(true);
                         }}
-                        className="flex-1 bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer"
+                        className="flex-1 bg-emerald-500 text-white py-1.5 rounded-lg text-xs font-medium"
                       >
                         Update
                       </button>
                     </div>
-
-                    <select
-                      value={color}
-                      onChange={(e) => setColor(e.target.value)}
-                      className="w-full border border-slate-200 bg-white p-2 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="" disabled>
-                        Change Accent Color
-                      </option>
-
-                      {Object.keys(colors).map((key) => (
-                        <option
-                          key={key}
-                          value={colors[key]}
-                          className={colors[key]}
-                        >
-                          {key}
-                        </option>
-                      ))}
-                    </select>
                   </div>
                 </div>
               ))

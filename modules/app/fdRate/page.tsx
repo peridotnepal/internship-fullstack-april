@@ -88,25 +88,31 @@ const FdRates = () => {
   return (
     <div>
       <Navbar />
-      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-8 animate-in fade-in duration-500">
-        <header className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Fixed Deposit Rates
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Compare interest rates across commercial and development banks.
-            </p>
-          </div>
-        </header>
+      <div
+        className="max-w-7xl mx-auto p-6 md:p-10 space-y-8 animate-in fade-in duration-500"
+        id="fd-table-export"
+      >
+        <div className="flex flex-col justify-center items-center">
+          <header className="flex flex-col md:flex-row justify-between items-center gap-6 border-b pb-8">
+            <div className="flex justify-center items-center text-center gap-2 p-4 rounded-xl bg-blue-500 text-white">
+              <h1 className="text-3xl font-bold tracking-tight">
+                Fixed Deposit Rates
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1  text-white">
+                ( Compare interest rates across commercial and development
+                banks.)
+              </p>
+            </div>
+          </header>
+        </div>
 
         {/* Comparison Table Mode */}
         {
           <div className="rounded-md border bg-white overflow-hidden">
-            <Table id="fd-table-export">
-              <TableHeader className="bg-slate-50">
+            <Table className="text-black text-xl">
+              <TableHeader className="bg-slate-300">
                 <TableRow>
-                  <TableHead className="font-bold ">S.N</TableHead>
+                  <TableHead className="font-bold  ">S.N</TableHead>
                   <TableHead className="font-bold ">Bank Name</TableHead>
                   <TableHead className="font-bold  text-center">Type</TableHead>
                   <TableHead className="text-center">3 Months</TableHead>
@@ -114,12 +120,20 @@ const FdRates = () => {
                   <TableHead className="text-center font-black">
                     1 Year
                   </TableHead>
-                  <TableHead className="text-center">2 Years+</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {currentItems.map((rate, index) => (
-                  <TableRow key={rate.id} className="hover:bg-muted/30">
+                  <TableRow
+                    key={rate.id}
+                    className={`
+        transition-colors border-b border-gray-800/50
+        /* This creates the Zebra Pattern */
+        even:white
+        odd:bg-blue-200
+        hover:bg-blue-950/20 /* Subtle highlight on hover */
+      `}
+                  >
                     <TableCell className="font-medium">
                       {indexOfFirstItem + index + 1}
                     </TableCell>
@@ -128,23 +142,20 @@ const FdRates = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge
-                        variant="default"
-                        className="font-semibold uppercase text-[10px]"
+                        variant="outline"
+                        className="font-semibold uppercase text-[10px] text-green-600 "
                       >
                         {rate.bank_type}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center">
-                      {rate.rate_3_month}%
+                    <TableCell className="text-center ">
+                      {rate.rate_3_month || "-"}%
                     </TableCell>
                     <TableCell className="text-center">
-                      {rate.rate_6_month}%
+                      {rate.rate_6_month || "-"}%
                     </TableCell>
-                    <TableCell className="text-center font-bold bg-muted/20">
-                      {rate.rate_1_year}%
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rate.rate_2_year}%
+                    <TableCell className="text-center ">
+                      {rate.rate_1_year || "-"}%
                     </TableCell>
                   </TableRow>
                 ))}
@@ -189,7 +200,9 @@ const FdRates = () => {
               Next
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
-            <Button variant="outline"   onClick={exportToImage}>Export table</Button>
+            <Button variant="outline" onClick={exportToImage}>
+              Export table
+            </Button>
           </div>
 
           <p className="text-xs text-muted-foreground italic">

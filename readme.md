@@ -25,6 +25,7 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - **TypeScript** - Type-safe JavaScript
 - **TailwindCSS 4** - Utility-first CSS framework
 - **shadcn/ui** - Headless UI component library (Base UI)
+- **TanStack React Query** - Server state management & data fetching
 - **Lucide React** - Icon library
 - **React Calendar** - Calendar component for date selection
 - **HTML-to-Image** - Converting DOM to PNG/JPG
@@ -34,6 +35,7 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - **idb (IndexedDB)** - Client-side database for caching
 - **Class-variance-authority** - Type-safe CSS class management
 - **Tailwind-merge** - Merge TailwindCSS classes
+- **Google Fonts** - DotGothic16 for LED-style displays
 
 ## Features Overview
 
@@ -82,6 +84,56 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - [x] Export full page layouts as social media post
 - [x] Download full layout as Instagram-ready post
 
+## Recent Updates (Latest Changes)
+
+### State Management Improvements
+
+- **Migrated to TanStack React Query**: Replaced manual `useState` + `useEffect` patterns with TanStack React Query for robust server state management
+  - Added `QueryClientProvider` in root layout (`provider/tanstack.tsx`)
+  - Configured 5-minute cache freshness with 30-minute garbage collection
+  - Applied to AGM, NEPSE, Gold Rates, and Petroleum modules
+
+### UI/UX Enhancements
+
+- **AGM Module**:
+  - Enhanced styling with colored headers (green accent)
+  - Improved typography with better contrast
+  - Better date/time display formatting
+
+- **Currency Exchange Rates**:
+  - Added LED-style digital display using DotGothic16 font
+  - Implemented glow effect with text-shadow for futuristic look
+  - Enhanced table styling with better readability
+  - Added red/amber highlighting for rate values
+
+- **FD Rates Module**:
+  - Updated header with blue background and white text
+  - Added export table functionality with proper ID
+  - Zebra stripe pattern for better table readability
+  - Improved badge styling
+
+- **Gold & Silver Rates**:
+  - Redesigned download card with gradient overlay
+  - Enhanced typography and spacing
+  - Added date/time display on card
+  - Improved currency symbol and price display
+
+- **NEPSE Daily Snapshot**:
+  - Redesigned summary section with card-based layout
+  - Added color-coded indicators (green for gainers, red for losers)
+  - Enhanced table formatting with improved typography
+  - Added directional triangle indicators for gains/losses
+  - Better pagination controls
+
+- **News Module**:
+  - Redesigned card layout with gradient overlay
+  - Added badges for "NEWS" and date display
+  - Improved action button styling
+  - Better separation of admin controls
+
+- **Sector Performance**:
+  - Updated static data values for more accurate representation
+
 ## Project Structure
 
 ```
@@ -102,8 +154,11 @@ root/
 │   │   ├── DownloadCard.tsx
 │   │   ├── MonthSelector.tsx
 │   │   ├── Navbar.tsx
+│   │   ├── petroliumDownload.tsx
 │   │   ├── PriceCard.tsx
-│   │   └── UnitSelector.tsx
+│   │   ├── SectorPerformance.tsx
+│   │   ├── UnitSelector.tsx
+│   │   └── ui/                 # shadcn/ui components
 │   ├── hooks/                  # Custom React hooks
 │   │   ├── useClock.js
 │   │   ├── useCurrency.js
@@ -114,6 +169,8 @@ root/
 │   │   ├── indexeddb.ts        # IndexedDB client-side database
 │   │   ├── metal.ts
 │   │   └── utils.ts
+│   ├── provider/               # Context providers
+│   │   └── tanstack.tsx        # TanStack React Query provider setup
 │   └── public/                 # Static assets
 │
 └── server/                     # Backend (Node.js + Express)
@@ -190,3 +247,69 @@ pnpm dev  # Start Next.js development server
 4. **API Endpoints**: Express API serves data to frontend
 5. **Client-Side Caching**: IndexedDB caches data for offline access
 6. **Image Export**: HTML-to-Image, HTML2Canvas, and DOM-to-Image convert content to shareable formats
+
+## Server State Management (TanStack React Query)
+
+### Configuration
+
+- **Cache Freshness**: 5 minutes (staleTime)
+
+### Modules Using TanStack React Query
+
+- AGM Module
+- Currency Exchange Rates
+- NEPSE Daily Snapshot
+- Gold & Silver Rates
+- Petroleum Prices
+
+## Screenshot
+
+### NepseSummary Module
+
+<p align="center">
+<img src="./asset/NepseMarket.png" width="300"/>
+</p>
+
+### FuelPrice Module
+
+<p align="center">
+<img src="./asset/fuel-price.jpg" width="300"/>
+</p>
+
+### CurrencyExchange Module
+
+<p align="center">
+<img src="./asset/Currecy.png" width="300"/>
+<img src="./asset/Currency-Exchange.png" width="300">
+</p>
+
+### GoldAndSliverRate Module
+
+<p align="center">
+<img src="./asset/GoldRates.png" width="300"/>
+<img src="./asset/sliverRates.png" width="300"/>
+</p>
+
+### BankFD Module
+
+<p align="center">
+<img src="./asset/Fixed-Deposit-Rates.png" width="300"/>
+</p>
+
+### News Module
+
+<p align="center">
+<img src="./asset/news.png" width="300"/>
+</p>
+
+### AGM Module
+
+<p align="center">
+<img src="./asset/AGM-Rates.png" width="300"/>
+</p>
+
+### NepseSectorWise Graph
+
+<p align="center">
+<img src="./asset/Sector-Performance.png" width="300"/>
+</p>

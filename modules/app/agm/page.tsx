@@ -3,26 +3,23 @@ import Navbar from "@/components/Navbar";
 import React, { useEffect, useState } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@base-ui/react";
+import { useQuery } from "@tanstack/react-query";
 const Agm = () => {
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState(null);
   const [page, setPage] = useState(1);
 
   const itemsPerPage = 5;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/agm");
-        const result = await res.json();
-        setData(result);
-      } catch (err) {
-        console.error("History API error:", err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+  const fetchAgm = async () => {
+    const res = await fetch("http://localhost:8080/agm");
+    if (!res.ok) throw new Error("Failed to fetch AGM data");
+    return res.json();
+  };
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["agm-data"],
+    queryFn: fetchAgm,
+    staleTime: 1000 * 60 * 5, // 5 min cache
+  });
   const removeNullValues = (obj = {}) => {
     return Object.fromEntries(
       Object.entries(obj).filter(
@@ -94,9 +91,11 @@ const Agm = () => {
       <Navbar />
 
       <div id="agm-table-export" className="p-4 max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold text-center mb-6 mt-10">
-          AGM Details Daily Updates
-        </h1>
+        <div className="flex justify-center">
+          <h1 className="text-2xl font-bold text-center mb-6 mt-10 bg-green-600 p-4 text-white rounded-2xl">
+            AGM Details Daily Updates
+          </h1>
+        </div>
 
         {/* LIST */}
         <div className="flex flex-col gap-4 bg-gray-50 p-9 rounded-4xl shadow-md">
@@ -111,11 +110,11 @@ const Agm = () => {
                   <span className="text-gray-400 mt-1">📢</span>
 
                   <div>
-                    <h2 className="text-base font-semibold text-gray-900">
+                    <h2 className="text-base font-semibold text-blue-900">
                       {item.company || "Unknown Company"}
                     </h2>
 
-                    <p className="text-sm text-gray-700 mt-1 leading-relaxed">
+                    <p className="text-sm text-gray-800 mt-1 leading-relaxed">
                       {item.title}
                     </p>
                   </div>
@@ -125,12 +124,14 @@ const Agm = () => {
               {/* RIGHT */}
               <div className="w-full md:w-[220px] text-sm text-gray-600 space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Start</span>
-                  <span>{item.start_date}</span>
+                  <span className="text-green-400 font-medium">Start</span>
+                  <span className="text-gray-900 font-medium">
+                    {item.start_date}
+                  </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-400">End</span>
+                  <span className="text-red-400">End</span>
                   <span>{item.end_date}</span>
                 </div>
 
@@ -174,7 +175,12 @@ const Agm = () => {
           >
             Next
           </button>
-          <Button className="hover:bg-black hover:text-white border  p-2 rounded-4xl cursor-pointer" onClick={exportToImage}>Download</Button>
+          <Button
+            className="hover:bg-black hover:text-white border  p-2 rounded-4xl cursor-pointer"
+            onClick={exportToImage}
+          >
+            Download
+          </Button>
         </div>
       </div>
     </div>
