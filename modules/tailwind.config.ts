@@ -1,3 +1,5 @@
+import { fontFamily } from "html2canvas/dist/types/css/property-descriptors/font-family";
+
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
@@ -5,7 +7,11 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        abhinav: "var(--font-abhinav)",
+      },
+    },
   },
   plugins: [],
 };

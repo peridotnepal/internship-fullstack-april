@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 export const useTodayMetals = () => {
   const [price, setPrice] = useState(null);
   const [currency, setCurrency] = useState({});
-  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [selectedCurrency, setSelectedCurrency] = useState("NPR");
 
   const fetchMetalRates = async () => {
     try {

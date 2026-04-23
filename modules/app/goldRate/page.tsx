@@ -21,8 +21,8 @@ const DOWNLOAD_CARD_ID = "gold-rate-download-card";
 
 const SliverAndGold = () => {
   const time = useClock();
-  const { price, selectedCurrency, setSelectedCurrency } = useTodayMetals();
 
+  const { price, selectedCurrency, setSelectedCurrency } = useTodayMetals();
   const { selectedDate, setSelectedDate, selectedPrice } = useGoldHistory();
 
   // const [rates, setRates] = React.useState({});
@@ -60,13 +60,7 @@ const SliverAndGold = () => {
   const silverTola = convertToTola(silverOz);
 
   const goldValue = unit === "tola" ? goldTola : convertToGram(goldTola);
-
   const silverValue = unit === "tola" ? silverTola : convertToGram(silverTola);
-
-  const currentValue = type === "gold" ? goldValue : silverValue;
-
-  const goldImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://static.toiimg.com/thumb/msid-120576608,width-1280,height-720,resizemode-4/120576608.jpg")}`;
-  const silverImage = `https://images.weserv.nl/?url=${encodeURIComponent("https://www.romadesignerjewelry.com/cdn/shop/articles/1800x1000_white_gold_vs_sterling_silver.jpg?v=1705548831&width=1400")}`;
 
   const downloadInstagramPost = async () => {
     if (typeof window === "undefined" || isDownloading) return;
@@ -121,20 +115,6 @@ const SliverAndGold = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-xl border">
-          <div className="flex bg-gray-100 p-1 rounded-lg">
-            {["gold", "silver"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setType(t)}
-                className={`px-5 py-2 rounded-md text-sm font-semibold ${
-                  type === t ? "bg-black text-white" : "text-gray-600"
-                }`}
-              >
-                {t.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
           <div className="h-6 w-[1px] bg-gray-200" />
 
           <div className="flex gap-2">
@@ -174,43 +154,67 @@ const SliverAndGold = () => {
           <div
             ref={downloadCardRef}
             id={DOWNLOAD_CARD_ID}
-            className="relative overflow-hidden rounded-3xl h-[500px] bg-black flex items-end justify-center text-center"
+            className="relative overflow-hidden rounded-3xl h-[500px] bg-[#fddb00] flex items-center justify-center text-center"
           >
-            <img
-              src={type === "gold" ? goldImage : silverImage}
-              className="absolute inset-0 w-full h-full object-cover"
-              alt={type}
-            />
-            <div className="absolute inset-0 bg-black/50" />
-
-            <div className="relative z-10 w-full p-10 pb-16 flex flex-col items-center">
-              <p className="text-white text-3xl tracking-[0.4em] uppercase mb-4 font-bold">
-                {type === "gold" ? "Current Gold Rate" : "Current Silver Rate"}
+            {/* Content wrapper */}
+            <div className="relative z-10 w-full flex flex-col items-center">
+              {/* Title */}
+              <p className="font-abhinav text-5xl text-[#7a4407] uppercase font-bold mb-8">
+                - सुन चाँदीको मूल्य _
               </p>
-              <h2
-                className={`text-[90px] leading-none flex items-center justify-center gap-4 whitespace-nowrap `}
-              >
-                <span className="text-4xl text-white opacity-80">$</span>
-                <span className="text-yellow-300">
-                  {currentValue.toFixed(2)}
-                </span>
-              </h2>
 
-              <p className="text-white text-lg mt-6 font-medium tracking-wide">
+              {/* Main section */}
+              <div className="relative flex items-center justify-between mt-5 px-10 w-full">
+                {/* Gold */}
+                <div className="flex flex-col items-center ">
+                  <img src="./image/gg.png" className="w-36 h-auto  mb-2" />
+                  <span className="text-[#7a4407] text-xl mb-3">
+                    सुनको मूल्य
+                  </span>
+                  <h2 className="text-[30px] flex  justify-center items-center gap-2 text-[#7a4407] whitespace-nowrap">
+                    <span className="text-3xl opacity-80">Rs</span>
+                    <span>{Number(goldValue).toLocaleString("en-IN")}</span>
+                  </h2>
+                </div>
+
+                {/* Silver */}
+                <div className="flex flex-col items-center">
+                  <img src="./image/ss.png" className="w-36 h-auto  mb-2" />
+                  <span className="text-[#7a4407] text-xl mb-3">
+                    चाँदी मूल्य
+                  </span>
+                  <h2 className="text-[30px] flex justify-center items-center gap-2 text-[#7a4407] whitespace-nowrap">
+                    <span className="text-3xl opacity-80">Rs</span>
+                    <span>{Number(silverValue).toLocaleString("en-IN")}</span>
+                  </h2>
+                </div>
+
+                {/* Divider (ABSOLUTE — does NOT affect layout) */}
+                <img
+                  src="./image/mer.png"
+                  alt=""
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 lg:w-[420px] h-auto opacity-80 pointer-events-none"
+                />
+              </div>
+
+              {/* Footer info */}
+              <p className="text-[#7a4407] text-lg mt-8 font-medium tracking-wide">
                 Price per{" "}
                 <span className="font-black border-b-2 border-yellow-300 pb-1">
                   {unit}
                 </span>{" "}
                 in {selectedCurrency}
               </p>
-              <p className="text-white text-xs tracking-[0.4em] uppercase mb-4 font-bold">
+
+              <p className="text-[#7a4407] text-xs tracking-[0.4em] uppercase mt-2 font-bold">
                 {new Date().toLocaleDateString("en-US", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
                 })}
               </p>
-              <p className="text-white text-xs tracking-[0.4em] uppercase mb-4 font-sm">
+
+              <p className="text-[#7a4407] text-xs tracking-[0.4em] uppercase mt-1">
                 {time}
               </p>
             </div>
