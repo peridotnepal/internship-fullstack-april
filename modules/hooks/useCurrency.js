@@ -26,16 +26,15 @@ export const useCurrencyRates = () => {
   }, [selectedCurrency, rates]);
 
   // conversion logic
-  const convertToNPR = () => {
-    if (
-      !selectedCurrency ||
-      !rates[selectedCurrency] ||
-      !rates["NPR"]
-    )
-      return;
+  const convertToNPR = (value) => {
+    if (!value || !rates["NPR"]) return "-";
 
-    const result = (1 / rates[selectedCurrency]) * rates["NPR"];
-    setConvertedNPR(result.toFixed(4));
+    const result = Number(value) * rates["NPR"];
+
+    return result.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   // memoized rates list

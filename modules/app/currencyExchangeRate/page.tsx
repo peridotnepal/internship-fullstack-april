@@ -25,7 +25,7 @@ const CurrencyRates = () => {
   const [tempRate, setTempRate] = useState("");
   const [selectedCurrencies, setSelectedCurrencies] = useState<string[]>([]);
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   const totalPages = Math.ceil(allRates.length / itemsPerPage);
 
@@ -82,7 +82,7 @@ const CurrencyRates = () => {
         // This style object ensures the captured area has enough room
         style: {
           margin: "0",
-          padding: "40px",
+          padding: "",
           width: "1000px", // Force a consistent width for the "paper" size
         },
       });
@@ -107,159 +107,119 @@ const CurrencyRates = () => {
   return (
     <div>
       <Navbar />
-      <div id="currency-table-export" className={`p-6 max-w-3xl mx-auto py-10`}>
-        <div className="relative bg-red-800 p-2 flex justify-between items-center ">
-          <h2 className={`text-2xl font-bold text-white flex items-end gap-2 `}>
-            Currency Exchange Rates
-            <span className="font-normal text-sm">(Based on USD)</span>
-          </h2>
+      <div
+        id="currency-table-export"
+        className="max-w-xl mx-auto mt-5 bg-white shadow-2xl overflow-hidden font-sans border-t-8 border-red-600"
+      >
+        {/* Header Section mimicking the UBA Flyer */}
+        <div className="p-8 pb-4 relative">
+          <div className="flex justify-between items-start">
+            <div className="text-gray-800 font-bold text-xl">
+              {new Date().toDateString()}
+            </div>
+            {/* Mock Logo Placeholder */}
+            <div className="text-right">
+              <div className="text-red-600 font-black text-3xl leading-none">
+                Nepal<span className="text-gray-400">|</span>
+              </div>
+              <div className="text-[10px] text-red-600 uppercase tracking-widest">
+                Global Bank
+              </div>
+            </div>
+          </div>
 
-          <h2 className="text-white">{new Date().toLocaleDateString()}</h2>
+          <h2 className="text-gray-500 font-semibold text-lg mt-1 border-b-2 border-red-600 w-fit pr-10 pb-1">
+            नेपाल आधारित मुद्रा दर
+          </h2>
         </div>
 
-        <table className="w-full border border-gray-300 border-collapse mx-auto ">
-          <thead className="bg-gray-300">
-            <tr className="text-left  border-b border-gray-300 ">
-              <th
-                rowSpan={2}
-                className="p-2 border border-gray-300 text-center"
-              >
-                Currency
-              </th>
-              <th
-                rowSpan={2}
-                className="p-2 border border-gray-300 text-center"
-              >
-                Rate
-              </th>
-              {/* <th className="p-2 border border-gray-300">
-                <select
-                  value={selectedCurrency}
-                  onChange={(e) => setSelectedCurrency(e.target.value)}
-                  className="bg-white border rounded p-1"
-                >
-                  <option value="" disabled className="rounded border-2">
-                    Select Currency
-                  </option>
-                  {Object.keys(rates).map((cur) => (
-                    <option key={cur}>{cur}</option>
-                  ))}
-                </select>
-             
-              </th> */}
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-x border-gray-200">
-            {paginatedData.map(([currency, value], i) => (
-              <tr
-                key={currency}
-                className={`
-    border-b border-gray-200
-    transition-colors
-    ${
-      selectedCurrencies.includes(currency)
-        ? "bg-orange-300"
-        : i % 2 === 0
-          ? "bg-white"
-          : "bg-gray-300"
-    }
-  `}
-              >
-                <td className="p-2 border border-gray-300 text-center">
-                  {currency}
-                </td>
-
-                <td className="p-2 border min-w-[200px] text-center">
-                  {editingKey === currency ? (
-                    <div className="flex justify-center text-center  gap-2">
-                      <input
-                        className={`bg-black text-[#ff3131]  rounded px-2 py-1 w-24 focus:outline-none ${dotFont.className}`}
-                        value={tempRate}
-                        onChange={(e) => setTempRate(e.target.value)}
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => handleSave(currency)}
-                        className="text-[10px] bg-green-800 text-white px-2 py-1 rounded uppercase font-sans"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center group">
-                      <div className="relative inline-block">
-                        {/* Background "Off" LEDs (The 8888 effect) */}
-
-                        {/* The Actual "Lit" Rate */}
-                        <span
-                          className={`relative text-[#ff3131] text-3xl tracking-wider ${dotFont.className}`}
-                          style={{
-                            textShadow:
-                              "0 0 8px rgba(255, 49, 49, 0.9), 0 0 20px rgba(255, 0, 0, 0.4)",
-                          }}
-                        >
-                          {value.toFixed(4)}
-                        </span>
-                      </div>
-
-                      {/* Edit Button - Hidden until hover to keep the board clean */}
-                      <button
-                        onClick={() => handleEdit(currency, value)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 text-[10px] text-gray-500 border border-gray-700 px-2 py-1 rounded uppercase font-sans hover:bg-gray-800 hover:text-white"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  )}
-                </td>
+        {/* Main Table Content */}
+        <div className="px-8 py-4 bg-gradient-to-b from-white via-gray-50 to-white">
+          <table className="w-full border-separate border-spacing-y-4">
+            <thead>
+              <tr>
+                <th className="w-1/3"></th>
+                <th className="w-1/3 text-center">
+                  <div className="bg-gray-700 text-white py-1 px-6 rounded-full text-sm font-bold shadow-md inline-block uppercase">
+                    Buy
+                  </div>
+                </th>
+                <th className="w-1/3 text-center">
+                  <div className="bg-gray-400 text-white py-1 px-6 rounded-full text-sm font-bold shadow-md inline-block uppercase">
+                    Sell
+                  </div>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginatedData.map(([currency, value], i) => (
+                <tr key={currency} className="group">
+                  <td className="py-3 flex items-center gap-3">
+                    {/* Mock Flag Circle */}
+                    <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 flex items-center justify-center font-bold text-xs text-gray-500 shadow-inner">
+                      {currency}
+                    </div>
+                    <span className="font-bold text-gray-700 text-lg">
+                      {currency}
+                    </span>
+                  </td>
+                  <td className="text-center font-bold text-gray-800 text-xl tracking-tight">
+                    {convertToNPR(Number(value))}
+                  </td>
+                  <td className="text-center font-bold text-gray-400 text-xl tracking-tight italic">
+                    {/* Simulating a 'Sell' rate by adding a small margin */}
+                    {convertToNPR(Number(value) * 1.05)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Pagination */}
-
-        <div className="flex justify-around items-center ">
-          <div className="mt-4 flex gap-4">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))}>
+        {/* Controls (Hidden from Export) */}
+        <div className="bg-gray-100 p-4 flex flex-wrap justify-center gap-4 items-center no-export">
+          <div className="flex gap-2 items-center">
+            <button
+              className="bg-white border px-3 py-1 rounded hover:bg-gray-50"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
               Prev
             </button>
-
-            <span>
+            <span className="text-sm font-medium">
               {page} / {totalPages}
             </span>
-
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+            <button
+              className="bg-white border px-3 py-1 rounded hover:bg-gray-50"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
               Next
             </button>
           </div>
+
           <select
             value=""
             onChange={(e) => {
-              const value = e.target.value;
-
-              if (!value) return;
-
+              const val = e.target.value;
+              if (!val) return;
               setSelectedCurrencies((prev) =>
-                prev.includes(value)
-                  ? prev.filter((c) => c !== value)
-                  : [...prev, value],
+                prev.includes(val)
+                  ? prev.filter((c) => c !== val)
+                  : [...prev, val],
               );
             }}
-            className="bg-white border rounded p-1"
+            className="bg-white border rounded p-1 text-sm"
           >
-            <option value="">Select Currency</option>
-
+            <option value="">Add/Remove Currency</option>
             {Object.keys(rates).map((cur) => (
               <option key={cur} value={cur}>
                 {cur}
               </option>
             ))}
           </select>
+
           <button
             onClick={exportTableAsPng}
-            className="bg-black text-white px-4 py-2 rounded mt-4"
+            className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-red-700 transition-all"
           >
             Export Table Image
           </button>
