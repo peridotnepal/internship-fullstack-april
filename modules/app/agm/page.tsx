@@ -1,186 +1,207 @@
 "use client";
 import Navbar from "@/components/Navbar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@base-ui/react";
 import { useQuery } from "@tanstack/react-query";
-const Agm = () => {
-  // const [data, setData] = useState(null);
-  const [page, setPage] = useState(1);
 
-  const itemsPerPage = 5;
+const Agm = () => {
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 4;
 
   const fetchAgm = async () => {
     const res = await fetch("http://localhost:8080/agm");
     if (!res.ok) throw new Error("Failed to fetch AGM data");
     return res.json();
   };
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["agm-data"],
     queryFn: fetchAgm,
-    staleTime: 1000 * 60 * 5, // 5 min cache
+    staleTime: 1000 * 60 * 5,
   });
-  const removeNullValues = (obj = {}) => {
-    return Object.fromEntries(
-      Object.entries(obj).filter(
-        ([_, value]) => value !== null && value !== undefined,
-      ),
-    );
-  };
 
   const exportToImage = async () => {
     const element = document.getElementById("agm-table-export");
-
     if (!element) return;
-    const uiToHide = element.querySelectorAll("button, select");
+
+    const hideUi = element.querySelectorAll(
+      "button,section, nav, .pagination-controls",
+    );
+  
+
     try {
-      uiToHide.forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.display = "none";
-        }
+      hideUi.forEach((el) => {
+        if (el instanceof HTMLElement) el.style.display = "none";
       });
+
       const dataUrl = await toPng(element, {
         cacheBust: true,
         pixelRatio: 2,
-        backgroundColor: "#f9fafb",
-        // This style object ensures the captured area has enough room
-        style: {
-          margin: "0",
-          padding: "40px",
-          width: "1000px", // Force a consistent width for the "paper" size
-        },
+        backgroundColor: "#ffffff",
+        style: { margin: "0", padding: "", width: "500px", height: "1000px" },
       });
 
       const link = document.createElement("a");
-      link.download = `AGM-Rates-${new Date().toLocaleDateString()}.png`;
+      link.download = `AGM-Report-${new Date().toISOString().split("T")[0]}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.log(err);
+      console.error("Export failed", err);
     } finally {
-      uiToHide.forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.display = "block";
-        }
+      hideUi.forEach((el) => {
+        if (el instanceof HTMLElement) el.style.display = "block";
       });
     }
   };
 
-  const agms = data?.agms || [];
-  const cleanStocks = agms.map(removeNullValues);
-
-  // Pagination logic
-  const totalPages = Math.ceil(cleanStocks.length / itemsPerPage);
-
+  const agms = data || [];
+  const totalPages = Math.ceil(agms.length / itemsPerPage);
   const startIndex = (page - 1) * itemsPerPage;
-  const paginatedData = cleanStocks.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  const paginatedData = agms.slice(startIndex, startIndex + itemsPerPage);
 
-  if (!data) {
+  if (isLoading)
     return (
-      <div className="flex justify-center h-screen items-center">
-        Loading AGM data...
+      <div className="flex justify-center items-center h-screen font-medium">
+        Loading AGM updates...
       </div>
     );
-  }
+  if (isError)
+    return (
+      <div className="text-center mt-20 text-red-500">
+        Error loading data. Please try again later.
+      </div>
+    );
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100 pb-20">
       <Navbar />
 
-      <div id="agm-table-export" className="p-4 max-w-6xl mx-auto">
-        <div className="flex justify-center">
-          <h1 className="text-2xl font-bold text-center mb-6 mt-10 bg-green-600 p-4 text-white rounded-2xl">
-            AGM Details Daily Updates
-          </h1>
-        </div>
+      <div id="agm-table-export" className="max-w-6xl mx-auto px-4 ">
+        <div className=" shadow-2xl bg-blue-100 mt-5 rounded-3xl">
+          {/* HEADER SECTION */}
+          <div className="flex flex-col items-center py-5 ">
+            <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-lg text-center">
+              <h1 className="text-3xl font-bold tracking-tight">
+                Annual General Meeting (AGM)
+              </h1>
+              <p className="text-emerald-100 text-sm mt-1 uppercase tracking-widest">
+                Daily Market Updates
+              </p>
+            </div>
+          </div>
 
-        {/* LIST */}
-        <div className="flex flex-col gap-4 bg-gray-50 p-9 rounded-4xl shadow-md">
-          {paginatedData.map((item, idx) => (
-            <div
-              key={idx}
-              className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl bg-white p-5 shadow-sm hover:shadow-md transition"
-            >
-              {/* LEFT */}
-              <div className="flex-1">
-                <div className="flex items-start gap-3">
-                  <span className="text-gray-400 mt-1">📢</span>
-
+          {/* DATA GRID */}
+          <div className="grid grid-cols-1 gap-6">
+            {paginatedData.map((item, idx) => (
+              <div
+                key={idx}
+                className=" border border-gray-200  p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col lg:flex-row gap-6 items-start lg:items-center"
+              >
+                {/* COMPANY IDENTIFIER */}
+                <div className="flex items-center gap-4 min-w-[250px]">
+                  <div className="h-14 w-14  rounded-2xl flex items-center justify-center text-xl font-bold border border-blue-100">
+                    {item.symbol?.substring(0, 1) || "AGM"}
+                  </div>
                   <div>
-                    <h2 className="text-base font-semibold text-blue-900">
-                      {item.company || "Unknown Company"}
+                    <h2 className="text-lg font-bold text-gray-900 leading-tight">
+                      {item.symbol || "Company Name N/A"}
                     </h2>
+                  </div>
+                </div>
 
-                    <p className="text-sm text-gray-800 mt-1 leading-relaxed">
-                      {item.title}
+                {/* DETAILS SECTION */}
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 border-l-0 lg:border-l border-gray-100 lg:pl-6">
+                  <div>
+                    <p className="text-xs font-bold">Venue</p>
+                    <p className="text-sm  font-medium">
+                      {item.venue || "To be decided"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold tracking-wider">
+                      Fiscal Year
+                    </p>
+                    <p className="text-sm font-medium">
+                      {item.fiscalYear || "N/A"}
+                    </p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-xs  uppercase font-bold tracking-wider">
+                      Agenda Summary
+                    </p>
+                    <p className="text-sm   ">
+                      "{item.agenda || "Standard AGM Proceedings"}"
                     </p>
                   </div>
                 </div>
-              </div>
 
-              {/* RIGHT */}
-              <div className="w-full md:w-[220px] text-sm text-gray-600 space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-green-400 font-medium">Start</span>
-                  <span className="text-gray-900 font-medium">
-                    {item.start_date}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-red-400">End</span>
-                  <span>{item.end_date}</span>
-                </div>
-
-                {item.published_date && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Published</span>
-                    <span>{item.published_date}</span>
+                {/* DATES SECTION */}
+                <div className="w-full lg:w-auto  rounded-2xl p-4 grid grid-cols-2 lg:flex lg:flex-col gap-3 min-w-[200px]">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-green-500 uppercase font-black">
+                      AGM Date
+                    </span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {item.agmDate || "TBA"}
+                    </span>
                   </div>
-                )}
+                  <div className="flex flex-col  border-gray-200 pl-3 lg:pl-0 lg:pt-2">
+                    <span className="text-[10px] text-red-500 uppercase font-black">
+                      Book Closure
+                    </span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {item.bookClosure || "TBA"}
+                    </span>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* PAGINATION & ACTIONS */}
+          <div className="pagination-controls flex flex-col md:flex-row justify-between items-center mt-12 gap-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={page === 1}
+                className="p-2 px-5 rounded-xl border border-gray-200 hover:bg-gray-50 disabled:opacity-30 transition-colors font-medium text-sm"
+              >
+                Previous
+              </button>
+
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i + 1)}
+                    className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${
+                      page === i + 1
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                        : "hover:bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                disabled={page === totalPages}
+                className="p-2 px-5 rounded-xl border border-gray-200 hover:bg-gray-50 disabled:opacity-30 transition-colors font-medium text-sm"
+              >
+                Next
+              </button>
             </div>
-          ))}
-        </div>
 
-        {/* PAGINATION */}
-        <div className="flex justify-center items-center gap-2 mt-8 flex-wrap">
-          <button
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            className="px-3 py-1 border rounded-md disabled:opacity-50"
-            disabled={page === 1}
-          >
-            Prev
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i + 1)}
-              className={`px-3 py-1 border rounded-md ${
-                page === i + 1 ? "bg-black text-white" : ""
-              }`}
+            <Button
+              className="flex items-center gap-2  text-black px-8 py-3 rounded-2xl hover:bg-gray-800 transition-all font-bold text-sm"
+              onClick={exportToImage}
             >
-              {i + 1}
-            </button>
-          ))}
-
-          <button
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            className="px-3 py-1 border rounded-md disabled:opacity-50"
-            disabled={page === totalPages}
-          >
-            Next
-          </button>
-          <Button
-            className="hover:bg-black hover:text-white border  p-2 rounded-4xl cursor-pointer"
-            onClick={exportToImage}
-          >
-            Download
-          </Button>
+              <span className="text-lg">↓</span> Download Report
+            </Button>
+          </div>
         </div>
       </div>
     </div>

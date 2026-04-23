@@ -129,7 +129,7 @@ const CurrencyRates = () => {
           </div>
 
           <h2 className="text-gray-500 font-semibold text-lg mt-1 border-b-2 border-red-600 w-fit pr-10 pb-1">
-            नेपाल आधारित मुद्रा दर
+            {/* नेपाल आधारित मुद्रा दर */}अमेरिका आधारित मुद्रा दर
           </h2>
         </div>
 
@@ -164,11 +164,11 @@ const CurrencyRates = () => {
                     </span>
                   </td>
                   <td className="text-center font-bold text-gray-800 text-xl tracking-tight">
-                    {convertToNPR(Number(value))}
+                    {(Number(value)).toFixed(2)}
                   </td>
                   <td className="text-center font-bold text-gray-400 text-xl tracking-tight italic">
                     {/* Simulating a 'Sell' rate by adding a small margin */}
-                    {convertToNPR(Number(value) * 1.05)}
+                    {(Number(value) * 1.05).toFixed(2)}
                   </td>
                 </tr>
               ))}

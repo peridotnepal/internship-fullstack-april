@@ -73,7 +73,7 @@ const NepseData = () => {
         // This style object ensures the captured area has enough room
         style: {
           margin: "0",
-          padding: "10px",
+          padding: "",
           width: "1000px", // Force a consistent width for the "paper" size
         },
       });
@@ -108,7 +108,7 @@ const NepseData = () => {
       {/* HEADER */}
       <div
         id="full-page-content"
-        className="max-w-7xl mx-auto p-6 space-y-6 shadow-2xl"
+        className="max-w-7xl mx-auto p-6 space-y-6 "
       >
         <div className="flex justify-center  ">
           <h1 className="text-2xl font-bold tracking-tight bg-blue-700 text-white p-5  items-center rounded-3xl">
