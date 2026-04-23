@@ -231,7 +231,7 @@ pnpm dev  # Start Next.js development server
 ### NepseSummary Module
 
 <p align="center">
-<img src="./asset/NepseMarket.png" width="300"/>
+<img src="./asset/nepse.png" width="300"/>
 </p>
 
 ### FuelPrice Module
@@ -243,15 +243,15 @@ pnpm dev  # Start Next.js development server
 ### CurrencyExchange Module
 
 <p align="center">
-<img src="./asset/Currecy.png" width="300"/>
-<img src="./asset/Currency-Exchange.png" width="300">
+<img src="./asset/currency.png" width="300"/>
+
 </p>
 
 ### GoldAndSliverRate Module
 
 <p align="center">
-<img src="./asset/GoldRates.png" width="300"/>
-<img src="./asset/sliverRates.png" width="300"/>
+<img src="./asset/gold.png" width="300"/>
+
 </p>
 
 ### BankFD Module
@@ -264,18 +264,19 @@ pnpm dev  # Start Next.js development server
 
 <p align="center">
 <img src="./asset/news.png" width="300"/>
+<img src="./asset/new.png" width="300"/>
 </p>
 
 ### AGM Module
 
 <p align="center">
-<img src="./asset/AGM-Rates.png" width="300"/>
+<img src="./asset/AGM.png" width="300"/>
 </p>
 
 ### NepseSectorWise Graph
 
 <p align="center">
-<img src="./asset/Sector-Performance.png" width="300"/>
+<img src="./asset/sector.png" width="300"/>
 </p>
 
 ### Did You Know
