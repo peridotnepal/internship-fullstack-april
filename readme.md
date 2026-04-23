@@ -63,6 +63,7 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - [x] **AGM Module** - Annual General Meeting information
 - [x] **Sector Performance Module**
 - [x] **Energy Update Module**
+- [x] **Did You Know Section** - Market facts displayed globally across all pages
 
 ### Backend Services (Completed)
 
@@ -73,7 +74,6 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - [x] **News Parser Service** - RSS feed and web-based news collection
 - [x] **AGM Scraper Service** - Annual general meeting data extraction
 - [x] **Cron Job Scheduler** - Automated periodic data refresh
-- [ ] Did You Know Section
 
 ### Pending Features
 
@@ -82,6 +82,14 @@ A comprehensive financial data dashboard built with Next.js frontend and Node.js
 - [x] Download full layout as Instagram-ready post
 
 ## Recent Updates (Latest Changes)
+
+### Global DoYouKnow Component
+
+- **Made DoYouKnow component global**: Added to root layout for consistent display across all pages
+  - Component now renders in `app/layout.tsx` using the Providers wrapper
+  - Automatically appears on every page without need for individual imports
+  - Shows random market facts at configurable intervals (dev: 10 seconds, production: 10 minutes)
+  - Removed from individual page components to prevent duplication
 
 ### State Management Improvements
 
@@ -218,7 +226,7 @@ pnpm dev  # Start Next.js development server
 - Gold & Silver Rates
 - Petroleum Prices
 
-## Screenshot
+## Exported Images
 
 ### NepseSummary Module
 
@@ -269,3 +277,18 @@ pnpm dev  # Start Next.js development server
 <p align="center">
 <img src="./asset/Sector-Performance.png" width="300"/>
 </p>
+
+### Did You Know
+
+<p align="center">
+<img src="./asset/DidYouKnow.png" width="300"/>
+<p>
+<p align="center">
+<img src="./asset/DidYouKnow1.png" width="300"/>
+<p>
+<p align="center">
+<img src="./asset/DidYouKnow2.png" width="300"/>
+<p>
+<p align="center">
+<img src="./asset/DidYouKnow3.png" width="300"/>
+<p>
