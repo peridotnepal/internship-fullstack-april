@@ -5,12 +5,16 @@ import "./globals.css";
 import Providers from "@/provider/tanstack";
 import DoYouKnow from "@/components/DoYouKnow";
 import localFont from "next/font/local";
-
+import { Noto_Serif_Devanagari } from "next/font/google";
 const abhinav = localFont({
   src: "../public/fonts/Abhinav.ttf", // Path relative to this file
   variable: "--font-abhinav",
 });
-
+const devanagari = Noto_Serif_Devanagari({
+  weight: "400",
+  subsets: ["devanagari"],
+  variable: "--font-devanagari",
+});
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${abhinav.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${abhinav.variable} ${devanagari.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col ">
         <Providers>

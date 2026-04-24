@@ -159,7 +159,7 @@ const SliverAndGold = () => {
             {/* Content wrapper */}
             <div className="relative z-10 w-full flex flex-col items-center">
               {/* Title */}
-              <p className="font-abhinav text-5xl text-[#7a4407] uppercase font-bold mb-8">
+              <p className="font-xyz text-5xl text-[#7a4407] uppercase font-bold mb-8">
                 - सुन चाँदीको मूल्य _
               </p>
 
@@ -167,8 +167,8 @@ const SliverAndGold = () => {
               <div className="relative flex items-center justify-between mt-5 px-10 w-full">
                 {/* Gold */}
                 <div className="flex flex-col items-center ">
-                  <img src="./image/gg.png" className="w-36 h-auto  mb-2" />
-                  <span className="text-[#7a4407] text-xl mb-3">
+                  <img src="./image/gg.png" className="  w-36 h-auto  mb-2" />
+                  <span className="text-[#7a4407] text-xl mb-3 font-xyz">
                     सुनको मूल्य
                   </span>
                   <h2 className="text-[30px] flex  justify-center items-center gap-2 text-[#7a4407] whitespace-nowrap">
@@ -180,7 +180,7 @@ const SliverAndGold = () => {
                 {/* Silver */}
                 <div className="flex flex-col items-center">
                   <img src="./image/ss.png" className="w-36 h-auto  mb-2" />
-                  <span className="text-[#7a4407] text-xl mb-3">
+                  <span className="text-[#7a4407] text-xl mb-3 font-xyz">
                     चाँदी मूल्य
                   </span>
                   <h2 className="text-[30px] flex justify-center items-center gap-2 text-[#7a4407] whitespace-nowrap">

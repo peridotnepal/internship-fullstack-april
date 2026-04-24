@@ -1,17 +1,21 @@
-import { fontFamily } from "html2canvas/dist/types/css/property-descriptors/font-family";
+import type { Config } from "tailwindcss";
 
-module.exports = {
+const config: Config = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+
   theme: {
     extend: {
       fontFamily: {
-        abhinav: "var(--font-abhinav)",
+        xyz: ["var(--font-abhinav)"],
       },
     },
   },
+
   plugins: [],
 };
+
+export default config;
