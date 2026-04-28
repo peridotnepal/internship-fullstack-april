@@ -43,7 +43,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col ">
         <Providers>
           {children}
-          <DoYouKnow />
+          {/* <DoYouKnow /> */}
         </Providers>
       </body>
     </html>

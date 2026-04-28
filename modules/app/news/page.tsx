@@ -8,10 +8,14 @@ import {
   deleteNews,
   updateNews,
 } from "@/lib/indexeddb";
-import { PlusSquareIcon, X } from "lucide-react";
+import { MailIcon, PlusSquareIcon, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { toPng } from "html-to-image";
 import { useRef } from "react";
+import MobilePostFooter from "@/components/PostsFooter";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
+import JoditEditor from "jodit-react";
 
 const colors = {
   red: "text-red-400",
@@ -36,6 +40,7 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const editor = useRef<JoditEditor | null>(null);
   const pageSize = 4;
   useEffect(() => {
     const fetchNews = async () => {
@@ -66,7 +71,7 @@ export default function Page() {
 
   const exportCardToImage = async (id) => {
     const element = cardRefs.current[id];
-    const hideElements = element?.querySelectorAll("button, select");
+    const hideElements = element?.querySelectorAll("button, select ,section");
     if (!element) return;
 
     hideElements?.forEach((el) => {
@@ -183,9 +188,7 @@ export default function Page() {
                   ref={(el) => {
                     cardRefs.current[item.id] = el;
                   }}
-                  className="relative flex flex-col justify-between 
-    rounded-2xl h-[520px] shadow-lg 
-    overflow-hidden group bg-cover bg-center"
+                  className="relative flex flex-col justify-between h-[520px] shadow-lg overflow-hidden group bg-cover bg-center"
                   style={{
                     backgroundImage: item.image ? `url(${item.image})` : "none",
                   }}
@@ -205,18 +208,20 @@ export default function Page() {
                   </div>
 
                   {/* CONTENT */}
-                  <div className="relative px-6 pb-6 text-white">
+                  <div className="relative px-6 pb-30 text-white">
                     <h2 className="text-2xl font-bold leading-snug text-yellow-300">
                       {item.title}
                     </h2>
 
-                    <p className="mt-3 text-sm leading-relaxed line-clamp-5 text-gray-200">
-                      {item.summary}
-                    </p>
+                    <div
+                      className=" text-sm leading-relaxed line-clamp-5 text-gray-200"
+                      dangerouslySetInnerHTML={{ __html: item.summary }}
+                    />
                   </div>
-
+                  {/* //this is the footer */}
+                  <MobilePostFooter />
                   {/* FOOTER ACTIONS */}
-                  <div className="relative bg-white/95 backdrop-blur p-4 space-y-3">
+                  <section className="relative bg-white/95 backdrop-blur p-4 space-y-3">
                     <div className="flex gap-2">
                       <button
                         onClick={() => setHandleNewsDetails(item)}
@@ -256,7 +261,7 @@ export default function Page() {
                         Update
                       </button>
                     </div>
-                  </div>
+                  </section>
                 </div>
               ))
             )}
@@ -384,7 +389,7 @@ export default function Page() {
       )}
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center ">
+        <div className="fixed inset-0 z-50 bg-black/50 ">
           <div className="h-[350px] w-[400px] bg-white p-4 rounded-xl shadow-md">
             <div className="flex justify-between items-center">
               <h1 className="font-bold text-2xl mb-4 text-center">Add news</h1>
@@ -392,18 +397,15 @@ export default function Page() {
                 <X size={20} onClick={() => setOpen(false)} />
               </button>
             </div>
-
             <input
               className="border p-2 w-full mb-2"
               placeholder="Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-
             <label htmlFor="image" className="block mb-1">
               Upload image
             </label>
-
             <input
               name="image"
               type="file"
@@ -411,14 +413,12 @@ export default function Page() {
               onChange={handleImage}
               className="border p-2 w-full mb-2 cursor-pointer"
             />
-
-            <textarea
-              className="border p-2 w-full mb-2"
-              placeholder="Summary"
+            const editor = useRef(null);
+            <JoditEditor
+              ref={editor}
               value={summary}
-              onChange={(e) => setSummary(e.target.value)}
+              onChange={(newContent) => setSummary(newContent)}
             />
-
             <button
               onClick={() => {
                 handleSave();
