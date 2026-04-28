@@ -1,16 +1,4 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Cell,
-} from "recharts";
 import { toPng } from "html-to-image";
 import {
   Building2,
@@ -21,22 +9,39 @@ import {
   ShieldCheck,
   Zap,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
+const sectorIcons = {
+  BANKING: Building2,
+  DEVBANK: Landmark,
+  FINANCE: HandCoins,
+  HOTELS: Handshake,
+  HYDROPOWER: Zap,
+  INVESTMENT: ShieldCheck,
+  LIFEINSU: ShieldCheck,
+  MANUFACTURE: Building2,
+  MICROFINANCE: HandCoins,
+  MUTUAL: Handshake,
+  NONLIFEINSU: ShieldCheck,
+  OTHERS: Building2,
+  TRADING: LucideChartBarIncreasing,
+};
 export default function SectorPerformance() {
-  const [data, setData] = useState();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/sector");
-        const data = await res.json();
-        setData(data);
-      } catch (err) {
-        console.error("History API error:", err);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/sector");
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("History API error:", err);
+    }
+  };
 
-    fetchData();
-  }, []);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["nepse-snapshot"],
+    queryFn: fetchData,
+    staleTime: 1000 * 60 * 5, // cache 5 min
+  });
 
   const exportToimage = async () => {
     const element = document.getElementById("export-sector");
@@ -76,6 +81,10 @@ export default function SectorPerformance() {
       });
     }
   };
+  const getSectorIcon = (sector) => {
+    const Icon = sectorIcons[sector];
+    return Icon ? <Icon size={16} className="text-gray-700" /> : null;
+  };
 
   return (
     <div id="export-sector" className="w-[900px] mx-auto ">
@@ -107,7 +116,12 @@ export default function SectorPerformance() {
             {data?.data?.map((item, index) => (
               <tr key={index} className="border-b hover:bg-gray-50 transition">
                 {/* Sector */}
-                <td className="p-2 font-semibold text-left">{item.sector}</td>
+                <td className="p-2 font-semibold text-left">
+                  <div className="flex items-center gap-5">
+                    {getSectorIcon(item.sector)}
+                    <span>{item.sector}</span>
+                  </div>
+                </td>
 
                 {/* Rank */}
                 <td className="p-2 text-center">
