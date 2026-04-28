@@ -9,6 +9,7 @@ import nepseScraperRoute from "./routes/nepseScraper.js";
 import agmRoutes from "./routes/agmScraper.js";
 import newsRoutes from "./routes/news.js";
 import petrolRoutes from "./routes/petrolScraper.js";
+import sectorRoutes from "./routes/sectorScraper.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/nepse", nepseScraperRoute);
 app.use("/agm", agmRoutes);
 app.use("/news", newsRoutes);
 app.use("/petrol", petrolRoutes);
+app.use("/sector", sectorRoutes);
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });
