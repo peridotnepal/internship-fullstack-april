@@ -231,7 +231,7 @@ pnpm dev  # Start Next.js development server
 ### NepseSummary Module
 
 <p align="center">
-<img src="./asset/nepse.png" width="300"/>
+<img src="./Assets/nepse.png" width="300"/>
 </p>
 
 ### FuelPrice Module
@@ -243,14 +243,14 @@ pnpm dev  # Start Next.js development server
 ### CurrencyExchange Module
 
 <p align="center">
-<img src="./asset/currency.png" width="300"/>
+<img src="./Assets/ce.png" width="300"/>
 
 </p>
 
 ### GoldAndSliverRate Module
 
 <p align="center">
-<img src="./asset/gold.png" width="300"/>
+<img src="./Assets/gold.png" width="300"/>
 
 </p>
 
@@ -263,26 +263,29 @@ pnpm dev  # Start Next.js development server
 ### News Module
 
 <p align="center">
-<img src="./asset/news.png" width="300"/>
-<img src="./asset/new.png" width="300"/>
+<!-- <img src="./asset/news.png" width="300"/>
+<img src="./asset/new.png" width="300"/> -->
+<img src="./Assets/neeews.png" width="300"/>
 </p>
 
 ### AGM Module
 
 <p align="center">
-<img src="./asset/AGM.png" width="300"/>
+<!-- <img src="./asset/AGM.png" width="300"/> -->
+<img src="./Assets/agm.png" width="300"/>
 </p>
 
 ### NepseSectorWise Graph
 
 <p align="center">
-<img src="./asset/sector.png" width="300"/>
+<!-- <img src="./asset/sector.png" width="300"/> -->
+<img src="./Assets/performance.png" width="300"/>
 </p>
 
 ### Did You Know
 
 <p align="center">
-<img src="./asset/DidYouKnow.png" width="300"/>
+<!-- <img src="./asset/DidYouKnow.png" width="300"/>
 <p>
 <p align="center">
 <img src="./asset/DidYouKnow1.png" width="300"/>
@@ -291,5 +294,6 @@ pnpm dev  # Start Next.js development server
 <img src="./asset/DidYouKnow2.png" width="300"/>
 <p>
 <p align="center">
-<img src="./asset/DidYouKnow3.png" width="300"/>
+<img src="./asset/DidYouKnow3.png" width="300"/> -->
+<img src="./Assets//dd.png" width="300"/>
 <p>
