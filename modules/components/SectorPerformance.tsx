@@ -42,7 +42,7 @@ export default function SectorPerformance() {
     queryFn: fetchData,
     staleTime: 1000 * 60 * 5, // cache 5 min
   });
-
+ const sectorData = data?.data || [];
   const exportToimage = async () => {
     const element = document.getElementById("export-sector");
 
@@ -113,7 +113,7 @@ export default function SectorPerformance() {
           </thead>
 
           <tbody>
-            {data?.data?.map((item, index) => (
+            {sectorData?.map((item, index) => (
               <tr key={index} className="border-b hover:bg-gray-50 transition">
                 {/* Sector */}
                 <td className="p-2 font-semibold text-left">

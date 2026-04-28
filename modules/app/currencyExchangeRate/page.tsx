@@ -3,12 +3,8 @@ import React, { useState, useMemo } from "react";
 import { useCurrencyRates } from "@/hooks/useCurrency";
 import Navbar from "@/components/Navbar";
 import { toPng } from "html-to-image";
-import { DotGothic16 } from "next/font/google";
-const dotFont = DotGothic16({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
+import { useQuery } from "@tanstack/react-query";
+
 const CurrencyRates = () => {
   const {
     rates,
@@ -19,6 +15,13 @@ const CurrencyRates = () => {
     convertToNPR,
     allRates,
   } = useCurrencyRates();
+
+  const flag = async () => {
+    const CurrencyFlag = await fetch(
+      "https://restcountries.com/v3.1/all?fields=currencies,flag,name",
+    );
+    return CurrencyFlag.json();
+  };
 
   const [page, setPage] = useState(1);
   const [editingKey, setEditingKey] = useState(null);
@@ -104,6 +107,34 @@ const CurrencyRates = () => {
     }
   };
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["flag"],
+    queryFn: flag,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const currencyToInfo = useMemo(() => {
+    if (!data) return new Map();
+
+    const map = new Map();
+
+    data.forEach((country) => {
+      const flag = country.flag;
+      const countryName = country.name?.common || "Unknown";
+      const currencies = country.currencies;
+
+      Object.keys(currencies).forEach((currencyCode) => {
+        map.set(currencyCode, {
+          flag,
+          countryName,
+        });
+      });
+    });
+
+    return map;
+  }, [data]);
+
+  if (isLoading) return <div>Loading...</div>;
   return (
     <div>
       <Navbar />
@@ -156,15 +187,15 @@ const CurrencyRates = () => {
                 <tr key={currency} className="group">
                   <td className="py-3 flex items-center gap-3">
                     {/* Mock Flag Circle */}
-                    <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 flex items-center justify-center font-bold text-xs text-gray-500 shadow-inner">
-                      {currency}
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl leading-none">
+                      {currencyToInfo.get(currency)?.flag || "🌐"}
                     </div>
                     <span className="font-bold text-gray-700 text-lg">
-                      {currency}
+                      {currencyToInfo.get(currency)?.countryName}
                     </span>
                   </td>
                   <td className="text-center font-bold text-gray-800 text-xl tracking-tight">
-                    {(Number(value)).toFixed(2)}
+                    {Number(value).toFixed(2)}
                   </td>
                   <td className="text-center font-bold text-gray-400 text-xl tracking-tight italic">
                     {/* Simulating a 'Sell' rate by adding a small margin */}
@@ -197,19 +228,18 @@ const CurrencyRates = () => {
           </div>
 
           <select
-            value=""
+            multiple
+            value={selectedCurrencies}
             onChange={(e) => {
-              const val = e.target.value;
-              if (!val) return;
-              setSelectedCurrencies((prev) =>
-                prev.includes(val)
-                  ? prev.filter((c) => c !== val)
-                  : [...prev, val],
+              const selected = Array.from(
+                e.target.selectedOptions,
+                (option) => option.value,
               );
+
+              setSelectedCurrencies(selected);
             }}
-            className="bg-white border rounded p-1 text-sm"
+            className="bg-white border rounded p-2 text-sm h-40 w-48"
           >
-            <option value="">Add/Remove Currency</option>
             {Object.keys(rates).map((cur) => (
               <option key={cur} value={cur}>
                 {cur}

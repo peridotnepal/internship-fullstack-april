@@ -13,6 +13,7 @@ import { useClock } from "@/hooks/useClock";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 const OUNCE_TO_TOLA = 2.667;
 const TOLA_TO_GRAM = 11.6638;
@@ -100,6 +101,14 @@ const SliverAndGold = () => {
       setIsDownloading(false);
     }
   };
+
+  const previousGold = 261000;
+  const previosSilver = 4149;
+
+  const goldPriceChange = ((goldValue - previousGold) / previousGold) * 100;
+  const silverPriceChange =
+    ((silverValue - previosSilver) / previosSilver) * 100;
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -175,6 +184,23 @@ const SliverAndGold = () => {
                     <span className="text-3xl opacity-80">Rs</span>
                     <span>{Number(goldValue).toLocaleString("en-IN")}</span>
                   </h2>
+                  <span className="flex items-center gap-1 text-sm font-semibold">
+                    {goldPriceChange > 0 ? (
+                      <>
+                        <TrendingUp className="text-green-600 w-4 h-4" />
+                        <span className="text-green-600">
+                          {goldPriceChange.toFixed(2)}%
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <TrendingDown className="text-red-600 w-4 h-4" />
+                        <span className="text-red-600">
+                          {goldPriceChange.toFixed(2)}%
+                        </span>
+                      </>
+                    )}
+                  </span>
                 </div>
 
                 {/* Silver */}
@@ -187,6 +213,23 @@ const SliverAndGold = () => {
                     <span className="text-3xl opacity-80">Rs</span>
                     <span>{Number(silverValue).toLocaleString("en-IN")}</span>
                   </h2>
+                  <span className="flex items-center gap-1 text-sm font-semibold">
+                    {silverPriceChange > 0 ? (
+                      <>
+                        <TrendingUp className="text-green-600 w-4 h-4" />
+                        <span className="text-green-600">
+                          {silverPriceChange.toFixed(2)}%
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <TrendingDown className="text-red-600 w-4 h-4" />
+                        <span className="text-red-600">
+                          {silverPriceChange.toFixed(2)}%
+                        </span>
+                      </>
+                    )}
+                  </span>
                 </div>
 
                 {/* Divider (ABSOLUTE — does NOT affect layout) */}
