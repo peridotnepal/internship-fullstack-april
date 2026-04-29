@@ -301,5 +301,5 @@ pnpm dev  # Start Next.js development server
 ### news Template
 
 <p align="center">
-<img src="./Assets/template.png.png" width="300"/>
+<img src="./Assets/template.png" width="300"/>
 </p>
