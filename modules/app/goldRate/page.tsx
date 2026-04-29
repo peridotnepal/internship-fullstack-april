@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon, DollarSign } from "lucide-react";
+import { CalendarIcon, DollarSign, MenuIcon } from "lucide-react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import React, { useEffect } from "react";
@@ -14,6 +14,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import GoldSidebar from "@/components/goldSidebar";
 
 const OUNCE_TO_TOLA = 2.667;
 const TOLA_TO_GRAM = 11.6638;
@@ -25,6 +26,9 @@ const SliverAndGold = () => {
 
   const { price, selectedCurrency, setSelectedCurrency } = useTodayMetals();
   const { selectedDate, setSelectedDate, selectedPrice } = useGoldHistory();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [goldPrice, setGoldPrice] = React.useState(0);
+  const [silverPrice, setSilverPrice] = React.useState(0);
 
   // const [rates, setRates] = React.useState({});
   const [type, setType] = React.useState("gold");
@@ -60,8 +64,13 @@ const SliverAndGold = () => {
   const goldTola = convertToTola(goldOz);
   const silverTola = convertToTola(silverOz);
 
-  const goldValue = unit === "tola" ? goldTola : convertToGram(goldTola);
-  const silverValue = unit === "tola" ? silverTola : convertToGram(silverTola);
+  const finalGoldTola = goldPrice > 0 ? goldPrice : goldTola;
+  const finalSilverTola = silverPrice > 0 ? silverPrice : silverTola;
+  const goldValue =
+    unit === "tola" ? finalGoldTola : convertToGram(finalGoldTola);
+
+  const silverValue =
+    unit === "tola" ? finalSilverTola : convertToGram(finalSilverTola);
 
   const downloadInstagramPost = async () => {
     if (typeof window === "undefined" || isDownloading) return;
@@ -117,6 +126,9 @@ const SliverAndGold = () => {
           <h1 className="text-4xl font-black text-black tracking-tight">
             Gold & Silver Rates
           </h1>
+          <button onClick={() => setIsOpen(!isOpen)}>
+            <MenuIcon />
+          </button>
 
           <p className="text-sm font-medium text-gray-500 mt-1">
             {new Date().toLocaleDateString()} — {time}
@@ -321,6 +333,13 @@ const SliverAndGold = () => {
           </div>
         </div>
       </main>
+      {isOpen && (
+        <GoldSidebar
+          onClose={() => setIsOpen(false)}
+          setGoldPrice={setGoldPrice}
+          setSilverPrice={setSilverPrice}
+        />
+      )}
     </div>
   );
 };
