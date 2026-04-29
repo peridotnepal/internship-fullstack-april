@@ -297,3 +297,9 @@ pnpm dev  # Start Next.js development server
 <img src="./asset/DidYouKnow3.png" width="300"/> -->
 <img src="./Assets//dd.png" width="300"/>
 <p>
+
+### news Template
+
+<p align="center">
+<img src="./Assets/template.png.png" width="300"/>
+</p>
